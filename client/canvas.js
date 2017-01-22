@@ -2,8 +2,10 @@ var canvas;
 var context;
 var board;
 
-var rows = 30;
-var columns = 30;
+const ROW_UNIT = 15;
+const COLUMN_UNIT = 15;
+var rows = 50;
+var columns = 50;
 
 var EMPTY = 0;
 var SNAKE = 1;
@@ -56,8 +58,8 @@ function init_canvas()  {
 
     // Create a canvas
     canvas = document.createElement("canvas");
-    canvas.width = columns*15;
-    canvas.height = rows*15;
+    canvas.width = columns*COLUMN_UNIT;
+    canvas.height = rows*ROW_UNIT;
     context = canvas.getContext("2d");
 
     // add the canvas element to the body of the document
