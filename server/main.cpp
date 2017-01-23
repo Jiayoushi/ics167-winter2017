@@ -16,7 +16,7 @@ int p2_id;
 int p1_score = 0;
 int p2_score = 0;
 
-/* log helper */
+/* Helpers */
 void log(string message)
 {
 	std::cout << "[LOG] " << message << std::endl;
@@ -25,29 +25,29 @@ void log(string message)
 /* called when a client connects */
 void openHandler(int clientID)
 {
-	log("Connection opened. Client ID: " + clientID);
+	log("Connection opened. Client ID: " + std::to_string(clientID));
 	std::vector<int> clientIDs = server.getClientIDs();
 
-	if (clientIDs.size >= 1)
+	if (clientIDs.size() >= 2)
 	{
-		server.wsSend(clientID, "There are already a machine connected. Rejecting your connection.");
+		server.wsSend(clientID, "There is already a machine connected. Rejecting your connection..");
 		server.wsClose(clientID);
-		log("Connection forcefully closed. (Reason: a connection already exists.) Client ID: " + clientID);
+		log("Connection forcefully closed. (Reason: a connection already exists.) Client ID: " + std::to_string(clientID));
 	} 
-	else server.wsSend(clientID, "Connection initialized."); // TODO: implement ID and Score checking.
+	else server.wsSend(clientID, "Connection established."); // TODO: implement ID and Score checking.
 }
 
 /* called when a client disconnects */
 void closeHandler(int clientID) 
 {
-	log("Connection closed. Client ID: " + clientID);
+	log("Connection closed. Client ID: " + std::to_string(clientID));
 	server.wsSend(clientID, "Connection closed.");
 }
 
 /* called when a client sends a message to the server */
 void messageHandler(int clientID, string message) 
 {
-	log("Client ID " + std::to_string(clientID) + "says: ");
+	log("Client ID " + std::to_string(clientID) + " says: " + message);
 }
 
 /* Begin Main Function */
