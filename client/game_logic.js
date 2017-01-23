@@ -191,9 +191,11 @@ function detect_out_of_bound()
 {   
     if(p1snake[0].x<0 || p1snake[0].x>COLS || p1snake[0].y<0 || p1snake[0].y>ROWS)
     {
+	document.getElementById('Restart').style.visibility = 'visible';//Reveal Restart Button
         return -1;
     } else if (p2snake[0].x<0 || p2snake[0].x>COLS || p2snake[0].y<0 || p2snake[0].y>ROWS)
     {
+	document.getElementById('Restart').style.visibility = 'visible';
         return -1;
     }
     return 0;
@@ -213,12 +215,14 @@ function detect_snake_collision()
         // Detect collision with itself
         if(i!=0 && p1_x === p1snake[i].x && p1_y === p1snake[i].y)
         {
+	    document.getElementById('Restart').style.visibility = 'visible';
             return -1;
         }
 
         // Detect collision with the other snake
         if(p1_x === p2snake[i].x && p1_y === p2snake[i].y) 
         {
+	    document.getElementById('Restart').style.visibility = 'visible';
             return -1;
         }
     }
@@ -230,10 +234,12 @@ function detect_snake_collision()
     {
         if(i!=0 && p2_x === p2snake[i].x && p2_y === p2snake[i].y)
         {
+	    document.getElementById('Restart').style.visibility = 'visible';
             return -1;
         }
         if(p2_x === p1snake[i].x && p2_y === p1snake[i].y) 
         {
+	    document.getElementById('Restart').style.visibility = 'visible';
             return -1;
         }
     }
