@@ -5,8 +5,10 @@
 	<style>
 		input, textarea {border:1px solid #CCC;margin:0px;padding:0px}
 
-        #ip {line-height:20px}
-        #port {line-height:20px}
+        	#ip {line-height:20px}
+        	#port {line-height:20px}
+		#p1id {line-height:20px}
+		#p2id {line-height:20px}
 		#body {max-width:800px;margin:auto}
 		#log {width:100%;height:400px}
 		#message {width:100%;line-height:20px}
@@ -45,6 +47,8 @@
 			Server.bind('open', function() {
                 document.getElementById("cntBtn").disabled = true;
 				log( "Connected." );
+				//Server.send('p1id', document.getElementById('p1id').value);
+				//Server.send('p2id', document.getElementById('p2id').value);
 			});
 
 			//OH NOES! Disconnection occurred.
@@ -65,11 +69,14 @@
 </head>
 
 <body>
-	<div id='body'>
-        Server ip: <input type='text' id='ip' name='ip'>
-        Server port: <input type='text' id='port' name='port'>
-        <button type="button" id='cntBtn' onclick="connect();">Connect</button>
-		<textarea id='log' name='log' readonly='readonly'></textarea><br/>
+	<div id='body' align=center>
+        	Server ip: <input type='text' id='ip' name='ip'>
+        	Server port: <input type='text' id='port' name='port'><br/>
+		Player 1 ID: <input type='text', id='p1id' name='p1id'>
+		Player 2 ID: <input type='text', id='p2id' name='p2id'><br/>
+	
+		<button type="button" id='cntBtn' onclick="connect();">Connect</button><br/>
+		<textarea rows="50" cols="100" id='log' name='log' readonly='readonly'></textarea><br/>
 		<input type='text' id='message' name='message' />
 	</div>
 </body>
