@@ -189,10 +189,10 @@ function fill(x,y, color)
 // Return -1 when one of the snake goes out of bound, return 0 when no snake out of bound. Simultaneous out of bound not yet considered.
 function detect_out_of_bound()
 {   
-    if(p1snake[0].x<0 || p1snake[0].x>30 || p1snake[0].y<0 || p1snake[0].y>30)
+    if(p1snake[0].x<0 || p1snake[0].x>COLS || p1snake[0].y<0 || p1snake[0].y>ROWS)
     {
         return -1;
-    } else if (p2snake[0].x<0 || p2snake[0].x>30 || p2snake[0].y<0 || p2snake[0].y>30)
+    } else if (p2snake[0].x<0 || p2snake[0].x>COLS || p2snake[0].y<0 || p2snake[0].y>ROWS)
     {
         return -1;
     }
