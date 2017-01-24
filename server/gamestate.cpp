@@ -20,35 +20,26 @@ GameState::GameState(std::string player1ID, std::string player2ID)
 
 std::string GameState::getPlayerID(int player)
 {
-	return (player == PLAYER_1 ? player1ID : player2ID);
+	return (player == PLAYER_1 ? this->player1ID : this->player2ID);
 }
 
 int GameState::getPlayerScore(int player)
 {
-	return (player == PLAYER_1 ? player1Score : player2Score);
+	return (player == PLAYER_1 ? this->player1Score : this->player2Score);
 }
 
 int GameState::incrementScore(int player)
 {
-	if (player == PLAYER_1)
-	{
-		player1Score++;
-		return player1Score;
-	}
-	else
-	{
-		player2Score++;
-		return player2Score;
-	}
+	return (player == PLAYER_1 ? (++(this->player1Score)) : (++(this->player2Score))); // this could cause problems but i doubt it. one liners r the best
 }
 
 void GameState::setPlayerID(int player, std::string id)
 {
 	if (player == PLAYER_1)
 	{
-		player1ID = id;
+		this->player1ID = id;
 	}
-	else player2ID = id;
+	else this->player2ID = id;
 }
 
 
@@ -56,7 +47,15 @@ void GameState::setPlayerScore(int player, int score)
 {
 	if (player == PLAYER_1)
 	{
-		player1Score = score;
+		this->player1Score = score;
 	}
-	else player2Score = score;
+	else this->player2Score = score;
+}
+
+void GameState::reset()
+{
+	this->player1ID = "";
+	this->player2ID = "";
+	this->player1Score = 0;
+	this->player2Score = 0;
 }
