@@ -1,11 +1,12 @@
 /*
 	ICS 167 | Group 2
-	Project Server (ver. Milestone 1)
+	Project Server | main.cpp
 	Author: Thomas T Nguyen
 */
 
 #include "websocket.h" // Library authored by the TA.
 #include "json11.hpp" // C++ JSON parser library by MIT at https://github.com/dropbox/json11
+#include "gamestate.h" // Class created to keep track of game state.
 
 #include <iostream>
 #include <vector>
@@ -56,6 +57,7 @@ void messageHandler(int clientID, string message)
 
 	std::string err; // This string is updated with an error message if the json parser fails.
 	auto json = json11::Json::parse(message, err);
+	std::string firedEvent = json["event"].string_value();
 
 	log("Event received: " + json["event"].string_value());
 } 
