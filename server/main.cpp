@@ -4,10 +4,15 @@
 	Author: Thomas T Nguyen
 */
 
+#include "websocket.h" // Library authored by the TA.
+#include "json11.hpp" // C++ JSON parser library by MIT at https://github.com/dropbox/json11
+
 #include <iostream>
 #include <vector>
-#include "websocket.h" // Library authored by the TA.
 #include <string>
+#include <map>
+
+typedef json11::Json JSON;
 
 /* Begin Variables */
 webSocket server;
@@ -48,7 +53,12 @@ void closeHandler(int clientID)
 void messageHandler(int clientID, string message) 
 {
 	log("Client ID " + std::to_string(clientID) + " says: " + message);
-}
+
+	std::string err; // This string is updated with an error message if the json parser fails.
+	auto json = json11::Json::parse(message, err);
+
+	log("Event received: " + json["event"].string_value());
+} 
 
 /* Begin Main Function */
 int main()
