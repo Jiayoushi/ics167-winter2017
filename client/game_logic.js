@@ -45,13 +45,14 @@ var rewards;
 function init_canvas() 
 {
     // Create and initiate the canvas element
-    canvas = document.createElement("canvas");
+    //canvas = document.createElement("canvas");
+	canvas = document.getElementById("myCanvas");
     canvas.width = width;
     canvas.height = height;
     ctx = canvas.getContext("2d");
 
     // Add the canvas element to the body of the document
-    document.body.appendChild(canvas);
+    //document.body.appendChild(canvas);
 }
 
 

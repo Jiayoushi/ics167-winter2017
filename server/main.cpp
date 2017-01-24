@@ -73,6 +73,10 @@ void messageHandler(int clientID, string message)
 		}
 		log("New player ID set for " + std::to_string(json["player"].int_value()) + ": " + json["id"].string_value());
 	}
+	else
+	{
+		server.wsSend(clientID, "Received unexpected message: " + message);
+	}
 } 
 
 /* Begin Main Function */
