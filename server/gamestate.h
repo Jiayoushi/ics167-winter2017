@@ -7,8 +7,8 @@
 #ifndef GAMESTATEPROJECTICS167
 #define GAMESTATEPROJECTICS167
 
-#define PLAYER_1 0
-#define PLAYER_2 1
+#define PLAYER_1 1
+#define PLAYER_2 2
 
 #include <string>
 
