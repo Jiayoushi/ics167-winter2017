@@ -325,6 +325,7 @@ function detect_rewards()
     var index_1 = -1;
     if( (index_1 = detect_collision(p1snake,rewards,0)) != -1)
     {
+
         p1_score++;
         add_tail(p1snake);
     }
@@ -348,6 +349,8 @@ function process_rewards(indexes)
         {
             delete_node(rewards,indexes[i]);
             randomize_reward();
+
+            return -1;
         }
     }
 }
@@ -371,6 +374,7 @@ function detect_collision(object1,object2,n)
     {
         if(object1_x === object2[i].x && object1_y === object2[i].y)
         {
+
             return i;
         }
     }
