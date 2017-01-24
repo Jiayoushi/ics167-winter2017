@@ -438,6 +438,10 @@ function detect_rewards()
 
         p1_score++;
         add_tail(p1snake);
+		if (online)
+		{
+			sendPlayerScoreEvent(1);
+		}
 	    
 	text_Ctx.fillStyle = 'white'; 		// White out old score text.
 	text_Ctx.fillRect(p1_scoretext_x, scoretext_y-10,30,10);
@@ -450,11 +454,16 @@ function detect_rewards()
     {
         p2_score++;
         add_tail(p2snake);
-	    
+		if (online)
+		{
+			sendPlayerScoreEvent(2);
+		}
+		
 	text_Ctx.fillStyle = 'white'; 		// White out old score text.
 	text_Ctx.fillRect(p2_scoretext_x, scoretext_y-10,30,10);
 	text_Ctx.fillStyle = 'black'; 		// Write in new score.
 	text_Ctx.fillText(p2_score, p2_scoretext_x, scoretext_y)
+
     }
 
     return [index_1,index_2];

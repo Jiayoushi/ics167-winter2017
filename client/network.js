@@ -1,4 +1,5 @@
 var Server;
+var online = false;
 
 /* Begin TA Functions */
 function log( text ) 
@@ -59,6 +60,12 @@ function sendSetPlayerIDEvent(player, id)
 {
 	send("{\"event\": \"setPlayerIDEvent\", \"player\": " + player + ", \"id\":\"" + id + "\"}"); // JSON example: JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
 	log("[Client] Sent message: " + "{\"event\": \"setPlayerIDEvent\", \"player\": " + player + ", \"id\":\"" + id + "\"}");
+}
+
+function sendPlayerScoreEvent(player)
+{
+	send("{\"event\": \"playerScoreEvent\", \"player\": " + player + "}"); // JSON example: JSON example -> {"event": "playerScoreEvent", "player": 1}
+	log("[Client] Sent message: " + "{\"event\": \"setPlayerIDEvent\", \"player\": " + player + "}");
 }
 
 

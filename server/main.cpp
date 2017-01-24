@@ -58,6 +58,7 @@ void messageHandler(int clientID, string message)
 
 	log("Event received: " + firedEvent + " | Error (if any): " + err);
 
+	// note: we can move all of this to a function later
 	// Begin Event Handling
 	if (firedEvent == "setPlayerIDEvent") // JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
 	{
@@ -72,6 +73,26 @@ void messageHandler(int clientID, string message)
 			server.wsSend(clientID, "Player 2 ID set to " + json["id"].string_value());
 		}
 		log("New player ID set for " + std::to_string(json["player"].int_value()) + ": " + json["id"].string_value());
+	}
+	else if (firedEvent == "playerScoreEvent")
+	{
+		if (json["player"].int_value() == PLAYER_1)
+		{
+			gameState.incrementScore(PLAYER_1);
+			server.wsSend(clientID, "Player 1 scored and now has " + std::to_string(gameState.getPlayerScore(PLAYER_1)) + " point(s).");
+		}
+		else
+		{
+			gameState.incrementScore(PLAYER_2);
+			server.wsSend(clientID, "Player 2 scored and now has " + std::to_string(gameState.getPlayerScore(PLAYER_2)) + " point(s).");
+		}
+		log("Player " + std::to_string(json["player"].int_value()) + " scored. New score: " + std::to_string(gameState.getPlayerScore(json["player"].int_value())));
+	}
+	else if (firedEvent == "gameFinishedEvent") // NOTE: resets IDs as well...! might need to change that later.
+	{ // TODO: implement this in client.
+		gameState.reset(); 
+		server.wsSend(clientID, "Game state has been reset.");
+		log("Game state has been reset.");
 	}
 	else
 	{
