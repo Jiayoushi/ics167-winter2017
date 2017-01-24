@@ -17,10 +17,7 @@ typedef json11::Json JSON;
 
 /* Begin Variables */
 webSocket server;
-int p1_id;
-int p2_id;
-int p1_score = 0;
-int p2_score = 0;
+GameState gameState;
 
 /* Helpers */
 void log(string message)
@@ -53,13 +50,29 @@ void closeHandler(int clientID)
 /* called when a client sends a message to the server */
 void messageHandler(int clientID, string message) 
 {
-	log("Client ID " + std::to_string(clientID) + " says: " + message);
+	log("Message received by Client ID " + std::to_string(clientID) + ": " + message);
 
 	std::string err; // This string is updated with an error message if the json parser fails.
-	auto json = json11::Json::parse(message, err);
+	auto json = JSON::parse(message, err);
 	std::string firedEvent = json["event"].string_value();
 
-	log("Event received: " + json["event"].string_value());
+	log("Event received: " + firedEvent + " | Error (if any): " + err);
+
+	// Begin Event Handling
+	if (firedEvent == "setPlayerIDEvent") // JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
+	{
+		if (json["player"].int_value() == PLAYER_1) // note: we can move all of this to a function later
+		{
+			gameState.setPlayerID(PLAYER_1, json["id"].string_value());
+			server.wsSend(clientID, "Player 1 ID set to " + json["id"].string_value());
+		}
+		else
+		{
+			gameState.setPlayerID(PLAYER_2, json["id"].string_value());
+			server.wsSend(clientID, "Player 2 ID set to " + json["id"].string_value());
+		}
+		log("New player ID set for " + std::to_string(json["player"].int_value()) + ": " + json["id"].string_value());
+	}
 } 
 
 /* Begin Main Function */
