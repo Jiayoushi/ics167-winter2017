@@ -23,8 +23,17 @@ const KEY_S = 83;
 const KEY_D = 68;
 const KEY_A = 65;
 
+const p1_scoretext_x = 325; 	//Coordinates for int score text
+const p2_scoretext_x = 75;
+const scoretext_y = 50;
+
+var win_Canvas;			// Top Text Canvas
+var win_Ctx;
 var canvas;
 var ctx;
+var text_Canvas;		// Bottom Text Canvas
+var text_Ctx;
+
 var game_interval_ID;       // When the game should be ended, this ID is passed to the function clearInterval(ID) to end the loop.
 
 var p1_score;
@@ -41,9 +50,23 @@ var p2snake;
 var obstacles;
 var rewards;
 
+var p1_win;			// Game winner variables
+var p2_win;
+var tie_game;
 
 function init_canvas() 
 {
+	// Create and initiate top text canvas element
+	win_Canvas = document.getElementById("winCanvas");
+    	win_Canvas.width = width;
+    	win_Canvas.height = height/8;
+    	win_Ctx = win_Canvas.getContext("2d");
+	// Clear canvas when initialized over a restarted game
+	win_Ctx.fillStyle = "white";
+	win_Ctx.fillRect(0,0,width,height/8);
+	win_Ctx.strokeStyle = "black";
+	win_Ctx.strokeRect(0,0, width, height/8);
+	
     // Create and initiate the canvas element
     //canvas = document.createElement("canvas");
 	canvas = document.getElementById("myCanvas");
@@ -53,6 +76,26 @@ function init_canvas()
 
     // Add the canvas element to the body of the document
     //document.body.appendChild(canvas);
+	
+	// Create and initiate bottom text canvas element
+	text_Canvas = document.getElementById("textCanvas");
+    	text_Canvas.width = width;
+    	text_Canvas.height = height/8;
+    	text_Ctx = text_Canvas.getContext("2d");
+
+	// Clear canvas when initialized over a restarted game
+	text_Ctx.fillStyle = "white";
+	text_Ctx.fillRect(0,0,width,height/8);
+	text_Ctx.strokeStyle = "black";
+	text_Ctx.strokeRect(0,0, width,height/8);
+	
+	//Draw const bottom text
+	text_Ctx.fillStyle = 'blue';
+	text_Ctx.fillText("Blue Snake - WASD", 10, scoretext_y-30);
+	text_Ctx.fillText("Blue Score:", 10, scoretext_y);
+	text_Ctx.fillStyle = 'red';
+	text_Ctx.fillText("Red Snake - Arrow Keys", 260, scoretext_y-30);
+	text_Ctx.fillText("Red Score:", 260, scoretext_y);
 }
 
 
@@ -156,7 +199,51 @@ function create_obstacle(pos_x,pos_y,n,direction)
         }
     }
 }
+function determine_winner()
+{
+	// Check if p1 snake collided. If it did, p2 has a potential to win.
+	if(detect_collision(p1snake,p1snake,1)!=-1 || detect_collision(p1snake,p2snake,0)!=-1
+		|| p1snake[0].x<0 || p1snake[0].x>COLS-1 || p1snake[0].y<0 || p1snake[0].y>ROWS-1
+			||detect_collision(p1snake,obstacles,0)!=-1)
+	{
+		p2_win = true;
+	}
+	// Check if p2 snake collided. If it did, p1 has a potential to win.
+	if (detect_collision(p2snake,p2snake,1)!=-1 || detect_collision(p2snake,p1snake,0)!=-1
+		|| p2snake[0].x<0 || p2snake[0].x>COLS-1 || p2snake[0].y<0 || p2snake[0].y>ROWS-1
+			|| detect_collision(p2snake,obstacles,0)!=-1)
+	{
+		p1_win = true;
+	}
+	// Check if both snakes collided, determine whether the game is died based on same score.
+	// If they have different scores, the highest scoring snake wins and their win value
+	// remains true.
+	if(p1_win && p2_win){
+		if(p1_score == p2_score){
+			tie_game = true;
+			p1_win = false;
+			p2_win = false;
+		}else if(p1_score>p2_score){
+			p2_win = false;
+		}else{
+			p1_win = false;	
+		}
+	}
+}
 
+function win_message()
+{
+	//Displays Win Message based on which win value is true.
+	win_Ctx.fillStyle = 'black';
+	if(tie_game){
+		win_Ctx.fillText("Tie Game!", (width/2)-23, 25);
+	}else if(p1_win){
+		win_Ctx.fillText("Red Snake Wins!", (width/2)-40, 25);
+	}else if(p2_win){
+		win_Ctx.fillText("Blue Snake Wins!", (width/2)-40, 25);
+	}
+	
+}
 
 function update()
 {
@@ -166,7 +253,11 @@ function update()
     {   
         // Loop stop
         clearInterval(game_interval_ID);
-
+	    
+	// Check snake collisions for winner on pause
+	determine_winner();
+	win_message();
+	    
         // Restart button pops up
 	    document.getElementById('Restart').style.visibility = 'visible';
     }
@@ -193,8 +284,17 @@ function init_objects()
     init_rewards(); 
 }
 
+function init_win_variables()
+{
+	// These are reset in when main is called in the case of a game restart.
+	p1_win = false;
+	p2_win = false;
+	tie_game = false;
+}
+
 function main()
 {
+    init_win_variables();
     init_canvas();
     init_input();
     init_objects();
@@ -262,6 +362,11 @@ function init_snakes()
 
     p1_score = 0;
     p2_score = 0;
+
+    // Writes score text once init values have been defined.
+    text_Ctx.fillStyle = 'black'; 
+    text_Ctx.fillText(p1_score, p1_scoretext_x, scoretext_y);
+    text_Ctx.fillText(p2_score, p2_scoretext_x, scoretext_y);
 }
 
 
@@ -306,8 +411,12 @@ function fill(x,y, color)
 // Return 1 if any snake goes out of bound, -1 otherwise
 function detect_out_of_bound()
 {   
-   return (p1snake[0].x<0 || p1snake[0].x>COLS || p1snake[0].y<0 || p1snake[0].y>ROWS
-          || p2snake[0].x<0 || p2snake[0].x>COLS || p2snake[0].y<0 || p2snake[0].y>ROWS)? 1:-1;   
+   // 1 is subtracted from Rows and Collumns because 
+   // there are extra free blocks beyond the right and bottom borders.
+   // A snake can be on the border and not greater, therefore hiding it
+   // in the extra block.
+   return (p1snake[0].x<0 || p1snake[0].x>COLS-1 || p1snake[0].y<0 || p1snake[0].y>ROWS-1
+          || p2snake[0].x<0 || p2snake[0].x>COLS-1 || p2snake[0].y<0 || p2snake[0].y>ROWS-1)? 1:-1;   
 }
 
 
@@ -329,6 +438,11 @@ function detect_rewards()
 
         p1_score++;
         add_tail(p1snake);
+	    
+	text_Ctx.fillStyle = 'white'; 		// White out old score text.
+	text_Ctx.fillRect(p1_scoretext_x, scoretext_y-10,30,10);
+	text_Ctx.fillStyle = 'black'; 		// Write in new score.
+	text_Ctx.fillText(p1_score, p1_scoretext_x, scoretext_y);
     }
 
     var index_2 = -1;
@@ -336,6 +450,11 @@ function detect_rewards()
     {
         p2_score++;
         add_tail(p2snake);
+	    
+	text_Ctx.fillStyle = 'white'; 		// White out old score text.
+	text_Ctx.fillRect(p2_scoretext_x, scoretext_y-10,30,10);
+	text_Ctx.fillStyle = 'black'; 		// Write in new score.
+	text_Ctx.fillText(p2_score, p2_scoretext_x, scoretext_y)
     }
 
     return [index_1,index_2];
