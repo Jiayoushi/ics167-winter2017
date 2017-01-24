@@ -207,6 +207,10 @@ function determine_winner()
 			||detect_collision(p1snake,obstacles,0)!=-1)
 	{
 		p2_win = true;
+		if (online)
+		{
+			sendGameFinishedEvent();
+		}
 	}
 	// Check if p2 snake collided. If it did, p1 has a potential to win.
 	if (detect_collision(p2snake,p2snake,1)!=-1 || detect_collision(p2snake,p1snake,0)!=-1
@@ -214,6 +218,10 @@ function determine_winner()
 			|| detect_collision(p2snake,obstacles,0)!=-1)
 	{
 		p1_win = true;
+		if (online)
+		{
+			sendGameFinishedEvent();
+		}
 	}
 	// Check if both snakes collided, determine whether the game is died based on same score.
 	// If they have different scores, the highest scoring snake wins and their win value
@@ -227,6 +235,10 @@ function determine_winner()
 			p2_win = false;
 		}else{
 			p1_win = false;	
+		}
+		if (online)
+		{
+			sendGameFinishedEvent();
 		}
 	}
 }

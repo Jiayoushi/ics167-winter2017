@@ -59,3 +59,15 @@ void GameState::reset()
 	this->player1Score = 0;
 	this->player2Score = 0;
 }
+
+void GameState::resetScores()
+{
+	this->player1Score = 0;
+	this->player2Score = 0;
+}
+
+void GameState::resetIDs()
+{
+	this->player1ID = "";
+	this->player2ID = "";
+}

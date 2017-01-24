@@ -68,4 +68,10 @@ function sendPlayerScoreEvent(player)
 	log("[Client] Sent message: " + "{\"event\": \"setPlayerIDEvent\", \"player\": " + player + "}");
 }
 
+function sendGameFinishedEvent()
+{
+	send("{\"event\": \"gameFinishedEvent\"" + "}"); // JSON example: JSON example -> {"event": "gameFinishedEvent"}
+	log("[Client] Sent message: " + "{\"event\": \"gameFinishedEvent\"" + "}");
+}
+
 

@@ -27,6 +27,8 @@ class GameState
 		void setPlayerScore(int player, int score);  // set score for a player to score.
 
 		void reset(); // resets scores to 0 and ids to empty string
+		void resetScores();  // resets only scores to 0
+		void resetIDs(); // resets only IDs to empty string
 
 	private:
 		std::string player1ID; // note: unintialized at first.

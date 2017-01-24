@@ -45,6 +45,11 @@ void closeHandler(int clientID)
 {
 	log("Connection closed. Client ID: " + std::to_string(clientID));
 	server.wsSend(clientID, "Connection closed.");
+	if (clientID == 0)
+	{
+		gameState.reset();
+		log("Game state has been completely reset.");
+	}
 }
 
 /* called when a client sends a message to the server */
@@ -88,11 +93,10 @@ void messageHandler(int clientID, string message)
 		}
 		log("Player " + std::to_string(json["player"].int_value()) + " scored. New score: " + std::to_string(gameState.getPlayerScore(json["player"].int_value())));
 	}
-	else if (firedEvent == "gameFinishedEvent") // NOTE: resets IDs as well...! might need to change that later.
+	else if (firedEvent == "gameFinishedEvent")
 	{ // TODO: implement this in client.
-		gameState.reset(); 
-		server.wsSend(clientID, "Game state has been reset.");
-		log("Game state has been reset.");
+		gameState.resetScores(); 
+		server.wsSend(clientID, "Scores have been reset back to 0.");
 	}
 	else
 	{
