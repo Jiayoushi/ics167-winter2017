@@ -21,7 +21,10 @@
 	</div>
 	
 	<div class="wrapper">
-    		<input type="button" id="Start" value="Game Start" onClick="Start();" />
+    		<input type="button" id="Start" value="Network Game Start" onClick="Start();" />
+	</div>
+	<div class="wrapper">
+    		<input type="button" id="OfflineStart" value="Offline Game Start" onClick="Restart();" />
 	</div>
 	<div class="wrapper">
 		<input type="button" id="Restart" value="Restart" onClick="Restart();" />
@@ -34,6 +37,7 @@
 			connect();
 			main();
 			document.getElementById('Start').style.visibility = 'hidden';
+			document.getElementById('OfflineStart').style.visibility = 'hidden';
 			document.getElementById('Restart').style.visibility = 'hidden';
 		}
 		
@@ -41,6 +45,7 @@
 		{
 			main();
 			document.getElementById('Start').style.visibility = 'hidden';
+			document.getElementById('OfflineStart').style.visibility = 'hidden';
 			document.getElementById('Restart').style.visibility = 'hidden';
 		}
 	</script>
