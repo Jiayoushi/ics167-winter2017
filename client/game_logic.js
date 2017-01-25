@@ -201,12 +201,15 @@ function create_obstacle(pos_x,pos_y,n,direction)
 }
 function determine_winner()
 {
+	// Checks for collision. Returns 1 if collision was made, -1 otherwise.
+	var return_val = -1;
 	// Check if p1 snake collided. If it did, p2 has a potential to win.
 	if(detect_collision(p1snake,p1snake,1)!=-1 || detect_collision(p1snake,p2snake,0)!=-1
-		|| p1snake[0].x<0 || p1snake[0].x>COLS-1 || p1snake[0].y<0 || p1snake[0].y>ROWS-1
 			||detect_collision(p1snake,obstacles,0)!=-1)
+				|| detect_out_of_bound(p1snake)!=-1
 	{
 		p2_win = true;
+		return_val=1;
 		if (online)
 		{
 			sendGameFinishedEvent();
@@ -214,16 +217,17 @@ function determine_winner()
 	}
 	// Check if p2 snake collided. If it did, p1 has a potential to win.
 	if (detect_collision(p2snake,p2snake,1)!=-1 || detect_collision(p2snake,p1snake,0)!=-1
-		|| p2snake[0].x<0 || p2snake[0].x>COLS-1 || p2snake[0].y<0 || p2snake[0].y>ROWS-1
-			|| detect_collision(p2snake,obstacles,0)!=-1)
+		|| detect_collision(p2snake,obstacles,0)!=-1)
+			||  detect_out_of_bound(p2snake)!=-1
 	{
 		p1_win = true;
+		return_val=1;
 		if (online)
 		{
 			sendGameFinishedEvent();
 		}
 	}
-	// Check if both snakes collided, determine whether the game is died based on same score.
+	// Check if both snakes collided, determine whether the game is tied based on same score.
 	// If they have different scores, the highest scoring snake wins and their win value
 	// remains true.
 	if(p1_win && p2_win){
@@ -241,6 +245,7 @@ function determine_winner()
 			sendGameFinishedEvent();
 		}
 	}
+	return return_val;
 }
 
 function win_message()
@@ -260,14 +265,12 @@ function win_message()
 function update()
 {
     // Detect if condition is satisifed to pause the game.
-    if( detect_out_of_bound()!=-1 || detect_snake_collision()!=-1 || 
-        detect_collision(p1snake,obstacles,0)!=-1 || detect_collision(p2snake,obstacles,0)!=-1)
+    if( determine_winner()!=-1)
     {   
         // Loop stop
         clearInterval(game_interval_ID);
 	    
-	// Check snake collisions for winner on pause
-	determine_winner();
+	// Display Win Message based on winner
 	win_message();
 	    
         // Restart button pops up
@@ -420,15 +423,14 @@ function fill(x,y, color)
 }
 
 
-// Return 1 if any snake goes out of bound, -1 otherwise
-function detect_out_of_bound()
+// Return 1 if passed snake array goes out of bound, -1 otherwise
+function detect_out_of_bound(array)
 {   
    // 1 is subtracted from Rows and Collumns because 
    // there are extra free blocks beyond the right and bottom borders.
    // A snake can be on the border and not greater, therefore hiding it
    // in the extra block.
-   return (p1snake[0].x<0 || p1snake[0].x>COLS-1 || p1snake[0].y<0 || p1snake[0].y>ROWS-1
-          || p2snake[0].x<0 || p2snake[0].x>COLS-1 || p2snake[0].y<0 || p2snake[0].y>ROWS-1)? 1:-1;   
+   return (array[0].x<0 || array[0].x>COLS-1 || array[0].y<0 || array[0].y>ROWS-1? 1:-1;   
 }
 
 
