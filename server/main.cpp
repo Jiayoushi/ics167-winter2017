@@ -5,27 +5,63 @@
 */
 
 #include "websocket.h" // Library authored by the TA.
-#include "json11.hpp" // C++ JSON parser library by MIT at https://github.com/dropbox/json11
+#include "json11.hpp" // Open-source C++ JSON parser library by MIT at https://github.com/dropbox/json11
 #include "gamestate.h" // Class created to keep track of game state.
 
 #include <iostream>
 #include <vector>
 #include <string>
-#include <map>
 
 typedef json11::Json JSON;
 
 /* Begin Variables */
+
 webSocket server;
 GameState gameState;
 
-/* Helpers */
+/* Begin Helpers */
+
 void log(string message)
 {
 	std::cout << "[LOG] " << message << std::endl;
 }
 
-/* called when a client connects */
+void new_event(string message) // helps distinguish game state changes from log messages
+{
+	std::cout << "[EVENT] " << message << std::endl;
+}
+
+/* Begin Event Handlers */
+
+void setPlayerIDEventHandler(int clientID, int player, std::string id)
+{
+	log("setPlayerIDEventHandler fired.");
+	std::string previousID = gameState.getPlayerID(player);
+	gameState.setPlayerID(player, id);
+	server.wsSend(clientID, previousID + "'s ID is now set to " + id);
+	new_event("New player ID set for " + previousID + ": " + id);
+}
+
+void playerScoreEventHandler(int clientID, int player)
+{
+	log("playerScoreEventHandler fired.");
+	gameState.incrementScore(player);
+	server.wsSend(clientID, gameState.getPlayerID(player) + " scored and now has " + std::to_string(gameState.getPlayerScore(player)) + " point(s).");
+	new_event(gameState.getPlayerID(player) + " scored. New score: " + std::to_string(gameState.getPlayerScore(player)));
+}
+
+void gameFinishedEventHandler(int clientID) // in the future, the game logic will be handled by the server itself (prob milestone 2)
+{
+	log("gameFinishedEventHandler fired.");
+	server.wsSend(clientID, "Final Scores - (" + gameState.getPlayerID(PLAYER_1) + ": " + std::to_string(gameState.getPlayerScore(PLAYER_1)) + ", "
+		+ gameState.getPlayerID(PLAYER_2) + ": " + std::to_string(gameState.getPlayerScore(PLAYER_2)) + ").");
+	gameState.resetScores();
+	server.wsSend(clientID, "Scores have been reset back to 0.");
+	new_event("Player scores have been reset back to 0 (client finished game.)");
+}
+
+/* Begin Network Handlers */
+
 void openHandler(int clientID)
 {
 	log("Connection opened. Client ID: " + std::to_string(clientID));
@@ -33,26 +69,24 @@ void openHandler(int clientID)
 
 	if (clientIDs.size() >= 2)
 	{
-		server.wsSend(clientID, "There is already a machine connected. Rejecting your connection..");
+		server.wsSend(clientID, "There is already a client connected. Rejecting your connection..");
 		server.wsClose(clientID);
 		log("Connection forcefully closed. (Reason: a connection already exists.) Client ID: " + std::to_string(clientID));
 	} 
-	else server.wsSend(clientID, "Connection established."); // TODO: implement ID and Score checking.
+	else server.wsSend(clientID, "Connection established.");
 }
 
-/* called when a client disconnects */
 void closeHandler(int clientID) 
 {
 	log("Connection closed. Client ID: " + std::to_string(clientID));
 	server.wsSend(clientID, "Connection closed.");
-	if (clientID == 0)
+	if (clientID == 0) // the main client
 	{
 		gameState.reset();
-		log("Game state has been completely reset.");
+		log("Client disconnected. Game state has been completely reset.");
 	}
 }
 
-/* called when a client sends a message to the server */
 void messageHandler(int clientID, string message) 
 {
 	log("Message received by Client ID " + std::to_string(clientID) + ": " + message);
@@ -61,48 +95,25 @@ void messageHandler(int clientID, string message)
 	auto json = JSON::parse(message, err);
 	std::string firedEvent = json["event"].string_value();
 
-	log("Event received: " + firedEvent + " | Error (if any): " + err);
-
-	// note: we can move all of this to a function later
 	// Begin Event Handling
 	if (firedEvent == "setPlayerIDEvent") // JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
 	{
-		if (json["player"].int_value() == PLAYER_1) // note: we can move all of this to a function later
-		{
-			gameState.setPlayerID(PLAYER_1, json["id"].string_value());
-			server.wsSend(clientID, "Player 1 ID set to " + json["id"].string_value());
-		}
-		else
-		{
-			gameState.setPlayerID(PLAYER_2, json["id"].string_value());
-			server.wsSend(clientID, "Player 2 ID set to " + json["id"].string_value());
-		}
-		log("New player ID set for " + std::to_string(json["player"].int_value()) + ": " + json["id"].string_value());
+		setPlayerIDEventHandler(clientID, json["player"].int_value(), json["id"].string_value());
 	}
-	else if (firedEvent == "playerScoreEvent")
+	else if (firedEvent == "playerScoreEvent") // JSON example -> {"event": "playerScoreEvent", "player": 1}
 	{
-		if (json["player"].int_value() == PLAYER_1)
-		{
-			gameState.incrementScore(PLAYER_1);
-			server.wsSend(clientID, "Player 1 scored and now has " + std::to_string(gameState.getPlayerScore(PLAYER_1)) + " point(s).");
-		}
-		else
-		{
-			gameState.incrementScore(PLAYER_2);
-			server.wsSend(clientID, "Player 2 scored and now has " + std::to_string(gameState.getPlayerScore(PLAYER_2)) + " point(s).");
-		}
-		log("Player " + std::to_string(json["player"].int_value()) + " scored. New score: " + std::to_string(gameState.getPlayerScore(json["player"].int_value())));
+		playerScoreEventHandler(clientID, json["player"].int_value());
 	}
-	else if (firedEvent == "gameFinishedEvent")
-	{ // TODO: implement this in client.
-		gameState.resetScores(); 
-		server.wsSend(clientID, "Scores have been reset back to 0.");
+	else if (firedEvent == "gameFinishedEvent") // JSON example -> {"event": "gameFinishedEvent"}
+	{
+		gameFinishedEventHandler(clientID);
 	}
 	else
 	{
+		log("Error (if any): " + err);
 		server.wsSend(clientID, "Received unexpected message: " + message);
 	}
-} 
+}
 
 /* Begin Main Function */
 int main()

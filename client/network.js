@@ -59,19 +59,19 @@ function send( text )
 function sendSetPlayerIDEvent(player, id)
 {
 	send("{\"event\": \"setPlayerIDEvent\", \"player\": " + player + ", \"id\":\"" + id + "\"}"); // JSON example: JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
-	log("[Client] Sent message: " + "{\"event\": \"setPlayerIDEvent\", \"player\": " + player + ", \"id\":\"" + id + "\"}");
+	//log("[Client] Sent message: " + "{\"event\": \"setPlayerIDEvent\", \"player\": " + player + ", \"id\":\"" + id + "\"}");
 }
 
 function sendPlayerScoreEvent(player)
 {
 	send("{\"event\": \"playerScoreEvent\", \"player\": " + player + "}"); // JSON example: JSON example -> {"event": "playerScoreEvent", "player": 1}
-	log("[Client] Sent message: " + "{\"event\": \"setPlayerIDEvent\", \"player\": " + player + "}");
+	//log("[Client] Sent message: " + "{\"event\": \"playerScoreEvent\", \"player\": " + player + "}");
 }
 
 function sendGameFinishedEvent()
 {
 	send("{\"event\": \"gameFinishedEvent\"" + "}"); // JSON example: JSON example -> {"event": "gameFinishedEvent"}
-	log("[Client] Sent message: " + "{\"event\": \"gameFinishedEvent\"" + "}");
+	//log("[Client] Sent message: " + "{\"event\": \"gameFinishedEvent\"" + "}");
 }
 
 

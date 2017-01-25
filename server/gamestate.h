@@ -31,8 +31,8 @@ class GameState
 		void resetIDs(); // resets only IDs to empty string
 
 	private:
-		std::string player1ID; // note: unintialized at first.
-		std::string player2ID; // note: unintialized at first.
+		std::string player1ID = "Player 1";
+		std::string player2ID = "Player 2";
 		int player1Score = 0;
 		int player2Score = 0;
 };

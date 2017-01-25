@@ -52,14 +52,6 @@ void GameState::setPlayerScore(int player, int score)
 	else this->player2Score = score;
 }
 
-void GameState::reset()
-{
-	this->player1ID = "";
-	this->player2ID = "";
-	this->player1Score = 0;
-	this->player2Score = 0;
-}
-
 void GameState::resetScores()
 {
 	this->player1Score = 0;
@@ -68,6 +60,12 @@ void GameState::resetScores()
 
 void GameState::resetIDs()
 {
-	this->player1ID = "";
-	this->player2ID = "";
+	this->player1ID = "Player 1";
+	this->player2ID = "Player 2";
+}
+
+void GameState::reset()
+{
+	this->resetIDs();
+	this->resetScores();
 }
