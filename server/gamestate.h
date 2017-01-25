@@ -1,7 +1,6 @@
 /*
 	ICS 167 | Group 2
 	Project Server | gamestate.h
-	Author: Thomas T Nguyen
 */
 
 #ifndef GAMESTATEPROJECTICS167

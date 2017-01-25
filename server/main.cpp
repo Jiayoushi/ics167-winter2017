@@ -1,7 +1,6 @@
 /*
 	ICS 167 | Group 2
 	Project Server | main.cpp
-	Author: Thomas T Nguyen
 */
 
 #include "websocket.h" // Library authored by the TA.

@@ -1,7 +1,6 @@
 /*
 	ICS 167 | Group 2
 	Project Server | gamestate.cpp
-	Author: Thomas T Nguyen
 */
 
 #include "gamestate.h"
