@@ -205,8 +205,8 @@ function determine_winner()
 	var return_val = -1;
 	// Check if p1 snake collided. If it did, p2 has a potential to win.
 	if(detect_collision(p1snake,p1snake,1)!=-1 || detect_collision(p1snake,p2snake,0)!=-1
-			||detect_collision(p1snake,obstacles,0)!=-1)
-				|| detect_out_of_bound(p1snake)!=-1
+			||detect_collision(p1snake,obstacles,0)!=-1
+				|| detect_out_of_bound(p1snake)!=-1)
 	{
 		p2_win = true;
 		return_val=1;
@@ -217,8 +217,8 @@ function determine_winner()
 	}
 	// Check if p2 snake collided. If it did, p1 has a potential to win.
 	if (detect_collision(p2snake,p2snake,1)!=-1 || detect_collision(p2snake,p1snake,0)!=-1
-		|| detect_collision(p2snake,obstacles,0)!=-1)
-			||  detect_out_of_bound(p2snake)!=-1
+		|| detect_collision(p2snake,obstacles,0)!=-1
+			||  detect_out_of_bound(p2snake)!=-1)
 	{
 		p1_win = true;
 		return_val=1;
@@ -430,7 +430,7 @@ function detect_out_of_bound(array)
    // there are extra free blocks beyond the right and bottom borders.
    // A snake can be on the border and not greater, therefore hiding it
    // in the extra block.
-   return (array[0].x<0 || array[0].x>COLS-1 || array[0].y<0 || array[0].y>ROWS-1? 1:-1;   
+   return (array[0].x<0 || array[0].x>COLS-1 || array[0].y<0 || array[0].y>ROWS-1)? 1:-1;   
 }
 
 
