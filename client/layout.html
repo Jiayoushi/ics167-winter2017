@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Snake Game</title>
+	<title>Snake | ics167-group2</title>
     <meta charset="UTF-8">
 	<link rel="stylesheet" type="text/css" href="./style.css">
 </head>
@@ -9,6 +9,7 @@
 	<script src="./fancywebsocket.js"></script>
 	<script src="./game_logic.js"></script>
 	<script src="./network.js"></script>
+	<script src="./button.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 	
 	<!-- <center><span style="color:darkred">Note: If you want to test the game locally, and it doesn't work initially, go to line 34 of this HTML page and comment it out!</span></center> -->
@@ -30,34 +31,7 @@
 		<input type="button" id="Restart" value="Restart" onClick="Restart();" />
 	</div>
 	
-	<script>
-		document.getElementById('Restart').style.visibility = 'hidden';
-		function Start() 
-		{
-			connect();
-			online = true;
-			main();
-			document.getElementById('Start').style.visibility = 'hidden';
-			document.getElementById('OfflineStart').style.visibility = 'hidden';
-			document.getElementById('Restart').style.visibility = 'hidden';
-		}
-		
-		function Restart()
-		{
-			main();
-			document.getElementById('Start').style.visibility = 'hidden';
-			document.getElementById('OfflineStart').style.visibility = 'hidden';
-			document.getElementById('Restart').style.visibility = 'hidden';
-		}
-		function OfflineStart()
-		{
-			main();
-			online = false;
-			document.getElementById('Start').style.visibility = 'hidden';
-			document.getElementById('OfflineStart').style.visibility = 'hidden';
-			document.getElementById('Restart').style.visibility = 'hidden';
-		}
-	</script>
+	<script>document.getElementById('Restart').style.visibility = 'hidden';</script>
 	
 	<canvas id="winCanvas" width="200" height="100"></canvas>
 	<canvas id="myCanvas" width="200" height="100"></canvas>
@@ -70,9 +44,7 @@
 			Send to Server: <input type='text' id='message' name='message' />
 	</div>
 	
-	<script>
-		log("[Client] Waiting for server information...");
-	</script>
+	<script>log("[Client] Waiting for server information...");</script>
 </body>
 </html>
 
