@@ -39,7 +39,7 @@ function connect()
 	Server.bind('close', function( data ) 
 	{
 		document.getElementById("cntBtn").disabled = false;
-		log( "[Client] Disconnected." );
+		log( "[Client] Disconnected, or no server found." );
 	});
 
 	// Log any messages sent from server
