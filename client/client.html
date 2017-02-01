@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Snake | ics167-group2</title>
+    <meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="./style.css">
+</head>
+<body>
+	<script src="./fancywebsocket.js"></script>
+	<script src="./game_logic.js"></script>
+	<script src="./network.js"></script>
+	<script src="./button.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	
+	<!-- <center><span style="color:darkred">Note: If you want to test the game locally, and it doesn't work initially, go to line 34 of this HTML page and comment it out!</span></center> -->
+	
+	<div id='body' align=center>
+        Server IP: <input type='text' id='ip' name='ip' value="127.0.0.1">
+        Server Port: <input type='text' id='port' name='port' value="1111"><br/>
+		Player 1 ID: <input type='text', id='p1id' name='p1id' value="IAmPlayer1">
+		Player 2 ID: <input type='text', id='p2id' name='p2id' value="Player2TheGod"><br/>
+	</div>
+	
+	<div class="wrapper">
+    		<input type="button" id="Start" value="Network Game Start" onClick="Start();" />
+	</div>
+	<div class="wrapper">
+    		<input type="button" id="OfflineStart" value="Offline Game Start" onClick="OfflineStart();" />
+	</div>
+	<div class="wrapper">
+		<input type="button" id="Restart" value="Restart" onClick="Restart();" />
+	</div>
+	
+	<script>document.getElementById('Restart').style.visibility = 'hidden';</script>
+	
+	<canvas id="winCanvas" width="200" height="100"></canvas>
+	<canvas id="myCanvas" width="200" height="100"></canvas>
+	<canvas id="textCanvas" width="200" height="100"></canvas>
+	
+	</br>
+	
+	<div id='body2' align=center>
+			Log: <textarea rows="5" cols="70" id='log' name='log' readonly='readonly'></textarea><br/>
+			Send to Server: <input type='text' id='message' name='message' />
+	</div>
+	
+	<script>log("[Client] Waiting for server information...");</script>
+</body>
+</html>
+
