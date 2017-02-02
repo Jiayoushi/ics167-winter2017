@@ -264,7 +264,7 @@ function win_message()
 function update()
 {
     // Detect if condition is satisifed to pause the game.
-    if( determine_winner()!=-1)
+    if( determine_winner()!=NOT_COLLIDE)
     {   
         // Loop stop
         clearInterval(game_interval_ID);
@@ -429,7 +429,7 @@ function detect_out_of_bound(array)
    // there are extra free blocks beyond the right and bottom borders.
    // A snake can be on the border and not greater, therefore hiding it
    // in the extra block.
-   return (array[0].x<0 || array[0].x>COLS-1 || array[0].y<0 || array[0].y>ROWS-1)? 1:-1;   
+   return (array[0].x<0 || array[0].x>COLS-1 || array[0].y<0 || array[0].y>ROWS-1)? 1:NOT_COLLIDE;   
 }
 
 
