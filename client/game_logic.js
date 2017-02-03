@@ -1,13 +1,20 @@
+/* Layout */
 const COLS = 30;
 const ROWS = 30;
 const cell_dim = 15;
 const width = COLS * cell_dim;
 const height = ROWS * cell_dim;
 
-const init_snake_length = 2;      // Default length of snake
+const p1_scoretext_x = 325; 	//Coordinates for int score text
+const p2_scoretext_x = 75;
+const scoretext_y = 50;
+
+/* Settings for gameplay */
+const INIT_SNAKE_LENGTH = 2;      // Default length of snake
 const INTERVAL = 60;                // Loop every 60 milliseconds
-const init_reward_number = 2;       
-              
+const INIT_REWARD_NUMBER = 2;      
+
+/* Keyboard matching */
 const LEFT = -1;           // If a snake is going left, its x variable will be add LEFT, that is -1, for each loop. 
 const RIGHT = 1;           // And when the snake goes left or right, its vertical direction will add NONE, that is 0.
 const UP = -1;
@@ -23,9 +30,8 @@ const KEY_S = 83;
 const KEY_D = 68;
 const KEY_A = 65;
 
-const p1_scoretext_x = 325; 	//Coordinates for int score text
-const p2_scoretext_x = 75;
-const scoretext_y = 50;
+/* Literal flags */
+const NOT_COLLIDE = -1;
 
 var win_Canvas;			// Top Text Canvas
 var win_Ctx;
@@ -58,38 +64,25 @@ function init_canvas()
 {
 	// Create and initiate top text canvas element
 	win_Canvas = document.getElementById("winCanvas");
-    	win_Canvas.width = width;
-    	win_Canvas.height = height/8;
-    	win_Ctx = win_Canvas.getContext("2d");
-	// Clear canvas when initialized over a restarted game
-	win_Ctx.fillStyle = "white";
-	win_Ctx.fillRect(0,0,width,height/8);
-	win_Ctx.strokeStyle = "black";
-	win_Ctx.strokeRect(0,0, width, height/8);
-	
+    win_Canvas.width = width;
+    win_Canvas.height = height/8;
+    win_Ctx = win_Canvas.getContext("2d");
+    
     // Create and initiate the canvas element
-    //canvas = document.createElement("canvas");
-	canvas = document.getElementById("myCanvas");
+    canvas = document.getElementById("myCanvas");
     canvas.width = width;
     canvas.height = height;
     ctx = canvas.getContext("2d");
 
     // Add the canvas element to the body of the document
-    //document.body.appendChild(canvas);
-	
+  
 	// Create and initiate bottom text canvas element
 	text_Canvas = document.getElementById("textCanvas");
-    	text_Canvas.width = width;
-    	text_Canvas.height = height/8;
-    	text_Ctx = text_Canvas.getContext("2d");
-
-	// Clear canvas when initialized over a restarted game
-	text_Ctx.fillStyle = "white";
-	text_Ctx.fillRect(0,0,width,height/8);
-	text_Ctx.strokeStyle = "black";
-	text_Ctx.strokeRect(0,0, width,height/8);
-	
-	//Draw const bottom text
+    text_Canvas.width = width;
+    text_Canvas.height = height/8;
+    text_Ctx = text_Canvas.getContext("2d");
+    
+	// Draw const bottom text
 	text_Ctx.fillStyle = 'blue';
 	text_Ctx.fillText("Blue Snake - WASD", 10, scoretext_y-30);
 	text_Ctx.fillText("Blue Score:", 10, scoretext_y);
@@ -150,7 +143,7 @@ function init_rewards()
 {
     rewards = [];
 
-    for(var i=0; i<init_reward_number; i++)
+    for(var i=0; i<INIT_REWARD_NUMBER; i++)
     {
         randomize_reward();
     }
@@ -165,12 +158,12 @@ function randomize_reward()
     do {
         random_pos = [{x:randomize_number(0,29),
                        y:randomize_number(0,29)}];   
-    }while(detect_collision(random_pos,p1snake,0) != -1 || detect_collision(random_pos,p2snake,0) != -1
-            || detect_collision(random_pos,obstacles,0) != -1);
+    }while(detect_collision(random_pos,p1snake,0) != NOT_COLLIDE || 
+           detect_collision(random_pos,p2snake,0) != NOT_COLLIDE || 
+           detect_collision(random_pos,obstacles,0) != NOT_COLLIDE);
 
     rewards.push(random_pos[0]);
 }
-
 
 // Return a random number [from,to]  from,to both included.
 function randomize_number(from,to)
@@ -204,42 +197,48 @@ function determine_winner()
 	// Checks for collision. Returns 1 if collision was made, -1 otherwise.
 	var return_val = -1;
 	// Check if p1 snake collided. If it did, p2 has a potential to win.
-	if(detect_collision(p1snake,p1snake,1)!=-1 || detect_collision(p1snake,p2snake,0)!=-1
-			||detect_collision(p1snake,obstacles,0)!=-1
-				|| detect_out_of_bound(p1snake)!=-1)
+	if(detect_collision(p1snake,p1snake,1)   != NOT_COLLIDE || 
+       detect_collision(p1snake,p2snake,0)   != NOT_COLLIDE ||
+	   detect_collision(p1snake,obstacles,0) != NOT_COLLIDE ||
+       detect_out_of_bound(p1snake)          != NOT_COLLIDE)
 	{
 		p2_win = true;
 		return_val=1;
+
 		if (online)
 		{
 			sendGameFinishedEvent();
 		}
 	}
+
 	// Check if p2 snake collided. If it did, p1 has a potential to win.
-	if (detect_collision(p2snake,p2snake,1)!=-1 || detect_collision(p2snake,p1snake,0)!=-1
-		|| detect_collision(p2snake,obstacles,0)!=-1
-			||  detect_out_of_bound(p2snake)!=-1)
+	if (detect_collision(p2snake,p2snake,1)     != NOT_COLLIDE || 
+        detect_collision(p2snake,p1snake,0)     != NOT_COLLIDE ||
+		detect_collision(p2snake,obstacles,0)   != NOT_COLLIDE ||
+	    detect_out_of_bound(p2snake)            != NOT_COLLIDE)
 	{
 		p1_win = true;
 		return_val=1;
+
 		if (online)
 		{
 			sendGameFinishedEvent();
 		}
 	}
+
 	// Check if both snakes collided, determine whether the game is tied based on same score.
-	// If they have different scores, the highest scoring snake wins and their win value
-	// remains true.
+	// If they have different scores, the highest scoring snake wins and their win value remain true.
 	if(p1_win && p2_win){
-		if(p1_score == p2_score){
+		if(p1_score == p2_score) {
 			tie_game = true;
-			p1_win = false;
+			p1_win  = false;
+			p2_win  = false;
+		} else if (p1_score > p2_score){
 			p2_win = false;
-		}else if(p1_score>p2_score){
-			p2_win = false;
-		}else{
+		} else {
 			p1_win = false;	
 		}
+
 		if (online)
 		{
 			sendGameFinishedEvent();
@@ -250,13 +249,13 @@ function determine_winner()
 
 function win_message()
 {
-	//Displays Win Message based on which win value is true.
+	// Displays Win Message based on which win value is true.
 	win_Ctx.fillStyle = 'black';
-	if(tie_game){
+	if(tie_game) {
 		win_Ctx.fillText("Tie Game!", (width/2)-23, 25);
-	}else if(p1_win){
+	} else if (p1_win) {
 		win_Ctx.fillText("Red Snake Wins!", (width/2)-40, 25);
-	}else if(p2_win){
+	} else if (p2_win) {
 		win_Ctx.fillText("Blue Snake Wins!", (width/2)-40, 25);
 	}
 	
@@ -265,13 +264,13 @@ function win_message()
 function update()
 {
     // Detect if condition is satisifed to pause the game.
-    if( determine_winner()!=-1)
+    if( determine_winner()!=NOT_COLLIDE)
     {   
         // Loop stop
         clearInterval(game_interval_ID);
 	    
-	// Display Win Message based on winner
-	win_message();
+	    // Display Win Message based on winner
+	    win_message();
 	    
         // Restart button pops up
 	    document.getElementById('Restart').style.visibility = 'visible';
@@ -356,18 +355,18 @@ function init_snakes()
 	p2snake = [];
 	
     // J is used to have the right "head" as starting position, see move() for detail
-	var j = init_snake_length-1; 
-	for(var i = 0; i < init_snake_length; i++)
+	var j = INIT_SNAKE_LENGTH-1; 
+	for(var i = 0; i < INIT_SNAKE_LENGTH; i++)
 	{	
 		// Initializing player 1 at upper left 
 		p1snake.push({x:j--, y:0});
        		
 		// Initializing player 2 at lower right
-		p2snake.push({x:COLS-init_snake_length+i, y:ROWS-1});
+		p2snake.push({x:COLS-INIT_SNAKE_LENGTH+i, y:ROWS-1});
 	}
     
     
-    // each snake's beginning heading direction
+    // Each snake's beginning heading direction
     // At the beginning of the game, the top left snake goes right, the bottom right snake goes left.
     p1_Hori = RIGHT;
     p1_Vert = NONE;
@@ -430,7 +429,7 @@ function detect_out_of_bound(array)
    // there are extra free blocks beyond the right and bottom borders.
    // A snake can be on the border and not greater, therefore hiding it
    // in the extra block.
-   return (array[0].x<0 || array[0].x>COLS-1 || array[0].y<0 || array[0].y>ROWS-1)? 1:-1;   
+   return (array[0].x<0 || array[0].x>COLS-1 || array[0].y<0 || array[0].y>ROWS-1)? 1:NOT_COLLIDE;   
 }
 
 
@@ -439,44 +438,45 @@ function detect_out_of_bound(array)
 // equal to one of the node of its body or the node of the other snake's body.
 function detect_snake_collision()
 {
-   return (detect_collision(p1snake,p1snake,1)!=-1 || detect_collision(p2snake,p2snake,1)!=-1 ||
-            detect_collision(p1snake,p2snake,0)!=-1 || detect_collision(p2snake,p1snake,0)!=-1 )? 1:-1;
+   return (detect_collision(p1snake,p1snake,1) != NOT_COLLIDE || detect_collision(p2snake,p2snake,1)!= NOT_COLLIDE ||
+            detect_collision(p1snake,p2snake,0)!= NOT_COLLIDE || detect_collision(p2snake,p1snake,0)!= NOT_COLLIDE )? 1:NOT_COLLIDE;
 }
 
 function detect_rewards()
 {
-    /*bb*/
-    var index_1 = -1;
-    if( (index_1 = detect_collision(p1snake,rewards,0)) != -1)
+    var index_1 = NOT_COLLIDE;
+    if( (index_1 = detect_collision(p1snake,rewards,0)) != NOT_COLLIDE)
     {
 
         p1_score++;
         add_tail(p1snake);
+
 		if (online)
 		{
 			sendPlayerScoreEvent(1);
 		}
 	    
-	text_Ctx.fillStyle = 'white'; 		// White out old score text.
-	text_Ctx.fillRect(p1_scoretext_x, scoretext_y-10,30,10);
-	text_Ctx.fillStyle = 'black'; 		// Write in new score.
-	text_Ctx.fillText(p1_score, p1_scoretext_x, scoretext_y);
+	    text_Ctx.fillStyle = 'white'; 		// White out old score text.
+	    text_Ctx.fillRect(p1_scoretext_x, scoretext_y-10,30,10);
+	    text_Ctx.fillStyle = 'black'; 		// Write in new score.
+	    text_Ctx.fillText(p1_score, p1_scoretext_x, scoretext_y);
     }
 
-    var index_2 = -1;
-    if( (index_2 = detect_collision(p2snake,rewards,0)) != -1)
+    var index_2 = NOT_COLLIDE;
+    if( (index_2 = detect_collision(p2snake,rewards,0)) != NOT_COLLIDE)
     {
         p2_score++;
         add_tail(p2snake);
+
 		if (online)
 		{
 			sendPlayerScoreEvent(2);
 		}
 		
-	text_Ctx.fillStyle = 'white'; 		// White out old score text.
-	text_Ctx.fillRect(p2_scoretext_x, scoretext_y-10,30,10);
-	text_Ctx.fillStyle = 'black'; 		// Write in new score.
-	text_Ctx.fillText(p2_score, p2_scoretext_x, scoretext_y)
+	    text_Ctx.fillStyle = 'white'; 		// White out old score text.
+    	text_Ctx.fillRect(p2_scoretext_x, scoretext_y-10,30,10);
+	    text_Ctx.fillStyle = 'black'; 		// Write in new score.
+	    text_Ctx.fillText(p2_score, p2_scoretext_x, scoretext_y)
 
     }
 
@@ -488,12 +488,12 @@ function process_rewards(indexes)
     // 2 is the number of snake.
     for(var i=0; i<2; i++)
     {
-        if(indexes[i]!=-1)
+        if(indexes[i]!=NOT_COLLIDE)
         {
             delete_node(rewards,indexes[i]);
             randomize_reward();
 
-            return -1;
+            return NOT_COLLIDE;
         }
     }
 }
@@ -521,5 +521,5 @@ function detect_collision(object1,object2,n)
             return i;
         }
     }
-    return -1;
+    return NOT_COLLIDE;
 }
