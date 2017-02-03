@@ -73,8 +73,6 @@ function init_canvas()
     canvas.width = width;
     canvas.height = height;
     ctx = canvas.getContext("2d");
-
-    // Add the canvas element to the body of the document
   
 	// Create and initiate bottom text canvas element
 	text_Canvas = document.getElementById("textCanvas");
