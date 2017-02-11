@@ -63,31 +63,31 @@ void GameState::setPlayerDirection(int player, int input)
 	if (player == PLAYER_1)
 	{
 		if (input == 37 || input == 38 || input == 39 || input == 40) //if player1 uses up,down,left,right
-			this->player1direction = input;
+			this->player1Direction = input;
 		
 		////MAPPING if player 1 used wasd
 		else if(input == 65) //left
-			this->player2direction = 37;
+			this->player2Direction = 37;
 		else if(input == 87) //up
-			this->player2direction = 38;
+			this->player2Direction = 38;
 		else if(input == 68)//right
-			this->player2direction = 39;
+			this->player2Direction = 39;
 		else if(input == 83)//down
-			this->player2direction = 40;
+			this->player2Direction = 40;
 	}
 	else{
 		if (input == 87 || input == 83 || input == 68 || input == 65)//if player 2 uses wasd
-			this->player2direction = input;
+			this->player2Direction = input;
 		
 		////MAPPING if player 2 used up,down,left,right
 		else if(input == 37) //left
-			this->player2direction = 65;
+			this->player2Direction = 65;
 		else if(input == 38) //up
-			this->player2direction = 87;
+			this->player2Direction = 87;
 		else if(input == 39)//right
-			this->player2direction = 68;
+			this->player2Direction = 68;
 		else if(input == 40)//down
-			this->player2direction = 83;
+			this->player2Direction = 83;
 	}	
 }
 
