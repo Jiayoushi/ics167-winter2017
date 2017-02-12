@@ -25,7 +25,7 @@ function OfflineStart()
 
 function Restart()
 {
-	main();
+	sendGameStartEvent();
 	document.getElementById('Start').style.visibility = 'hidden';
 	document.getElementById('OfflineStart').style.visibility = 'hidden';
 	document.getElementById('Restart').style.visibility = 'hidden';
