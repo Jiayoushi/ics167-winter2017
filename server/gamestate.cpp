@@ -28,7 +28,7 @@ int GameState::getPlayerScore(int player)
 	return (player == PLAYER_1 ? this->player1Score : this->player2Score);
 }
 
-int GameState::getPlayerDirection(int player)
+std::string GameState::getPlayerDirection(int player)
 {
 	return (player == PLAYER_1 ? this->player1Direction : this->player2Direction);	
 }
@@ -63,36 +63,14 @@ void GameState::setPlayerScore(int player, int score)
 }
 
 ///NEWLY ADDED
-void GameState::setPlayerDirection(int player, int input)
+void GameState::setPlayerDirection(int player, std::string direction)
 {
 	if (player == PLAYER_1)
 	{
-		if (input == 37 || input == 38 || input == 39 || input == 40) //if player1 uses up,down,left,right
-			this->player1Direction = input;
-		
-		////MAPPING if player 1 used wasd
-		else if(input == 65) //left
-			this->player2Direction = 37;
-		else if(input == 87) //up
-			this->player2Direction = 38;
-		else if(input == 68)//right
-			this->player2Direction = 39;
-		else if(input == 83)//down
-			this->player2Direction = 40;
+		player1Direction = direction;
 	}
-	else{
-		if (input == 87 || input == 83 || input == 68 || input == 65)//if player 2 uses wasd
-			this->player2Direction = input;
-		
-		////MAPPING if player 2 used up,down,left,right
-		else if(input == 37) //left
-			this->player2Direction = 65;
-		else if(input == 38) //up
-			this->player2Direction = 87;
-		else if(input == 39)//right
-			this->player2Direction = 68;
-		else if(input == 40)//down
-			this->player2Direction = 83;
+	else if(player == PLAYER_2) {
+		player2Direction = direction;
 	}	
 }
 
