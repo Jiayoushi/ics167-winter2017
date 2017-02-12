@@ -256,7 +256,10 @@ function update()
 	    win_message();
 	    
         // Restart button pops up
-	    document.getElementById('Restart').style.visibility = 'visible';
+	if(playernumber == 1)
+	{
+		document.getElementById('Restart').style.visibility = 'visible';
+	}
     }
     
     // Remove reward from the rewards array if there is any, add a new reward after removing.
