@@ -22,7 +22,10 @@
 	</div>
 	
 	<div class="wrapper">
-    		<input type="button" id="Start" value="Network Game Start" onClick="Start();" />
+    		<input type="button" id="NetworkConnect" value="Network Connect" onClick="ConnectToServer();" />
+	</div>
+    <div class="wrapper">
+    		<input type="button" id="Start" value="Start" onClick="Start();" />
 	</div>
 	<div class="wrapper">
     		<input type="button" id="OfflineStart" value="Offline Game Start" onClick="OfflineStart();" />
@@ -31,6 +34,7 @@
 		<input type="button" id="Restart" value="Restart" onClick="Restart();" />
 	</div>
 	
+	<script>document.getElementById('Start').style.visibility = 'hidden';</script>
 	<script>document.getElementById('Restart').style.visibility = 'hidden';</script>
 	
 	<canvas id="winCanvas" width="200" height="100"></canvas>
