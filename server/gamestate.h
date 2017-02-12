@@ -20,7 +20,7 @@ class GameState
 		std::string getPlayerID(int player); // returns the id for a player
 		int getPlayerScore(int player); // returns the current score for a player
 		int getPlayerDirection(int player); //get the current direction of player
-
+		bool getPlayer1Online();
 		int incrementScore(int player); // increments score by 1, then returns new score
 
 		void setPlayerID(int player, std::string id); // sets player ID for a player.
@@ -36,6 +36,7 @@ class GameState
 		std::string player2ID = "Player 2";
 		int player1Score = 0;
 		int player2Score = 0;
+		bool player1Online = false; //True when first client connects
 	
 		int player1Direction = 39; //39 is the RIGHT arrow key for java input
 		int player2Direction = 65;  //65 is the LEFT arrow key for the java input
