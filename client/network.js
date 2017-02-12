@@ -49,6 +49,14 @@ function connect()
 		{
 			document.getElementById('Start').style.visibility = 'visible';
 		}
+		if(payload.split("-")[0] == "RewardCoordinates")
+		{
+			log(payload.split("-")[1]+"-"+payload.split("-")[2]);
+			var position;
+			position = [{x:Number(payload.split("-")[1]),
+                       y:Number(payload.split("-")[2])}]; 
+			rewards.push(position[0]);
+		}
 		if(payload == "Player#1")
 		{
 			playernumber = 1;
@@ -125,6 +133,10 @@ function sendPlayerScoreEvent(player)
 {
 	send("{\"event\": \"playerScoreEvent\", \"player\": " + player + "}"); // JSON example: JSON example -> {"event": "playerScoreEvent", "player": 1}
 	//log("[Client] Sent message: " + "{\"event\": \"playerScoreEvent\", \"player\": " + player + "}");
+}
+function sendRewardCoordinates(x,y)
+{
+	send("{\"event\": \"rewardCoordinatesEvent\", \"x\": " + x + ", \"y\": " + y + "}");
 }
 function sendGameStartEvent()
 {
