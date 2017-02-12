@@ -41,6 +41,20 @@ void setPlayerIDEventHandler(int clientID, int player, std::string id)
 	new_event("New player ID set for " + previousID + ": " + id);
 }
 
+void setPlayerDirectionEventHandler(int clientID, int player, std::string direction)
+{
+	gameState.setPlayerDirection(player, direction);
+	if (player == 1) 
+	{
+		server.wsSend(0, "P1 Direction: " + direction);
+		server.wsSend(1, "P1 Direction: " + direction);
+	}
+	else { 
+		server.wsSend(0, "P2 Direction: " + direction);
+		server.wsSend(1, "P2 Direction: " + direction);
+	}
+}
+
 void playerScoreEventHandler(int clientID, int player)
 {
 	log("playerScoreEventHandler fired.");
@@ -110,15 +124,21 @@ void messageHandler(int clientID, string message)
 		{
 			log("player1 ");
 			setPlayerIDEventHandler(clientID, 1, json["id"].string_value());
+			server.wsSend(0, "Player#1");
 		}
 		else 
 		{
 			log("player2 ");
 			setPlayerIDEventHandler(clientID, 2, json["id"].string_value());
+			server.wsSend(1, "Player#2");
 			server.wsSend(0, "Both clients have now been connected.");
 			server.wsSend(0, "Ready to start game...");
 			server.wsSend(1, "Ready to start game...");
 		}
+	}
+	else if (firedEvent == "setPlayerDirectionEvent") // JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
+	{
+		setPlayerDirectionEventHandler(clientID, json["player"].int_value(), json["direction"].string_value());
 	}
 	else if (firedEvent == "gameStartEvent") // JSON example -> {"event": "gameFinishedEvent"}
 	{
