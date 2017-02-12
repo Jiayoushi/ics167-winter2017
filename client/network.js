@@ -31,7 +31,7 @@ function connect()
 	{
 		log("[Client] Connected.");
 		sendSetPlayerIDEvent(1, document.getElementById('p1id').value);
-		sendSetPlayerIDEvent(2, document.getElementById('p2id').value);
+		//sendSetPlayerIDEvent(2, document.getElementById('p2id').value); //Connect one at a time
 		log("[Client] IDs sent.");
 	});
 
@@ -45,6 +45,14 @@ function connect()
 	Server.bind('message', function( payload ) 
 	{
 		log( "[Server] " + payload );
+		if(payload=="Both clients have now been connected.")
+		{
+			document.getElementById('Start').style.visibility = 'visible';
+		}
+		if(payload == "Game has been started!")
+		{
+			main();
+		}
 	});
 
 	Server.connect();
@@ -61,7 +69,10 @@ function sendSetPlayerIDEvent(player, id)
 	send("{\"event\": \"setPlayerIDEvent\", \"player\": " + player + ", \"id\":\"" + id + "\"}"); // JSON example: JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
 	//log("[Client] Sent message: " + "{\"event\": \"setPlayerIDEvent\", \"player\": " + player + ", \"id\":\"" + id + "\"}");
 }
-
+function sendSetPlayerDirectionEvent(player, input)
+{
+	send("{\"event\": \"setPlayerDirectionEvent\", \"player\": " + player + ", \"input\":\"" + input + "\"}");
+}
 function sendPlayerScoreEvent(player)
 {
 	send("{\"event\": \"playerScoreEvent\", \"player\": " + player + "}"); // JSON example: JSON example -> {"event": "playerScoreEvent", "player": 1}
