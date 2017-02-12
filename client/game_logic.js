@@ -60,6 +60,8 @@ var p1_win;			// Game winner variables
 var p2_win;
 var tie_game;
 
+var playernumber;
+
 function init_canvas() 
 {
 	// Create and initiate top text canvas element
@@ -95,32 +97,15 @@ function init_input()
 {
     document.addEventListener('keydown', function(e)
     {   
-        if(e.keyCode === KEY_DOWN && p1_Vert != UP) {
-            p1_Hori = NONE;
-            p1_Vert = DOWN;
-        } else if(e.keyCode === KEY_UP && p1_Vert != DOWN) {
-            p1_Hori = NONE;
-            p1_Vert = UP;
-        } else if(e.keyCode === KEY_LEFT && p1_Hori != RIGHT){
-            p1_Hori = LEFT;
-            p1_Vert = NONE;
-        } else if(e.keyCode === KEY_RIGHT && p1_Hori != LEFT){
-            p1_Hori = RIGHT;
-            p1_Vert = NONE;
-        } else if(e.keyCode === KEY_S && p2_Vert != UP) {
-            p2_Hori = NONE;
-            p2_Vert = DOWN;
-        } else if(e.keyCode === KEY_W && p2_Vert != DOWN) {
-            p2_Hori = NONE;
-            p2_Vert = UP;
-        } else if(e.keyCode === KEY_A && p2_Hori != RIGHT) {
-            p2_Hori = LEFT;
-            p2_Vert = NONE;
-        } else if(e.keyCode === KEY_D && p2_Hori != LEFT) {
-            p2_Hori = RIGHT;
-            p2_Vert = NONE;
+        if(e.keyCode === KEY_DOWN||e.keyCode === KEY_S && p1_Vert != UP) {
+			sendSetPlayerDirectionEvent(playernumber, "DOWN")
+        } else if(e.keyCode === KEY_UP||e.keyCode === KEY_W && p1_Vert != DOWN) {
+			sendSetPlayerDirectionEvent(playernumber, "UP")
+        } else if(e.keyCode === KEY_LEFT ||e.keyCode === KEY_A && p1_Hori != RIGHT){
+			sendSetPlayerDirectionEvent(playernumber, "LEFT")
+        } else if(e.keyCode === KEY_RIGHT||e.keyCode === KEY_D && p1_Hori != LEFT){
+			sendSetPlayerDirectionEvent(playernumber, "RIGHT")
         }
-
     },false);
 }
 
