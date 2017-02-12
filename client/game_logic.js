@@ -126,9 +126,12 @@ function init_rewards()
 {
     rewards = [];
 
-    for(var i=0; i<INIT_REWARD_NUMBER; i++)
+    if(playernumber==1)
     {
-        randomize_reward();
+	for(var i=0; i<INIT_REWARD_NUMBER; i++)
+    	{
+    	    randomize_reward();
+    	}
     }
 }
 
@@ -137,15 +140,18 @@ function init_rewards()
 // And at the end the reward is pushed to the rewards array.
 function randomize_reward()
 {
-    var random_pos;
-    do {
-        random_pos = [{x:randomize_number(0,29),
-                       y:randomize_number(0,29)}];   
-    }while(detect_collision(random_pos,p1snake,0) != NOT_COLLIDE || 
-           detect_collision(random_pos,p2snake,0) != NOT_COLLIDE || 
-           detect_collision(random_pos,obstacles,0) != NOT_COLLIDE);
-
-    rewards.push(random_pos[0]);
+	if(playernumber==1)
+	{
+    		var random_pos;
+    		do {
+        		random_pos = [{x:randomize_number(0,29),
+                       			y:randomize_number(0,29)}];   
+    		   }while(detect_collision(random_pos,p1snake,0) != NOT_COLLIDE || 
+           		  detect_collision(random_pos,p2snake,0) != NOT_COLLIDE || 
+           		  detect_collision(random_pos,obstacles,0) != NOT_COLLIDE);
+		sendRewardCoordinates(random_pos[0].x,random_pos[0].y);
+    		//rewards.push(random_pos[0]);
+	}
 }
 
 // Return a random number [from,to]  from,to both included.
