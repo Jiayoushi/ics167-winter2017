@@ -49,6 +49,15 @@ void playerScoreEventHandler(int clientID, int player)
 	new_event(gameState.getPlayerID(player) + " scored. New score: " + std::to_string(gameState.getPlayerScore(player)));
 }
 
+void gameStartEventHandler(int clientID)
+{
+	log("gameStartEventHandler fired.");
+	server.wsSend(clientID, "Game has been started!");
+	gameState.resetScores();
+	server.wsSend(clientID, "Scores have been set to 0.");
+	new_event("Player scores have been set back to 0 (client started game.)");
+}
+
 void gameFinishedEventHandler(int clientID) // in the future, the game logic will be handled by the server itself (prob milestone 2)
 {
 	log("gameFinishedEventHandler fired.");
@@ -66,7 +75,7 @@ void openHandler(int clientID)
 	log("Connection opened. Client ID: " + std::to_string(clientID));
 	std::vector<int> clientIDs = server.getClientIDs();
 
-	if (clientIDs.size() >= 2)
+	if (clientIDs.size() > 2)
 	{
 		server.wsSend(clientID, "There is already a client connected. Rejecting your connection..");
 		server.wsClose(clientID);
@@ -97,7 +106,24 @@ void messageHandler(int clientID, string message)
 	// Begin Event Handling
 	if (firedEvent == "setPlayerIDEvent") // JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
 	{
-		setPlayerIDEventHandler(clientID, json["player"].int_value(), json["id"].string_value());
+		if (!gameState.getPlayer1Online())
+		{
+			log("player1 ");
+			setPlayerIDEventHandler(clientID, 1, json["id"].string_value());
+		}
+		else 
+		{
+			log("player2 ");
+			setPlayerIDEventHandler(clientID, 2, json["id"].string_value());
+			server.wsSend(0, "Both clients have now been connected.");
+			server.wsSend(0, "Ready to start game...");
+			server.wsSend(1, "Ready to start game...");
+		}
+	}
+	else if (firedEvent == "gameStartEvent") // JSON example -> {"event": "gameFinishedEvent"}
+	{
+		gameStartEventHandler(0);
+		gameStartEventHandler(1);
 	}
 	else if (firedEvent == "playerScoreEvent") // JSON example -> {"event": "playerScoreEvent", "player": 1}
 	{
