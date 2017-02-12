@@ -32,6 +32,10 @@ int GameState::getPlayerDirection(int player)
 {
 	return (player == PLAYER_1 ? this->player1Direction : this->player2Direction);	
 }
+bool GameState::getPlayer1Online()
+{
+	return this->player1Online;
+}
 
 int GameState::incrementScore(int player)
 {
@@ -43,6 +47,7 @@ void GameState::setPlayerID(int player, std::string id)
 	if (player == PLAYER_1)
 	{
 		this->player1ID = id;
+		this->player1Online = true;
 	}
 	else this->player2ID = id;
 }
