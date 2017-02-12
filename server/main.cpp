@@ -63,6 +63,13 @@ void playerScoreEventHandler(int clientID, int player)
 	new_event(gameState.getPlayerID(player) + " scored. New score: " + std::to_string(gameState.getPlayerScore(player)));
 }
 
+void setRewardEventHandler(int x, int y)
+{
+	log("setRewardEventHandler fired.");
+	server.wsSend(0, "RewardCoordinates-" + std::to_string(x) + "-"+std::to_string(y));
+	server.wsSend(1, "RewardCoordinates-" + std::to_string(x) + "-" + std::to_string(y));
+}
+
 void gameStartEventHandler(int clientID)
 {
 	log("gameStartEventHandler fired.");
@@ -152,6 +159,10 @@ void messageHandler(int clientID, string message)
 	else if (firedEvent == "gameFinishedEvent") // JSON example -> {"event": "gameFinishedEvent"}
 	{
 		gameFinishedEventHandler(clientID);
+	}
+	else if (firedEvent == "rewardCoordinatesEvent") // JSON example -> {"event": "gameFinishedEvent"}
+	{
+		setRewardEventHandler(json["x"].int_value(), json["y"].int_value());
 	}
 	else
 	{
