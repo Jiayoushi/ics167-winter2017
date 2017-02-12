@@ -78,7 +78,11 @@ function sendPlayerScoreEvent(player)
 	send("{\"event\": \"playerScoreEvent\", \"player\": " + player + "}"); // JSON example: JSON example -> {"event": "playerScoreEvent", "player": 1}
 	//log("[Client] Sent message: " + "{\"event\": \"playerScoreEvent\", \"player\": " + player + "}");
 }
-
+function sendGameStartEvent()
+{
+	send("{\"event\": \"gameStartEvent\"" + "}"); // JSON example: JSON example -> {"event": "gameStartEvent"}
+	//log("[Client] Sent message: " + "{\"event\": \"gameStartEvent\"" + "}");
+}
 function sendGameFinishedEvent()
 {
 	send("{\"event\": \"gameFinishedEvent\"" + "}"); // JSON example: JSON example -> {"event": "gameFinishedEvent"}
