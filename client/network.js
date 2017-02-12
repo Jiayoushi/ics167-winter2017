@@ -49,6 +49,54 @@ function connect()
 		{
 			document.getElementById('Start').style.visibility = 'visible';
 		}
+		if(payload == "Player#1")
+		{
+			playernumber = 1;
+		}
+		if(payload == "Player#2")
+		{
+			playernumber = 2;
+		}
+		if(payload == "P1 Direction: UP")
+		{
+			p1_Hori = NONE;
+            p1_Vert = UP;
+		}
+		if(payload == "P1 Direction: DOWN")
+		{
+			p1_Hori = NONE;
+            p1_Vert = DOWN;
+		}
+		if(payload == "P1 Direction: LEFT")
+		{
+			p1_Hori = LEFT;
+            p1_Vert = NONE;
+		}
+		if(payload == "P1 Direction: RIGHT")
+		{
+			p1_Hori = RIGHT;
+            p1_Vert = NONE;
+		}
+		if(payload == "P2 Direction: UP")
+		{
+			p2_Hori = NONE;
+            p2_Vert = UP;
+		}
+		if(payload == "P2 Direction: DOWN")
+		{
+			p2_Hori = NONE;
+            p2_Vert = DOWN;
+		}
+		if(payload == "P2 Direction: LEFT")
+		{
+			p2_Hori = LEFT;
+            p2_Vert = NONE;
+		}
+		if(payload == "P2 Direction: RIGHT")
+		{
+			p2_Hori = RIGHT;
+            p2_Vert = NONE;
+		}
 		if(payload == "Game has been started!")
 		{
 			main();
@@ -69,9 +117,9 @@ function sendSetPlayerIDEvent(player, id)
 	send("{\"event\": \"setPlayerIDEvent\", \"player\": " + player + ", \"id\":\"" + id + "\"}"); // JSON example: JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
 	//log("[Client] Sent message: " + "{\"event\": \"setPlayerIDEvent\", \"player\": " + player + ", \"id\":\"" + id + "\"}");
 }
-function sendSetPlayerDirectionEvent(player, input)
+function sendSetPlayerDirectionEvent(player, direction)
 {
-	send("{\"event\": \"setPlayerDirectionEvent\", \"player\": " + player + ", \"input\":\"" + input + "\"}");
+	send("{\"event\": \"setPlayerDirectionEvent\", \"player\": " + player + ", \"direction\":\"" + direction + "\"}");
 }
 function sendPlayerScoreEvent(player)
 {
