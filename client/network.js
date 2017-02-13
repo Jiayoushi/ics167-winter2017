@@ -105,6 +105,33 @@ function connect()
 			p2_Hori = RIGHT;
             p2_Vert = NONE;
 		}
+		if (payload == "Player 1 Disconnected") // only given to Player 2
+		{
+			if (gameStarted == true)
+			{
+				clearInterval(game_interval_ID);
+				dc_message(1);
+				log("[Client] Player 1 has disconnected, so the game ended.");
+			}
+			else
+			{
+				log("[Client] Player 1 has disconnected.");
+			}
+		}
+		if (payload == "Player 2 Disconnected") // only given to Player 1
+		{
+			if (gameStarted == true)
+			{
+				clearInterval(game_interval_ID);
+				dc_message(2);
+				log("[Client] Player 1 has disconnected, so the game ended.");
+			}
+			else
+			{
+				log("[Client] Player 2 has disconnected.");
+				document.getElementById('Start').style.visibility = 'hidden';
+			}
+		}
 		if(payload == "Game has been started!")
 		{
 			main();

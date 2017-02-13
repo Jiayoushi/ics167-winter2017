@@ -21,6 +21,7 @@ class GameState
 		int getPlayerScore(int player); // returns the current score for a player
 		std::string getPlayerDirection(int player); //get the current direction of player
 		bool getPlayer1Online();
+		void setPlayer1Online(bool value);
 		int incrementScore(int player); // increments score by 1, then returns new score
 
 		void setPlayerID(int player, std::string id); // sets player ID for a player.

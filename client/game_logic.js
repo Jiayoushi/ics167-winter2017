@@ -11,7 +11,7 @@ const scoretext_y = 50;
 
 /* Settings for gameplay */
 const INIT_SNAKE_LENGTH = 2;      // Default length of snake
-const INTERVAL = 60;                // Loop every 60 milliseconds
+const INTERVAL = 500;                // Loop every 60 milliseconds
 const INIT_REWARD_NUMBER = 2;      
 
 /* Keyboard matching */
@@ -193,6 +193,7 @@ function determine_winner()
 	{
 		p2_win = true;
 		return_val=1;
+		gameStart = false;
 
 		if (online)
 		{
@@ -208,7 +209,7 @@ function determine_winner()
 	{
 		p1_win = true;
 		return_val=1;
-
+		gameStart = false;
 		if (online)
 		{
 			sendGameFinishedEvent();
@@ -222,10 +223,13 @@ function determine_winner()
 			tie_game = true;
 			p1_win  = false;
 			p2_win  = false;
+			gameStart = false;
 		} else if (p1_score > p2_score){
 			p2_win = false;
+			gameStart = false;
 		} else {
 			p1_win = false;	
+			gameStart = false;
 		}
 
 		if (online)
@@ -248,6 +252,20 @@ function win_message()
 		win_Ctx.fillText("Blue Snake Wins!", (width/2)-40, 25);
 	}
 	
+}
+
+function dc_message(player)
+{
+	// Displays Win Message based on which win value is true.
+	win_Ctx.fillStyle = 'black';
+	if(player == 1) 
+	{
+		win_Ctx.fillText("Player 1 Disconnected.", (width/2)-40, 25); // TODO: change to ID
+	} 
+	else if (player == 2) 
+	{
+		win_Ctx.fillText("Player 2 Disconnected.", (width/2)-40, 25); // TODO: change to ID
+	}
 }
 
 function update()

@@ -52,6 +52,10 @@ void GameState::setPlayerID(int player, std::string id)
 	else this->player2ID = id;
 }
 
+void GameState::setPlayer1Online(bool value)
+{
+	this->player1Online = value;
+}
 
 void GameState::setPlayerScore(int player, int score)
 {

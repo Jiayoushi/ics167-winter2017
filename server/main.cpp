@@ -98,21 +98,42 @@ void openHandler(int clientID)
 
 	if (clientIDs.size() > 2)
 	{
-		server.wsSend(clientID, "There is already a client connected. Rejecting your connection..");
+		log("Rejecting connection..");
+		server.wsSend(clientID, "There are already two clients connected. Rejecting your connection..");
 		server.wsClose(clientID);
-		log("Connection forcefully closed. (Reason: a connection already exists.) Client ID: " + std::to_string(clientID));
+		log("Connection forcefully closed. (Reason: two clients already exist.) Client ID: " + std::to_string(clientID));
 	} 
-	else server.wsSend(clientID, "Connection established.");
+	else
+	{
+		log("Connection established.");
+		server.wsSend(clientID, "Connection established.");
+	}
 }
 
 void closeHandler(int clientID) 
 {
 	log("Connection closed. Client ID: " + std::to_string(clientID));
+	std::vector<int> clientIDs = server.getClientIDs();
 	server.wsSend(clientID, "Connection closed.");
 	if (clientID == 0) // the main client
 	{
+		if (clientIDs.size() >= 2)
+		{
+			server.wsSend(1, "Player 1 Disconnected");//gameState.getPlayerID(PLAYER_1) + " has disconnected.");
+			server.wsClose(1);
+		}
+		gameState.setPlayer1Online(false);
 		gameState.reset();
-		log("Client disconnected. Game state has been completely reset.");
+		log(gameState.getPlayerID(PLAYER_1) + " has disconnected." + " Game state has been completely reset.");
+	}
+	else if (clientID == 1)
+	{
+		if (clientIDs.size() >= 2)
+		{
+			server.wsSend(0, "Player 2 Disconnected");//gameState.getPlayerID(PLAYER_2) + " has disconnected.");
+		}
+		gameState.reset();
+		log(gameState.getPlayerID(PLAYER_2) + " has disconnected." + " Game state has been completely reset.");
 	}
 }
 
