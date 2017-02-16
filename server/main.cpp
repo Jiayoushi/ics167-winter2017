@@ -57,6 +57,12 @@ void sendGameStartedEvent(int clientID)
 	log("gameStartedEvent sent for client ID " + std::to_string(clientID) + ")");
 }
 
+void sendPlayerDirectionEvent(int clientID, int player, std::string direction)
+{
+	server.wsSend(clientID, "{\"event\": \"playerDirectionEvent\", \"direction\":\"" + direction + "\", \"player\" : " + std::to_string(player) + "}");
+	log("playerDirectionEvent sent to client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " moved " + direction + ")");
+}
+
 /* Begin Event Handlers */
 
 void setPlayerIDEventHandler(int clientID, int size, std::string id)
@@ -93,14 +99,15 @@ void setPlayerIDEventHandler(int clientID, int size, std::string id)
 void setPlayerDirectionEventHandler(int clientID, int player, std::string direction)
 {
 	gameState.setPlayerDirection(player, direction);
-	if (player == 1) 
+	if (player == PLAYER_1) 
 	{
-		server.wsSend(0, "P1 Direction: " + direction);
-		server.wsSend(1, "P1 Direction: " + direction);
+		sendPlayerDirectionEvent(0, PLAYER_1, direction);
+		sendPlayerDirectionEvent(1, PLAYER_1, direction);
 	}
-	else { 
-		server.wsSend(0, "P2 Direction: " + direction);
-		server.wsSend(1, "P2 Direction: " + direction);
+	else 
+	{ 
+		sendPlayerDirectionEvent(0, PLAYER_2, direction);
+		sendPlayerDirectionEvent(1, PLAYER_2, direction);
 	}
 }
 
@@ -202,7 +209,7 @@ void messageHandler(int clientID, string message)
 	{
 		setPlayerIDEventHandler(clientID, clientIDs.size(), json["id"].string_value());
 	}
-	else if (firedEvent == "setPlayerDirectionEvent") // JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
+	else if (firedEvent == "setPlayerDirectionEvent")
 	{
 		setPlayerDirectionEventHandler(clientID, json["player"].int_value(), json["direction"].string_value());
 	}

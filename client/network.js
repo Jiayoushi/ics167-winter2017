@@ -1,6 +1,12 @@
 var Server;
 var online = false;
 
+var PLAYER_1 = 1;
+var PLAYER_2 = 2;
+
+var changedPlayer; // initialize early to save computational cycles for critical gameplay
+var direction; // initialize early to save computational cycles for critical gameplay
+
 /* Begin TA Functions */
 function log( text ) 
 {
@@ -47,7 +53,60 @@ function connect()
 		{
 			var theJSON = JSON.parse(payload);
 			var firedEvent = theJSON.event;
-			if (firedEvent == "gameStartedEvent")
+			
+			if (firedEvent == "playerDirectionEvent")
+			{
+				changedPlayer = theJSON.player;
+				direction = theJSON.direction;
+				
+				if (changedPlayer == PLAYER_1)
+				{
+					if (direction == "UP")
+					{
+						p1_Hori = NONE;
+						p1_Vert = UP;
+					}
+					else if (direction == "DOWN")
+					{
+						p1_Hori = NONE;
+						p1_Vert = DOWN;
+					}
+					else if (direction == "LEFT")
+					{
+						p1_Hori = LEFT;
+						p1_Vert = NONE;
+					}
+					else if (direction == "RIGHT")
+					{
+						p1_Hori = RIGHT;
+						p1_Vert = NONE;
+					}
+				}
+				else
+				{
+					if (direction == "UP")
+					{
+						p2_Hori = NONE;
+						p2_Vert = UP;
+					}
+					else if (direction == "DOWN")
+					{
+						p2_Hori = NONE;
+						p2_Vert = DOWN;
+					}
+					else if (direction == "LEFT")
+					{
+						p2_Hori = LEFT;
+						p2_Vert = NONE;
+					}
+					else if (direction == "RIGHT")
+					{
+						p2_Hori = RIGHT;
+						p2_Vert = NONE;
+					}
+				}
+			}
+			else if (firedEvent == "gameStartedEvent")
 			{
 				main();
 			}
@@ -56,11 +115,11 @@ function connect()
 				playernumber = theJSON.player;
 				log("[Server] You are Player #" + playernumber + ".");
 				log("[Server] Your ID is " + document.getElementById('p1id').value);
-				if (playernumber == 1)
+				if (playernumber == PLAYER_1)
 				{
 					log("[Client] Waiting for Player #2 to join...");
 				}
-				else if (playernumber == 1)
+				else if (playernumber == PLAYER_2)
 				{
 					log("[Client] Retrieving Player #1's information...");
 				}
@@ -68,13 +127,13 @@ function connect()
 			else if (firedEvent == "playerConnectedEvent")
 			{
 				var connectedPlayer = theJSON.player;
-				if (connectedPlayer == 1) // Player 1 has connected, only player 2 gets this event
+				if (connectedPlayer == PLAYER_1) // Player 1 has connected, only player 2 gets this event
 				{
 					log("[Client] Player #1 has joined the networked game.");
 					log("[Client] Player #1's ID is " + theJSON.id);
 					log("[Client] Waiting for Player #1 to start the game...");
 				}
-				else if (connectedPlayer == 2) // Player 2 has connected, only player 1 gets this event
+				else if (connectedPlayer == PLAYER_2) // Player 2 has connected, only player 1 gets this event
 				{
 					log("[Client] Player #2 has joined the networked game.");
 					log("[Client] Player #2's ID is " + theJSON.id);
@@ -85,12 +144,12 @@ function connect()
 			else if (firedEvent == "playerDisconnectEvent")
 			{
 				var disconnectedPlayer = theJSON.player;
-				if (disconnectedPlayer == 1) // Player 1 has disconnected, so this client is Player 2
+				if (disconnectedPlayer == PLAYER_1) // Player 1 has disconnected, so this client is Player 2
 				{
-					if (gameStarted == true || playernumber == 2) // player #2 will never have "gameStarted" to true since it doesnt press button
+					if (gameStarted == true || playernumber == PLAYER_2) // player #2 will never have "gameStarted" to true since it doesnt press button
 					{
 						clearInterval(game_interval_ID);
-						dc_message(1);
+						dc_message(PLAYER_1);
 						log("[Client] Player 1 has disconnected, so the game ended.");
 						gameStarted = false;
 					}
@@ -100,12 +159,12 @@ function connect()
 					}
 					log("[Client] Player #1 was the leader, so the server has closed the game room and disconnected you.");
 				}
-				else if (disconnectedPlayer == 2) // Player 2 has disconnected, so this client is Player 1
+				else if (disconnectedPlayer == PLAYER_2) // Player 2 has disconnected, so this client is Player 1
 				{
 					if (gameStarted == true)
 					{
 						clearInterval(game_interval_ID);
-						dc_message(2);
+						dc_message(PLAYER_2);
 						log("[Client] Player 2 has disconnected, so the game ended.");
 						gameStarted = false;
 					}
@@ -132,46 +191,7 @@ function connect()
                        y:Number(payload.split("-")[2])}]; 
 			rewards.push(position[0]);
 		}
-		if(payload == "P1 Direction: UP")
-		{
-			p1_Hori = NONE;
-            p1_Vert = UP;
-		}
-		if(payload == "P1 Direction: DOWN")
-		{
-			p1_Hori = NONE;
-            p1_Vert = DOWN;
-		}
-		if(payload == "P1 Direction: LEFT")
-		{
-			p1_Hori = LEFT;
-            p1_Vert = NONE;
-		}
-		if(payload == "P1 Direction: RIGHT")
-		{
-			p1_Hori = RIGHT;
-            p1_Vert = NONE;
-		}
-		if(payload == "P2 Direction: UP")
-		{
-			p2_Hori = NONE;
-            p2_Vert = UP;
-		}
-		if(payload == "P2 Direction: DOWN")
-		{
-			p2_Hori = NONE;
-            p2_Vert = DOWN;
-		}
-		if(payload == "P2 Direction: LEFT")
-		{
-			p2_Hori = LEFT;
-            p2_Vert = NONE;
-		}
-		if(payload == "P2 Direction: RIGHT")
-		{
-			p2_Hori = RIGHT;
-            p2_Vert = NONE;
-		}
+
 		*/
 	});
 	
