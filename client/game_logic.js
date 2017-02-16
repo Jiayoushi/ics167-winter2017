@@ -96,16 +96,28 @@ function init_canvas()
 function init_input()
 {
     document.addEventListener('keydown', function(e)
-    {   
-        if(e.keyCode === KEY_DOWN||e.keyCode === KEY_S && p1_Vert != UP) {
-			sendSetPlayerDirectionEvent(playernumber, "DOWN")
-        } else if(e.keyCode === KEY_UP||e.keyCode === KEY_W && p1_Vert != DOWN) {
-			sendSetPlayerDirectionEvent(playernumber, "UP")
-        } else if(e.keyCode === KEY_LEFT ||e.keyCode === KEY_A && p1_Hori != RIGHT){
-			sendSetPlayerDirectionEvent(playernumber, "LEFT")
-        } else if(e.keyCode === KEY_RIGHT||e.keyCode === KEY_D && p1_Hori != LEFT){
-			sendSetPlayerDirectionEvent(playernumber, "RIGHT")
-        }
+    {   if(playernumber==1){
+        	if(e.keyCode === KEY_DOWN||e.keyCode === KEY_S && p1_Vert != UP) {
+				sendSetPlayerDirectionEvent(playernumber, "DOWN")
+        	} else if(e.keyCode === KEY_UP||e.keyCode === KEY_W && p1_Vert != DOWN) {
+				sendSetPlayerDirectionEvent(playernumber, "UP")
+        	} else if(e.keyCode === KEY_LEFT ||e.keyCode === KEY_A && p1_Hori != RIGHT){
+				sendSetPlayerDirectionEvent(playernumber, "LEFT")
+        	} else if(e.keyCode === KEY_RIGHT||e.keyCode === KEY_D && p1_Hori != LEFT){
+				sendSetPlayerDirectionEvent(playernumber, "RIGHT")
+        	}
+    	}
+     	else{
+		if(e.keyCode === KEY_DOWN||e.keyCode === KEY_S && p2_Vert != UP) {
+				sendSetPlayerDirectionEvent(playernumber, "DOWN")
+        	} else if(e.keyCode === KEY_UP||e.keyCode === KEY_W && p2_Vert != DOWN) {
+				sendSetPlayerDirectionEvent(playernumber, "UP")
+        	} else if(e.keyCode === KEY_LEFT ||e.keyCode === KEY_A && p2_Hori != RIGHT){
+				sendSetPlayerDirectionEvent(playernumber, "LEFT")
+        	} else if(e.keyCode === KEY_RIGHT||e.keyCode === KEY_D && p2_Hori != LEFT){
+				sendSetPlayerDirectionEvent(playernumber, "RIGHT")
+        	}		
+	}
     },false);
 }
 
