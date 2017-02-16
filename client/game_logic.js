@@ -62,6 +62,18 @@ var tie_game;
 
 var playernumber;
 
+function makeRandomID()
+{
+	// Credit/Source: http://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < 8; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    document.getElementById('pid').value = text;
+}
+
 function init_canvas() 
 {
 	// Create and initiate top text canvas element
