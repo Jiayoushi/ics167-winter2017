@@ -144,24 +144,27 @@ void messageHandler(int clientID, string message)
 	std::string err; // This string is updated with an error message if the json parser fails.
 	auto json = JSON::parse(message, err);
 	std::string firedEvent = json["event"].string_value();
+	std::vector<int> clientIDs = server.getClientIDs();
 
 	// Begin Event Handling
 	if (firedEvent == "setPlayerIDEvent") // JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
 	{
-		if (!gameState.getPlayer1Online())
-		{
-			log("player1 ");
-			setPlayerIDEventHandler(clientID, 1, json["id"].string_value());
-			server.wsSend(0, "Player#1");
-		}
-		else 
-		{
-			log("player2 ");
-			setPlayerIDEventHandler(clientID, 2, json["id"].string_value());
-			server.wsSend(1, "Player#2");
-			server.wsSend(0, "Both clients have now been connected.");
-			server.wsSend(0, "Ready to start game...");
-			server.wsSend(1, "Ready to start game...");
+		if (clientIDs.size() <= 2) {
+			if (!gameState.getPlayer1Online())
+			{
+				log("player1 ");
+				setPlayerIDEventHandler(clientID, 1, json["id"].string_value());
+				server.wsSend(0, "Player#1");
+			}
+			else 
+			{
+				log("player2 ");
+				setPlayerIDEventHandler(clientID, 2, json["id"].string_value());
+				server.wsSend(1, "Player#2");
+				server.wsSend(0, "Both clients have now been connected.");
+				server.wsSend(0, "Ready to start game...");
+				server.wsSend(1, "Ready to start game...");
+			}
 		}
 	}
 	else if (firedEvent == "setPlayerDirectionEvent") // JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
