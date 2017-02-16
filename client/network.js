@@ -121,7 +121,7 @@ function connect()
 			{
 				playernumber = theJSON.player;
 				log("[Server] You are Player #" + playernumber + ".");
-				log("[Server] Your ID is " + document.getElementById('p1id').value);
+				log("[Server] Your ID is " + document.getElementById('pid').value);
 				if (playernumber == PLAYER_1)
 				{
 					log("[Client] Waiting for Player #2 to join...");
