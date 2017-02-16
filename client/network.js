@@ -36,7 +36,7 @@ function connect()
 	Server.bind('open', function() 
 	{
 		log("[Client] Connected.");
-		sendSetPlayerIDEvent(1, document.getElementById('p1id').value);
+		sendSetPlayerIDEvent(1, document.getElementById('pid').value);
 		log("[Client] ID sent.");
 	});
 
