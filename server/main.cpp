@@ -69,10 +69,10 @@ void sendNewRewardEvent(int clientID, int X, int Y)
 	log("newRewardEvent sent to client ID " + std::to_string(clientID) + " (X: " + std::to_string(X) + ", Y: " + std::to_string(Y) + ").");
 }
 
-void sendPlayerScoreRelayEvent(int clientID, int player, int X, int Y)
+void sendPlayerScoreRelayEvent(int clientID, int player, int index)
 {
-	server.wsSend(clientID, "{\"event\": \"playerScoreRelayEvent\", \"player\": " + std::to_string(player) + ", \"X\": " + std::to_string(X) + ", \"Y\": " + std::to_string(Y) + "}");
-	log("playerScoreRelayEvent sent to client ID " + std::to_string(clientID) + " (Player: " + std::to_string(player) + ", X: " + std::to_string(X) + ", Y: " + std::to_string(Y) + ").");
+	server.wsSend(clientID, "{\"event\": \"playerScoreRelayEvent\", \"player\": " + std::to_string(player) + ", \"index\": " + std::to_string(index) + "}");
+	log("playerScoreRelayEvent sent to client ID " + std::to_string(clientID) + " (Player: " + std::to_string(player) + ", index: " + std::to_string(index) + ").");
 }
 /* Begin Event Handlers */
 
@@ -122,12 +122,12 @@ void setPlayerDirectionEventHandler(int clientID, int player, std::string direct
 	}
 }
 
-void playerScoreEventHandler(int clientID, int player, int x, int y)
+void playerScoreEventHandler(int clientID, int player, int index)
 {
 	log("playerScoreEventHandler fired.");
 	gameState.incrementScore(player);
-	sendPlayerScoreRelayEvent(0, player, x, y);
-	sendPlayerScoreRelayEvent(1, player, x, y);
+	sendPlayerScoreRelayEvent(0, player, index);
+	sendPlayerScoreRelayEvent(1, player, index);
 	//server.wsSend(clientID, gameState.getPlayerID(player) + " scored and now has " + std::to_string(gameState.getPlayerScore(player)) + " point(s).");
 	//server.wsSend(clientID, gameState.getPlayerID(player) + " scored and now has " + std::to_string(gameState.getPlayerScore(player)) + " point(s).");
 	new_event(gameState.getPlayerID(player) + " scored. New score: " + std::to_string(gameState.getPlayerScore(player)));
@@ -233,8 +233,7 @@ void messageHandler(int clientID, string message)
 	}
 	else if (firedEvent == "playerScoreEvent") // JSON example -> {"event": "playerScoreEvent", "player": 1}
 	{
-		int x, y = 0; //temporary
-		playerScoreEventHandler(clientID, json["player"].int_value(), x, y);
+		playerScoreEventHandler(clientID, json["player"].int_value(), json["index"].int_value());
 	}
 	else if (firedEvent == "gameFinishedEvent") // JSON example -> {"event": "gameFinishedEvent"}
 	{
