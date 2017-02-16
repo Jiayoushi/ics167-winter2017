@@ -17,6 +17,7 @@ function Start()
 	document.getElementById('Restart').style.visibility = 'hidden';
 }
 
+/*
 function OfflineStart()
 {
 	main();
@@ -26,6 +27,7 @@ function OfflineStart()
 	document.getElementById('OfflineStart').style.visibility = 'hidden';
 	document.getElementById('Restart').style.visibility = 'hidden';
 }
+*/
 
 function Restart()
 {
