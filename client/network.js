@@ -106,6 +106,28 @@ function connect()
 					}
 				}
 			}
+			else if(firedEvent == "playerScoreRelayEvent")
+			{
+				delete_node(rewards,Number(theJSON.index));
+				randomize_reward();
+				if(theJSON.player == 1){
+					p1_score++;
+        			add_tail(p1snake);
+					text_Ctx.fillStyle = 'white'; 		// White out old score text.
+	   				text_Ctx.fillRect(p1_scoretext_x, scoretext_y-10,30,10);
+	    			text_Ctx.fillStyle = 'black'; 		// Write in new score.
+	    			text_Ctx.fillText(p1_score, p1_scoretext_x, scoretext_y);
+				}
+				else
+				{
+					p2_score++;
+					add_tail(p2snake)
+					text_Ctx.fillStyle = 'white'; 		// White out old score text.
+    				text_Ctx.fillRect(p2_scoretext_x, scoretext_y-10,30,10);
+	    			text_Ctx.fillStyle = 'black'; 		// Write in new score.
+	    			text_Ctx.fillText(p2_score, p2_scoretext_x, scoretext_y)
+				}
+			}
 			else if (firedEvent == "newRewardEvent")
 			{
 				var position;
@@ -207,9 +229,9 @@ function sendSetPlayerDirectionEvent(player, direction)
 {
 	send("{\"event\": \"setPlayerDirectionEvent\", \"player\": " + player + ", \"direction\":\"" + direction + "\"}");
 }
-function sendPlayerScoreEvent(player)
+function sendPlayerScoreEvent(player, index)
 {
-	send("{\"event\": \"playerScoreEvent\", \"player\": " + player + "}"); // JSON example: JSON example -> {"event": "playerScoreEvent", "player": 1}
+	send("{\"event\": \"playerScoreEvent\", \"player\": " + player + ", \"index\": " + index + "}");
 }
 function sendRewardCoordinates(x,y)
 {
