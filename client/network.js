@@ -110,8 +110,8 @@ function connect()
 			{
 				var position;
 				log("[DEBUG] (New Reward) X: " + theJSON.x + ", Y: " + theJSON.y);
-				position = [theJSON.X, theJSON.Y]; // i have no idea how this works
-				rewards.push(position[0]); // i have no idea how this works
+				position = [{x: theJSON.X, y: theJSON.Y}] //x and y coordinate tuple
+				rewards.push(position[0]); //pushes to create new reward at location in reward array
 			}
 			else if (firedEvent == "gameStartedEvent")
 			{
