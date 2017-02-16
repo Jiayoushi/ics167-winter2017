@@ -11,7 +11,7 @@ const scoretext_y = 50;
 
 /* Settings for gameplay */
 const INIT_SNAKE_LENGTH = 2;      // Default length of snake
-const INTERVAL = 500;                // Loop every 60 milliseconds
+const INTERVAL = 200;                // Loop every 60 milliseconds
 const INIT_REWARD_NUMBER = 2;      
 
 /* Keyboard matching */
@@ -95,12 +95,22 @@ function init_canvas()
     text_Ctx = text_Canvas.getContext("2d");
     
 	// Draw const bottom text
-	text_Ctx.fillStyle = 'blue';
-	text_Ctx.fillText("Blue Snake - WASD", 10, scoretext_y-30);
-	text_Ctx.fillText("Blue Score:", 10, scoretext_y);
+	if (playernumber ==1)
+	{
+		text_Ctx.fillStyle = 'red';
+		text_Ctx.fillText("You are the Red Snake - Arrow Keys", 130, scoretext_y-30);
+
+	}
+	else
+	{
+		text_Ctx.fillStyle = 'blue';
+		text_Ctx.fillText("You are the Blue Snake - Arrow Keys", 130, scoretext_y-30);
+	}
 	text_Ctx.fillStyle = 'red';
-	text_Ctx.fillText("Red Snake - Arrow Keys", 260, scoretext_y-30);
 	text_Ctx.fillText("Red Score:", 260, scoretext_y);
+	text_Ctx.fillStyle = 'blue';
+	text_Ctx.fillText("Blue Score:", 10, scoretext_y);
+
 }
 
 
