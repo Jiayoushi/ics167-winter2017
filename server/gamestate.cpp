@@ -91,6 +91,15 @@ void GameState::resetIDs()
 	this->player2ID = "Player 2";
 }
 
+void GameState::resetID(int player)
+{
+	if (player == PLAYER_1)
+	{
+		this->player1ID = "Player 1";
+	}
+	else this->player2ID = "Player 2";
+}
+
 void GameState::reset()
 {
 	this->resetIDs();

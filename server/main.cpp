@@ -30,15 +30,64 @@ void new_event(string message) // helps distinguish game state changes from log 
 	std::cout << "[EVENT] " << message << std::endl;
 }
 
+/* Begin Event Senders */
+
+void sendUpdatePlayerNumberEvent(int clientID, int player) // in the future, the game logic will be handled by the server itself (prob milestone 2)
+{
+	server.wsSend(clientID, "{\"event\": \"updatePlayerNumberEvent\", \"player\" : " + std::to_string(player) + "}");
+	log("sendUpdatePlayerNumberEvent sent for client ID " + std::to_string(clientID) + " (player# = " + std::to_string(player) + ").");
+}
+
+void sendPlayerDisconnectEvent(int clientID, int player) // in the future, the game logic will be handled by the server itself (prob milestone 2)
+{
+	server.wsSend(clientID, "{\"event\": \"playerDisconnectEvent\", \"player\" : " + std::to_string(player) + "}");
+	log("playerDisconnectEvent sent for client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " disconnected.)");
+}
+
+void sendPlayerConnectedEvent(int clientID, int player, std::string id)
+{
+	server.wsSend(clientID, "{\"event\": \"playerConnectedEvent\", \"id\":\"" + id + "\", \"player\" : " + std::to_string(player) + "}");
+	log("playerConnectedEvent sent for client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " connected.)");
+}
+
+void sendGameStartedEvent(int clientID)
+{
+	server.wsSend(clientID, "The game has been started!");
+	server.wsSend(clientID, "{\"event\": \"gameStartedEvent\"}");
+	log("gameStartedEvent sent for client ID " + std::to_string(clientID) + ")");
+}
+
 /* Begin Event Handlers */
 
-void setPlayerIDEventHandler(int clientID, int player, std::string id)
+void setPlayerIDEventHandler(int clientID, int size, std::string id)
 {
+	if (size <= 2)
+	{
+		if (!gameState.getPlayer1Online())
+		{
+			log("Player 1 has connected.");
+			std::string previousID = gameState.getPlayerID(1);
+			gameState.setPlayerID(1, id);
+			//server.wsSend(clientID, previousID + "'s ID is now set to " + id);
+			new_event("New player ID set for " + previousID + ": " + id);
+			sendUpdatePlayerNumberEvent(clientID, 1);
+		}
+		else
+		{
+			log("Player 2 has connected.");
+			std::string previousID = gameState.getPlayerID(2);
+			gameState.setPlayerID(2, id);
+			//server.wsSend(clientID, previousID + "'s ID is now set to " + id);
+			new_event("New player ID set for " + previousID + ": " + id);
+			sendUpdatePlayerNumberEvent(clientID, 2);
+			sendPlayerConnectedEvent(1, PLAYER_1, gameState.getPlayerID(PLAYER_1)); // Tell Client ID 1 (Player 2) the information for Player 1
+			sendPlayerConnectedEvent(0, PLAYER_2, gameState.getPlayerID(PLAYER_2)); // Tell Client ID 0 (Player 1) the information for Player 2
+		}
+	}
+
 	log("setPlayerIDEventHandler fired.");
-	std::string previousID = gameState.getPlayerID(player);
-	gameState.setPlayerID(player, id);
-	server.wsSend(clientID, previousID + "'s ID is now set to " + id);
-	new_event("New player ID set for " + previousID + ": " + id);
+
+
 }
 
 void setPlayerDirectionEventHandler(int clientID, int player, std::string direction)
@@ -70,13 +119,13 @@ void setRewardEventHandler(int x, int y)
 	server.wsSend(1, "RewardCoordinates-" + std::to_string(x) + "-" + std::to_string(y));
 }
 
-void gameStartEventHandler(int clientID)
+void gameStartEventHandler()
 {
 	log("gameStartEventHandler fired.");
-	server.wsSend(clientID, "Game has been started!");
 	gameState.resetScores();
-	server.wsSend(clientID, "Scores have been set to 0.");
 	new_event("Player scores have been set back to 0 (client started game.)");
+	sendGameStartedEvent(0);
+	sendGameStartedEvent(1);
 }
 
 void gameFinishedEventHandler(int clientID) // in the future, the game logic will be handled by the server itself (prob milestone 2)
@@ -119,21 +168,23 @@ void closeHandler(int clientID)
 	{
 		if (clientIDs.size() >= 2)
 		{
-			server.wsSend(1, "Player 1 Disconnected");//gameState.getPlayerID(PLAYER_1) + " has disconnected.");
+			sendPlayerDisconnectEvent(1, PLAYER_1); // Tell Client ID 1 (Player 2) that Player 1 has disconnected.
 			server.wsClose(1);
 		}
 		gameState.setPlayer1Online(false);
-		gameState.reset();
-		log(gameState.getPlayerID(PLAYER_1) + " has disconnected." + " Game state has been completely reset.");
+		gameState.resetScores();
+		log(gameState.getPlayerID(PLAYER_1) + " has disconnected (Player #1).");
+		gameState.resetID(PLAYER_1);
 	}
 	else if (clientID == 1)
 	{
 		if (clientIDs.size() >= 2)
 		{
-			server.wsSend(0, "Player 2 Disconnected");//gameState.getPlayerID(PLAYER_2) + " has disconnected.");
+			sendPlayerDisconnectEvent(0, PLAYER_2); // Tell Client ID 0 (Player 1) that Player 2 has disconnected.
 		}
-		gameState.reset();
-		log(gameState.getPlayerID(PLAYER_2) + " has disconnected." + " Game state has been completely reset.");
+		gameState.resetScores();
+		log(gameState.getPlayerID(PLAYER_2) + " has disconnected (Player #2)." + " Game state has been completely reset.");
+		gameState.resetID(PLAYER_2);
 	}
 }
 
@@ -149,23 +200,7 @@ void messageHandler(int clientID, string message)
 	// Begin Event Handling
 	if (firedEvent == "setPlayerIDEvent") // JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
 	{
-		if (clientIDs.size() <= 2) {
-			if (!gameState.getPlayer1Online())
-			{
-				log("player1 ");
-				setPlayerIDEventHandler(clientID, 1, json["id"].string_value());
-				server.wsSend(0, "Player#1");
-			}
-			else 
-			{
-				log("player2 ");
-				setPlayerIDEventHandler(clientID, 2, json["id"].string_value());
-				server.wsSend(1, "Player#2");
-				server.wsSend(0, "Both clients have now been connected.");
-				server.wsSend(0, "Ready to start game...");
-				server.wsSend(1, "Ready to start game...");
-			}
-		}
+		setPlayerIDEventHandler(clientID, clientIDs.size(), json["id"].string_value());
 	}
 	else if (firedEvent == "setPlayerDirectionEvent") // JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
 	{
@@ -173,8 +208,7 @@ void messageHandler(int clientID, string message)
 	}
 	else if (firedEvent == "gameStartEvent") // JSON example -> {"event": "gameFinishedEvent"}
 	{
-		gameStartEventHandler(0);
-		gameStartEventHandler(1);
+		gameStartEventHandler();
 	}
 	else if (firedEvent == "playerScoreEvent") // JSON example -> {"event": "playerScoreEvent", "player": 1}
 	{

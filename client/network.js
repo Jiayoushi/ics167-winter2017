@@ -31,8 +31,7 @@ function connect()
 	{
 		log("[Client] Connected.");
 		sendSetPlayerIDEvent(1, document.getElementById('p1id').value);
-		//sendSetPlayerIDEvent(2, document.getElementById('p2id').value); //Connect one at a time
-		log("[Client] IDs sent.");
+		log("[Client] ID sent.");
 	});
 
 	// Disconnect handler
@@ -44,11 +43,87 @@ function connect()
 	// Log any messages sent from server
 	Server.bind('message', function( payload ) 
 	{
-		log( "[Server] " + payload );
-		if(payload=="Both clients have now been connected.")
+		try
 		{
-			document.getElementById('Start').style.visibility = 'visible';
+			var theJSON = JSON.parse(payload);
+			var firedEvent = theJSON.event;
+			if (firedEvent == "gameStartedEvent")
+			{
+				main();
+			}
+			else if (firedEvent == "updatePlayerNumberEvent")
+			{
+				playernumber = theJSON.player;
+				log("[Server] You are Player #" + playernumber + ".");
+				log("[Server] Your ID is " + document.getElementById('p1id').value);
+				if (playernumber == 1)
+				{
+					log("[Client] Waiting for Player #2 to join...");
+				}
+				else if (playernumber == 1)
+				{
+					log("[Client] Retrieving Player #1's information...");
+				}
+			}
+			else if (firedEvent == "playerConnectedEvent")
+			{
+				var connectedPlayer = theJSON.player;
+				if (connectedPlayer == 1) // Player 1 has connected, only player 2 gets this event
+				{
+					log("[Client] Player #1 has joined the networked game.");
+					log("[Client] Player #1's ID is " + theJSON.id);
+					log("[Client] Waiting for Player #1 to start the game...");
+				}
+				else if (connectedPlayer == 2) // Player 2 has connected, only player 1 gets this event
+				{
+					log("[Client] Player #2 has joined the networked game.");
+					log("[Client] Player #2's ID is " + theJSON.id);
+					log("[Client] Ready to start the game...");
+					document.getElementById('Start').style.visibility = 'visible';
+				}
+			}
+			else if (firedEvent == "playerDisconnectEvent")
+			{
+				var disconnectedPlayer = theJSON.player;
+				if (disconnectedPlayer == 1) // Player 1 has disconnected, so this client is Player 2
+				{
+					if (gameStarted == true || playernumber == 2) // player #2 will never have "gameStarted" to true since it doesnt press button
+					{
+						clearInterval(game_interval_ID);
+						dc_message(1);
+						log("[Client] Player 1 has disconnected, so the game ended.");
+						gameStarted = false;
+					}
+					else
+					{
+						log("[Client] Player 1 has disconnected.");
+					}
+					log("[Client] Player #1 was the leader, so the server has closed the game room and disconnected you.");
+				}
+				else if (disconnectedPlayer == 2) // Player 2 has disconnected, so this client is Player 1
+				{
+					if (gameStarted == true)
+					{
+						clearInterval(game_interval_ID);
+						dc_message(2);
+						log("[Client] Player 2 has disconnected, so the game ended.");
+						gameStarted = false;
+					}
+					else
+					{
+						log("[Client] Player 2 has disconnected.");
+						document.getElementById('Start').style.visibility = 'hidden';
+					}
+					log("[Client] Waiting for Player #2 to join...");
+				}
+			}
 		}
+		catch (err)
+		{
+			console.log(err);
+			log("[Server] " + payload);
+		}
+		/*
 		if(payload.split("-")[0] == "RewardCoordinates")
 		{
 			log(payload.split("-")[1]+"-"+payload.split("-")[2]);
@@ -56,14 +131,6 @@ function connect()
 			position = [{x:Number(payload.split("-")[1]),
                        y:Number(payload.split("-")[2])}]; 
 			rewards.push(position[0]);
-		}
-		if(payload == "Player#1")
-		{
-			playernumber = 1;
-		}
-		if(payload == "Player#2")
-		{
-			playernumber = 2;
 		}
 		if(payload == "P1 Direction: UP")
 		{
@@ -105,39 +172,9 @@ function connect()
 			p2_Hori = RIGHT;
             p2_Vert = NONE;
 		}
-		if (payload == "Player 1 Disconnected") // only given to Player 2
-		{
-			if (gameStarted == true)
-			{
-				clearInterval(game_interval_ID);
-				dc_message(1);
-				log("[Client] Player 1 has disconnected, so the game ended.");
-			}
-			else
-			{
-				log("[Client] Player 1 has disconnected.");
-			}
-		}
-		if (payload == "Player 2 Disconnected") // only given to Player 1
-		{
-			if (gameStarted == true)
-			{
-				clearInterval(game_interval_ID);
-				dc_message(2);
-				log("[Client] Player 1 has disconnected, so the game ended.");
-			}
-			else
-			{
-				log("[Client] Player 2 has disconnected.");
-				document.getElementById('Start').style.visibility = 'hidden';
-			}
-		}
-		if(payload == "Game has been started!")
-		{
-			main();
-		}
+		*/
 	});
-
+	
 	Server.connect();
 }
 
@@ -150,7 +187,6 @@ function send( text )
 function sendSetPlayerIDEvent(player, id)
 {
 	send("{\"event\": \"setPlayerIDEvent\", \"player\": " + player + ", \"id\":\"" + id + "\"}"); // JSON example: JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
-	//log("[Client] Sent message: " + "{\"event\": \"setPlayerIDEvent\", \"player\": " + player + ", \"id\":\"" + id + "\"}");
 }
 function sendSetPlayerDirectionEvent(player, direction)
 {
@@ -159,7 +195,6 @@ function sendSetPlayerDirectionEvent(player, direction)
 function sendPlayerScoreEvent(player)
 {
 	send("{\"event\": \"playerScoreEvent\", \"player\": " + player + "}"); // JSON example: JSON example -> {"event": "playerScoreEvent", "player": 1}
-	//log("[Client] Sent message: " + "{\"event\": \"playerScoreEvent\", \"player\": " + player + "}");
 }
 function sendRewardCoordinates(x,y)
 {
@@ -168,12 +203,10 @@ function sendRewardCoordinates(x,y)
 function sendGameStartEvent()
 {
 	send("{\"event\": \"gameStartEvent\"" + "}"); // JSON example: JSON example -> {"event": "gameStartEvent"}
-	//log("[Client] Sent message: " + "{\"event\": \"gameStartEvent\"" + "}");
 }
 function sendGameFinishedEvent()
 {
 	send("{\"event\": \"gameFinishedEvent\"" + "}"); // JSON example: JSON example -> {"event": "gameFinishedEvent"}
-	//log("[Client] Sent message: " + "{\"event\": \"gameFinishedEvent\"" + "}");
 }
 
 
