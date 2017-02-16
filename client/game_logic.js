@@ -311,7 +311,8 @@ function update()
     }
     
     // Remove reward from the rewards array if there is any, add a new reward after removing.
-    process_rewards(detect_rewards());  
+    detect_rewards();
+    //process_rewards(detect_rewards()); Dont proccess just detect collision from rewards  
 }
 
 
@@ -481,37 +482,16 @@ function detect_rewards()
     var index_1 = NOT_COLLIDE;
     if( (index_1 = detect_collision(p1snake,rewards,0)) != NOT_COLLIDE)
     {
-
-        p1_score++;
-        add_tail(p1snake);
-
-		if (online)
-		{
-			sendPlayerScoreEvent(1);
-		}
-	    
-	    text_Ctx.fillStyle = 'white'; 		// White out old score text.
-	    text_Ctx.fillRect(p1_scoretext_x, scoretext_y-10,30,10);
-	    text_Ctx.fillStyle = 'black'; 		// Write in new score.
-	    text_Ctx.fillText(p1_score, p1_scoretext_x, scoretext_y);
+	if(playernumber == 1){
+		sendPlayerScoreEvent(playernumber, index_1);
+	}
     }
-
     var index_2 = NOT_COLLIDE;
     if( (index_2 = detect_collision(p2snake,rewards,0)) != NOT_COLLIDE)
     {
-        p2_score++;
-        add_tail(p2snake);
-
-		if (online)
-		{
-			sendPlayerScoreEvent(2);
-		}
-		
-	    text_Ctx.fillStyle = 'white'; 		// White out old score text.
-    	text_Ctx.fillRect(p2_scoretext_x, scoretext_y-10,30,10);
-	    text_Ctx.fillStyle = 'black'; 		// Write in new score.
-	    text_Ctx.fillText(p2_score, p2_scoretext_x, scoretext_y)
-
+       if(playernumber == 2){
+		sendPlayerScoreEvent(playernumber, index_2);
+       }
     }
 
     return [index_1,index_2];
