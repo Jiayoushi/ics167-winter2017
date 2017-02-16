@@ -267,6 +267,7 @@ function determine_winner()
 function win_message()
 {
 	// Displays Win Message based on which win value is true.
+	win_Ctx.clearRect(0, 0, width, height);
 	win_Ctx.fillStyle = 'black';
 	if(tie_game) {
 		win_Ctx.fillText("Tie Game!", (width/2)-23, 25);
@@ -280,7 +281,7 @@ function win_message()
 
 function dc_message(player)
 {
-	// Displays Win Message based on which win value is true.
+	win_Ctx.clearRect(0, 0, width, height);
 	win_Ctx.fillStyle = 'black';
 	if(player == 1) 
 	{

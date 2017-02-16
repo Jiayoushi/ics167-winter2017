@@ -154,9 +154,7 @@ void gameFinishedEventHandler(int clientID) // in the future, the game logic wil
 	log("gameFinishedEventHandler fired.");
 	server.wsSend(clientID, "Final Scores - (" + gameState.getPlayerID(PLAYER_1) + ": " + std::to_string(gameState.getPlayerScore(PLAYER_1)) + ", "
 		+ gameState.getPlayerID(PLAYER_2) + ": " + std::to_string(gameState.getPlayerScore(PLAYER_2)) + ").");
-	gameState.resetScores();
 	server.wsSend(clientID, "Scores have been reset back to 0.");
-	new_event("Player scores have been reset back to 0 (client finished game.)");
 }
 
 /* Begin Network Handlers */

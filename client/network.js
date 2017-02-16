@@ -110,7 +110,8 @@ function connect()
 			{
 				delete_node(rewards,Number(theJSON.index));
 				randomize_reward();
-				if(theJSON.player == 1){
+				if(theJSON.player == PLAYER_1)
+				{
 					p1_score++;
         			add_tail(p1snake);
 					text_Ctx.fillStyle = 'white'; 		// White out old score text.
@@ -199,15 +200,15 @@ function connect()
 					else
 					{
 						log("[Client] Player 2 has disconnected.");
-						document.getElementById('Start').style.visibility = 'hidden';
 					}
+					document.getElementById('Restart').style.visibility = 'hidden';
+					document.getElementById('Start').style.visibility = 'hidden';
 					log("[Client] Waiting for Player #2 to join...");
 				}
 			}
 		}
 		catch (err)
 		{
-			console.log(err);
 			log("[Server] " + payload);
 		}
 	});
