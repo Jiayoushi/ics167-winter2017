@@ -34,19 +34,19 @@ void new_event(string message) // helps distinguish game state changes from log 
 
 void sendUpdatePlayerNumberEvent(int clientID, int player) // in the future, the game logic will be handled by the server itself (prob milestone 2)
 {
-	server.wsSend(clientID, "{\"event\": \"updatePlayerNumberEvent\", \"player\" : " + std::to_string(player) + "}");
+	server.wsSend(clientID, "{\"event\": \"updatePlayerNumberEvent\", \"player\": " + std::to_string(player) + "}");
 	log("sendUpdatePlayerNumberEvent sent for client ID " + std::to_string(clientID) + " (player# = " + std::to_string(player) + ").");
 }
 
 void sendPlayerDisconnectEvent(int clientID, int player) // in the future, the game logic will be handled by the server itself (prob milestone 2)
 {
-	server.wsSend(clientID, "{\"event\": \"playerDisconnectEvent\", \"player\" : " + std::to_string(player) + "}");
+	server.wsSend(clientID, "{\"event\": \"playerDisconnectEvent\", \"player\": " + std::to_string(player) + "}");
 	log("playerDisconnectEvent sent for client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " disconnected.)");
 }
 
 void sendPlayerConnectedEvent(int clientID, int player, std::string id)
 {
-	server.wsSend(clientID, "{\"event\": \"playerConnectedEvent\", \"id\":\"" + id + "\", \"player\" : " + std::to_string(player) + "}");
+	server.wsSend(clientID, "{\"event\": \"playerConnectedEvent\", \"id\":\"" + id + "\", \"player\": " + std::to_string(player) + "}");
 	log("playerConnectedEvent sent for client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " connected.)");
 }
 
@@ -59,8 +59,14 @@ void sendGameStartedEvent(int clientID)
 
 void sendPlayerDirectionEvent(int clientID, int player, std::string direction)
 {
-	server.wsSend(clientID, "{\"event\": \"playerDirectionEvent\", \"direction\":\"" + direction + "\", \"player\" : " + std::to_string(player) + "}");
+	server.wsSend(clientID, "{\"event\": \"playerDirectionEvent\", \"direction\":\"" + direction + "\", \"player\": " + std::to_string(player) + "}");
 	log("playerDirectionEvent sent to client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " moved " + direction + ")");
+}
+
+void sendNewRewardEvent(int clientID, int X, int Y)
+{
+	server.wsSend(clientID, "{\"event\": \"newRewardEvent\", \"X\": " + std::to_string(X) + ", \"Y\": " + std::to_string(Y) + "}");
+	log("newRewardEvent sent to client ID " + std::to_string(clientID) + " (X: " + std::to_string(X) + ", Y: " + std::to_string(Y) + ").");
 }
 
 /* Begin Event Handlers */
@@ -122,8 +128,8 @@ void playerScoreEventHandler(int clientID, int player)
 void setRewardEventHandler(int x, int y)
 {
 	log("setRewardEventHandler fired.");
-	server.wsSend(0, "RewardCoordinates-" + std::to_string(x) + "-"+std::to_string(y));
-	server.wsSend(1, "RewardCoordinates-" + std::to_string(x) + "-" + std::to_string(y));
+	sendNewRewardEvent(0, x, y);
+	sendNewRewardEvent(1, x, y);
 }
 
 void gameStartEventHandler()

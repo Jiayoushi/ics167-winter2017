@@ -106,6 +106,13 @@ function connect()
 					}
 				}
 			}
+			else if (firedEvent == "newRewardEvent")
+			{
+				var position;
+				log("[DEBUG] (New Reward) X: " + theJSON.x + ", Y: " + theJSON.y);
+				position = [theJSON.X, theJSON.Y]; // i have no idea how this works
+				rewards.push(position[0]); // i have no idea how this works
+			}
 			else if (firedEvent == "gameStartedEvent")
 			{
 				main();
@@ -182,17 +189,6 @@ function connect()
 			console.log(err);
 			log("[Server] " + payload);
 		}
-		/*
-		if(payload.split("-")[0] == "RewardCoordinates")
-		{
-			log(payload.split("-")[1]+"-"+payload.split("-")[2]);
-			var position;
-			position = [{x:Number(payload.split("-")[1]),
-                       y:Number(payload.split("-")[2])}]; 
-			rewards.push(position[0]);
-		}
-
-		*/
 	});
 	
 	Server.connect();
