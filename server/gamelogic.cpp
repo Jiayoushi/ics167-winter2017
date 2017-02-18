@@ -1,6 +1,6 @@
 /*
 	ICS 167 | Group 2
-	Project Server | gamestate.cpp
+	Project Server | gamelogic.cpp
 */
 
 #include "gamelogic.h"
@@ -16,7 +16,14 @@ GameLogic::GameLogic()
 	//i.e. obstacles = Obstacle().vector
 	//i.e. rewards = Reward().vector
 
-	//initilize p1snake and p2snake here as well as vector of dot?
+	//initilize p1snake and p2snake here as well as vector of dot? Depending on how the Snake
+	//class is implemented;
+	p1_win = false;
+	p2_win = false;
+	tie_game = false;
+	
+	init_obstacles();
+	init_rewards();
 }
 
 ////Generate Obstacles///
@@ -77,6 +84,40 @@ void GameLogic::randomize_reward()
 	rewards.push_back(random_pos[0]);
 }
 	
+/// CHECKING WINNER ////
+
+int GameLogic::determine_winner()
+{
+	///READTHIS:
+	///tie-game not implemented. Need to know what field the Snake Object will have.
+	int return_val = -1;
+
+	if (detect_collision(p1snake, p1snake, 1) != NOT_COLLIDE ||
+		detect_collision(p1snake, p2snake, 0) != NOT_COLLIDE ||
+		detect_collision(p1snake, p2snake, 0) != NOT_COLLIDE ||
+		detect_out_of_bound(p1snake) != NOT_COLLIDE)
+	{
+		p2_win = true;
+		return_val = 1;
+	}
+
+	if (detect_collision(p2snake, p2snake, 1) != NOT_COLLIDE ||
+		detect_collision(p2snake, p1snake, 0) != NOT_COLLIDE ||
+		detect_collision(p2snake, obstacles, 0) != NOT_COLLIDE ||
+		detect_out_of_bound(p2snake) != NOT_COLLIDE)
+	{
+		p1_win = true;
+		return_val = 1;
+	}
+
+	if (p1_win && p2_win)
+	{
+		////NEED TO CHECK SCORES HERE. 
+	}
+
+
+	return return_val;
+}
 
 
 ///COLLISION DETECTION/////
@@ -96,6 +137,17 @@ int GameLogic::detect_collision(std::vector<dot> obj1, std::vector<dot> obj2, in
 
 	return NOT_COLLIDE;
 }
+int GameLogic::detect_out_of_bound(std::vector<dot> obj)
+{
+	return (obj[0].x <0 || obj[0].x > COLS - 1 || obj[0].y < 0 || obj[0].y > ROWS - 1)? 1: NOT_COLLIDE;
+}
+
+int GameLogic::detect_snake_collision()
+{
+	return (detect_collision(p1snake, p1snake, 1) != NOT_COLLIDE || detect_collision(p2snake, p2snake, 1) != NOT_COLLIDE ||
+		detect_collision(p1snake, p2snake, 0) != NOT_COLLIDE || detect_collision(p2snake, p1snake, 0) != NOT_COLLIDE) ? 1 : NOT_COLLIDE;
+}
+
 
 
 
