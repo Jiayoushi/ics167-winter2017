@@ -6,25 +6,66 @@
 #include "gamelogic.h"
 #include<string>
 
-
 GameLogic::GameLogic()
 {
 	///most likely place to send obstacles and rewards information upon game start
 
 
-	//don't forget to initialize the obstacle and reward class as a vector
-	//i.e. obstacles = Obstacle().vector
-	//i.e. rewards = Reward().vector
-
-	//initilize p1snake and p2snake here as well as vector of dot? Depending on how the Snake
-	//class is implemented;
 	p1_win = false;
 	p2_win = false;
 	tie_game = false;
 	
+	init_snakes();
 	init_obstacles();
 	init_rewards();
 }
+
+/// Create Snake/////
+void GameLogic::init_snakes()
+{
+	int snakeHead = 1;
+	for (int i = 0; i < 2; i++)
+	{
+		p1snake.push_back(dot());
+		p1snake[i].x = snakeHead;
+		p1snake[i].y = 0;
+		snakeHead--;
+
+		p2snake.push_back(dot());
+		p2snake[i].x = COLS - 2 + i;
+		p2snake[i].y = ROWS - 1;
+	}
+
+	p1_Hori = RIGHT;
+	p1_Vert = NONE;
+
+	p2_Hori = LEFT;
+	p2_Vert = NONE;
+
+	p1_score = 0;
+	p2_score = 0;
+
+}
+
+///MOVE///
+
+void GameLogic::move()
+{
+	p1snake.pop_back();
+	p2snake.pop_back();
+
+	p1snake.insert(p1snake.begin(), dot());
+	p2snake.insert(p2snake.begin(), dot());
+
+	p1snake[0].x = p1snake[1].x + p1_Hori;
+	p1snake[0].y = p1snake[1].y + p1_Vert;
+
+	p2snake[0].x = p2snake[1].x + p2_Hori;
+	p2snake[0].y = p2snake[1].y + p2_Vert;
+
+}
+
+
 
 ////Generate Obstacles///
 void GameLogic::init_obstacles()
@@ -88,8 +129,7 @@ void GameLogic::randomize_reward()
 
 int GameLogic::determine_winner()
 {
-	///READTHIS:
-	///tie-game not implemented. Need to know what field the Snake Object will have.
+	
 	int return_val = -1;
 
 	if (detect_collision(p1snake, p1snake, 1) != NOT_COLLIDE ||
@@ -112,13 +152,24 @@ int GameLogic::determine_winner()
 
 	if (p1_win && p2_win)
 	{
-		////NEED TO CHECK SCORES HERE. 
+		if (p1_score == p2_score)
+		{
+			tie_game = true;
+			p1_win = false;
+			p2_win = false;
+
+		}
+		else if (p1_score > p2_score){
+			p2_win = false;
+		}
+		else {
+			p1_win = false;
+		}
 	}
 
 
 	return return_val;
 }
-
 
 ///COLLISION DETECTION/////
 
@@ -137,6 +188,7 @@ int GameLogic::detect_collision(std::vector<dot> obj1, std::vector<dot> obj2, in
 
 	return NOT_COLLIDE;
 }
+
 int GameLogic::detect_out_of_bound(std::vector<dot> obj)
 {
 	return (obj[0].x <0 || obj[0].x > COLS - 1 || obj[0].y < 0 || obj[0].y > ROWS - 1)? 1: NOT_COLLIDE;
@@ -147,7 +199,5 @@ int GameLogic::detect_snake_collision()
 	return (detect_collision(p1snake, p1snake, 1) != NOT_COLLIDE || detect_collision(p2snake, p2snake, 1) != NOT_COLLIDE ||
 		detect_collision(p1snake, p2snake, 0) != NOT_COLLIDE || detect_collision(p2snake, p1snake, 0) != NOT_COLLIDE) ? 1 : NOT_COLLIDE;
 }
-
-
 
 
