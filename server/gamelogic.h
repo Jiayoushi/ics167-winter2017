@@ -106,3 +106,65 @@ private:
 };
 
 #endif
+	std::vector<dot> p2snake; 
+	
+
+
+  int p1_Hori = RIGHT;
+	int p1_Vert = NONE;
+	int p2_Hori = LEFT;
+	int p2_Vert = NONE;
+	int p1_score = 0;
+	int p2_score = 0;
+	bool p1_win = false;
+  bool p2_win = false;
+  bool tie_game = false;
+
+	GameLogic(); //constructor
+
+	void init_obstacles();
+	void create_obstacle(int x, int y, int size, std::string direction);
+
+	void init_rewards();
+	void randomize_reward();
+	
+	int determine_winner(); 
+	
+	int detect_out_of_bound(std::vector<dot> obj);
+	int detect_collision(std::vector<dot> obj1, std::vector<dot> obj2, int n);
+	int detect_snake_collision();
+
+	std::vector<int> detect_rewards();
+	
+
+	void init_snakes();
+	void move();
+	
+	
+
+
+private:
+
+	std::vector<dot> obstacles; 
+	
+
+	std::vector<dot> p1snake; 
+	std::vector<dot> p2snake; 
+	
+	int p1_Hori;
+	int p1_Vert;
+	int p2_Hori;
+	int p2_Vert;
+
+	int p1_score;
+	int p2_score;
+
+	//winning Variables//
+	bool p1_win;
+	bool p2_win;
+	bool tie_game;
+
+
+};
+
+#endif
