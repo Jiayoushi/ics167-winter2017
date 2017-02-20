@@ -31,6 +31,7 @@ function OfflineStart()
 
 function Restart()
 {
+	log("restart button pressed");
 	sendGameStartEvent();
 	gameStarted = true;
 	document.getElementById('Start').style.visibility = 'hidden';

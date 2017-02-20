@@ -144,6 +144,8 @@ function connect()
 			else if (firedEvent == "gameStartedEvent")
 			{
 				main();
+				if(playernumber == PLAYER_1)
+					document.getElementById('Restart').style.visibility = 'hidden';
 			}
 			else if (firedEvent == "gameFinishedEvent")
 			{
