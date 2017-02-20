@@ -1,0 +1,14 @@
+canvas 
+{
+	display: block;
+	border: 1px solid #000;
+	margin: auto;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+}
+.wrapper 
+{
+    text-align: center;
+}

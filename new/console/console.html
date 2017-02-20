@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Debug Console</title>
+	<meta charset='UTF-8' />
+	<link rel="stylesheet" type="text/css" href="./console_style.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script src="fancywebsocket.js"></script>
+	<script src="network.js"></script>
+</head>
+<body>
+	<div id='body' align=center>
+        Server IP: <input type='text' id='ip' name='ip' value="127.0.0.1">
+        Server Port: <input type='text' id='port' name='port' value="1111"><br/>
+		Player 1 ID: <input type='text', id='p1id' name='p1id' value="IAmPlayer1">
+		Player 2 ID: <input type='text', id='p2id' name='p2id' value="Player2TheGod"><br/>
+		<button type="button" id='cntBtn' onclick="connect();">Connect</button><br/>
+		<textarea rows="50" cols="100" id='log' name='log' readonly='readonly'></textarea><br/>
+		<input type='text' id='message' name='message' />
+	</div>
+</body>
+</html>
