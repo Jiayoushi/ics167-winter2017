@@ -10,9 +10,7 @@ const p2_scoretext_x = 75;
 const scoretext_y = 50;
 
 /* Settings for gameplay */
-const INIT_SNAKE_LENGTH = 2;      // Default length of snake
-const INTERVAL = 200;                // Loop every 60 milliseconds
-const INIT_REWARD_NUMBER = 2;      
+const INIT_SNAKE_LENGTH = 2;      // Default length of snake    
 
 /* Keyboard matching */
 const LEFT = -1;           // If a snake is going left, its x variable will be add LEFT, that is -1, for each loop. 
@@ -155,44 +153,11 @@ function init_obstacles()
     create_obstacle(18,10,5,"Horizontal");
 }
 
-
 function init_rewards()
 {
-    rewards = [];
-
-    if(playernumber==1)
-    {
-	for(var i=0; i<INIT_REWARD_NUMBER; i++)
-    	{
-    	    randomize_reward();
-    	}
-    }
+	rewards = [];
 }
 
-
-// Create a reward at a random place that does not collide with other snake or obstacles.
-// And at the end the reward is pushed to the rewards array.
-function randomize_reward()
-{
-	if(playernumber==1)
-	{
-    		var random_pos;
-    		do {
-        		random_pos = [{x:randomize_number(0,29),
-                       			y:randomize_number(0,29)}];   
-    		   }while(detect_collision(random_pos,p1snake,0) != NOT_COLLIDE || 
-           		  detect_collision(random_pos,p2snake,0) != NOT_COLLIDE || 
-           		  detect_collision(random_pos,obstacles,0) != NOT_COLLIDE);
-		sendRewardCoordinates(random_pos[0].x,random_pos[0].y);
-    		//rewards.push(random_pos[0]);
-	}
-}
-
-// Return a random number [from,to]  from,to both included.
-function randomize_number(from,to)
-{
-    return Math.floor((Math.random()*(to+1)+from));
-}
 
 
 // Create n dots start from the dot(pos_x,pos_y) at the direction either "Horizontal" or "Vertical"
@@ -215,78 +180,20 @@ function create_obstacle(pos_x,pos_y,n,direction)
         }
     }
 }
-function determine_winner()
-{
-	// Checks for collision. Returns 1 if collision was made, -1 otherwise.
-	var return_val = -1;
-	// Check if p1 snake collided. If it did, p2 has a potential to win.
-	if(detect_collision(p1snake,p1snake,1)   != NOT_COLLIDE || 
-       detect_collision(p1snake,p2snake,0)   != NOT_COLLIDE ||
-	   detect_collision(p1snake,obstacles,0) != NOT_COLLIDE ||
-       detect_out_of_bound(p1snake)          != NOT_COLLIDE)
-	{
-		p2_win = true;
-		return_val=1;
-		gameStart = false;
 
-		if (online)
-		{
-			sendGameFinishedEvent();
-		}
-	}
 
-	// Check if p2 snake collided. If it did, p1 has a potential to win.
-	if (detect_collision(p2snake,p2snake,1)     != NOT_COLLIDE || 
-        detect_collision(p2snake,p1snake,0)     != NOT_COLLIDE ||
-		detect_collision(p2snake,obstacles,0)   != NOT_COLLIDE ||
-	    detect_out_of_bound(p2snake)            != NOT_COLLIDE)
-	{
-		p1_win = true;
-		return_val=1;
-		gameStart = false;
-		if (online)
-		{
-			sendGameFinishedEvent();
-		}
-	}
-
-	// Check if both snakes collided, determine whether the game is tied based on same score.
-	// If they have different scores, the highest scoring snake wins and their win value remain true.
-	if(p1_win && p2_win){
-		if(p1_score == p2_score) {
-			tie_game = true;
-			p1_win  = false;
-			p2_win  = false;
-			gameStart = false;
-		} else if (p1_score > p2_score){
-			p2_win = false;
-			gameStart = false;
-		} else {
-			p1_win = false;	
-			gameStart = false;
-		}
-
-		if (online)
-		{
-			sendGameFinishedEvent();
-		}
-	}
-	return return_val;
-}
-
-function win_message()
+function win_message(winner)
 {
 	// Displays Win Message based on which win value is true.
 	win_Ctx.clearRect(0, 0, width, height);
 	win_Ctx.fillStyle = 'black';
-	if(tie_game) {
+	if(winner=="tie") {
 		win_Ctx.fillText("Tie Game!", (width/2)-23, 25);
-	} else if (p1_win) {
+	} else if (winner=="p1") {
 		win_Ctx.fillText("Red Snake Wins!", (width/2)-40, 25);
-	} else if (p2_win) {
+	} else if (winner=="p2") {
 		win_Ctx.fillText("Blue Snake Wins!", (width/2)-40, 25);
 	}
-	
 }
 
 function dc_message(player)
@@ -303,37 +210,12 @@ function dc_message(player)
 	}
 }
 
-function update()
-{
-    // Detect if condition is satisifed to pause the game.
-    if( determine_winner()!=NOT_COLLIDE)
-    {   
-        // Loop stop
-        clearInterval(game_interval_ID);
-	    
-	    // Display Win Message based on winner
-	    win_message();
-	    
-        // Restart button pops up
-	if(playernumber == 1)
-	{
-		document.getElementById('Restart').style.visibility = 'visible';
-	}
-    }
-    
-    // Remove reward from the rewards array if there is any, add a new reward after removing.
-    detect_rewards();
-    //process_rewards(detect_rewards()); Dont proccess just detect collision from rewards  
 }
 
 
 function loop()
 {
-    // Process the logic before go on drawing.
-    update();
-
     draw();
-    
     move();
 }
 
@@ -341,7 +223,6 @@ function init_objects()
 {
     init_snakes();
     init_obstacles();    
-    init_rewards(); 
 }
 
 function init_win_variables()
@@ -358,10 +239,11 @@ function main()
     init_canvas();
     init_input();
     init_objects();
+	  init_rewards();
      
     // Set the loop function to be called every x milliseconds, x to be INTERVAL.
-    game_interval_ID = setInterval(loop,INTERVAL);
-    loop();
+    //game_interval_ID = setInterval(loop,INTERVAL);
+    //loop();
 }
 
 
@@ -433,7 +315,7 @@ function init_snakes()
 // Clean the canvas so a new frame can be drawn.
 function clean_the_board()
 {
-    ctx.fillStyle = "white";
+  ctx.fillStyle = "white";
 	ctx.fillRect(0,0,width,height);
 	ctx.strokeStyle = "black";
 	ctx.strokeRect(0,0, width, height);
@@ -468,83 +350,7 @@ function fill(x,y, color)
 }
 
 
-// Return 1 if passed snake array goes out of bound, -1 otherwise
-function detect_out_of_bound(array)
-{   
-   // 1 is subtracted from Rows and Collumns because 
-   // there are extra free blocks beyond the right and bottom borders.
-   // A snake can be on the border and not greater, therefore hiding it
-   // in the extra block.
-   return (array[0].x<0 || array[0].x>COLS-1 || array[0].y<0 || array[0].y>ROWS-1)? 1:NOT_COLLIDE;   
-}
-
-
-// Return 1 when one of the snakes run into the other, -1 otherwise
-// Loop each snake's head looking for if there is any snake head's position is 
-// equal to one of the node of its body or the node of the other snake's body.
-function detect_snake_collision()
-{
-   return (detect_collision(p1snake,p1snake,1) != NOT_COLLIDE || detect_collision(p2snake,p2snake,1)!= NOT_COLLIDE ||
-            detect_collision(p1snake,p2snake,0)!= NOT_COLLIDE || detect_collision(p2snake,p1snake,0)!= NOT_COLLIDE )? 1:NOT_COLLIDE;
-}
-
-function detect_rewards()
-{
-    var index_1 = NOT_COLLIDE;
-    if( (index_1 = detect_collision(p1snake,rewards,0)) != NOT_COLLIDE)
-    {
-	if(playernumber == 1){
-		sendPlayerScoreEvent(playernumber, index_1);
-	}
-    }
-    var index_2 = NOT_COLLIDE;
-    if( (index_2 = detect_collision(p2snake,rewards,0)) != NOT_COLLIDE)
-    {
-       if(playernumber == 2){
-		sendPlayerScoreEvent(playernumber, index_2);
-       }
-    }
-
-    return [index_1,index_2];
-}
-
-function process_rewards(indexes)
-{
-    // 2 is the number of snake.
-    for(var i=0; i<2; i++)
-    {
-        if(indexes[i]!=NOT_COLLIDE)
-        {
-            delete_node(rewards,indexes[i]);
-            randomize_reward();
-
-            return NOT_COLLIDE;
-        }
-    }
-}
-
 function delete_node(array,index)
 {
     array.splice(index,1);
-}
-
-
-// Detect object1's head against object2's all nodes. Both variables should have the same structure [{x:0,y:0},{x:1,y:0},...]
-// If n is 0, it means check object1's head against the nth node of object2 until the end of object2.
-// Set to 1 to detect if a snake is running into itself.
-// Return index for object detected to have collision, -1 for no collision.
-function detect_collision(object1,object2,n)
-{
-    var object1_x = object1[0].x;
-    var object1_y = object1[0].y;
-    
-    for(var i=n; i<object2.length; i++)
-    {
-        if(object1_x === object2[i].x && object1_y === object2[i].y)
-        {
-
-            return i;
-        }
-    }
-    return NOT_COLLIDE;
 }

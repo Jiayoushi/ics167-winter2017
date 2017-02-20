@@ -8,7 +8,7 @@
 
 GameState::GameState()
 {
-
+    gameRunning = false;
 }
 
 GameState::GameState(std::string player1ID, std::string player2ID)
@@ -28,10 +28,13 @@ int GameState::getPlayerScore(int player)
 	return (player == PLAYER_1 ? this->player1Score : this->player2Score);
 }
 
-std::string GameState::getPlayerDirection(int player)
+
+bool GameState::getGameRunning()
 {
-	return (player == PLAYER_1 ? this->player1Direction : this->player2Direction);	
+    return gameRunning;
 }
+
+
 bool GameState::getPlayer1Online()
 {
 	return this->player1Online;
@@ -40,6 +43,11 @@ bool GameState::getPlayer1Online()
 int GameState::incrementScore(int player)
 {
 	return (player == PLAYER_1 ? (++(this->player1Score)) : (++(this->player2Score))); // this could cause problems but i doubt it. one liners r the best
+}
+
+void GameState::setGameRunning(bool state)
+{
+    gameRunning = state;
 }
 
 void GameState::setPlayerID(int player, std::string id)
@@ -66,19 +74,6 @@ void GameState::setPlayerScore(int player, int score)
 	else this->player2Score = score;
 }
 
-///NEWLY ADDED
-void GameState::setPlayerDirection(int player, std::string direction)
-{
-	if (player == PLAYER_1)
-	{
-		player1Direction = direction;
-	}
-	else if(player == PLAYER_2) {
-		player2Direction = direction;
-	}	
-}
-
-
 void GameState::resetScores()
 {
 	this->player1Score = 0;
@@ -100,8 +95,16 @@ void GameState::resetID(int player)
 	else this->player2ID = "Player 2";
 }
 
+
+void GameState::resetGameRunning()
+{
+    gameRunning = false;
+}
+
 void GameState::reset()
 {
 	this->resetIDs();
 	this->resetScores();
+  this->resetGameRunning();
 }
+

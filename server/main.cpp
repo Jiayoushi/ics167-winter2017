@@ -6,6 +6,7 @@
 #include "websocket.h" // Library authored by the TA.
 #include "json11.hpp" // Open-source C++ JSON parser library by MIT at https://github.com/dropbox/json11
 #include "gamestate.h" // Class created to keep track of game state.
+#include "gamelogic.h"
 
 #include <iostream>
 #include <vector>
@@ -17,6 +18,7 @@ typedef json11::Json JSON;
 
 webSocket server;
 GameState gameState;
+GameLogic gameLogic;
 
 /* Begin Helpers */
 
@@ -30,7 +32,17 @@ void new_event(string message) // helps distinguish game state changes from log 
 	std::cout << "[EVENT] " << message << std::endl;
 }
 
+
+
 /* Begin Event Senders */
+
+void sendLoopEvent(int clientID)
+{
+    server.wsSend(clientID, "{\"event\": \"loopEvent\"}");
+}
+
+
+
 
 void sendUpdatePlayerNumberEvent(int clientID, int player) // in the future, the game logic will be handled by the server itself (prob milestone 2)
 {
@@ -63,16 +75,29 @@ void sendPlayerDirectionEvent(int clientID, int player, std::string direction)
 	log("playerDirectionEvent sent to client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " moved " + direction + ")");
 }
 
-void sendNewRewardEvent(int clientID, int X, int Y)
+
+void sendNewRewardEvent(int clientID, int X, int Y, int index)
 {
-	server.wsSend(clientID, "{\"event\": \"newRewardEvent\", \"X\": " + std::to_string(X) + ", \"Y\": " + std::to_string(Y) + "}");
-	log("newRewardEvent sent to client ID " + std::to_string(clientID) + " (X: " + std::to_string(X) + ", Y: " + std::to_string(Y) + ").");
+	server.wsSend(clientID, "{\"event\": \"newRewardEvent\", \"X\": " + std::to_string(X) + ", \"Y\": " + std::to_string(Y) + ", \"index\": " + std::to_string(index) + "}");
+	log("newRewardEvent sent to client ID " + std::to_string(clientID) + " (X: " + std::to_string(X) + ", Y: " + std::to_string(Y) + ", index: "+ std::to_string(index) + ").");
 }
 
-void sendPlayerScoreRelayEvent(int clientID, int player, int index)
+void sendGameFinishedEvent(int clientID)
 {
-	server.wsSend(clientID, "{\"event\": \"playerScoreRelayEvent\", \"player\": " + std::to_string(player) + ", \"index\": " + std::to_string(index) + "}");
-	log("playerScoreRelayEvent sent to client ID " + std::to_string(clientID) + " (Player: " + std::to_string(player) + ", index: " + std::to_string(index) + ").");
+    std::string winner = gameLogic.getWinner();
+    server.wsSend(clientID, "{\"event\": \"gameFinishedEvent\", \"winner\":\"" + winner + "\"}");
+   
+    log("gameFinishedEvent broadcast");
+}
+
+
+void sendPlayerScoreRelayEvent(int clientID, int player)
+{
+	server.wsSend(clientID, "{\"event\": \"playerScoreRelayEvent\", \"player\": " + std::to_string(player)  + "}");
+	log("playerScoreRelayEvent sent to client ID " + std::to_string(clientID) + " (Player: " + std::to_string(player) + ").");
+
+
+
 }
 /* Begin Event Handlers */
 
@@ -105,57 +130,78 @@ void setPlayerIDEventHandler(int clientID, int size, std::string id)
 	log("setPlayerIDEventHandler fired.");
 
 
+
 }
 
 void setPlayerDirectionEventHandler(int clientID, int player, std::string direction)
 {
-	gameState.setPlayerDirection(player, direction);
-	if (player == PLAYER_1) 
-	{
-		sendPlayerDirectionEvent(0, PLAYER_1, direction);
-		sendPlayerDirectionEvent(1, PLAYER_1, direction);
-	}
-	else 
-	{ 
-		sendPlayerDirectionEvent(0, PLAYER_2, direction);
-		sendPlayerDirectionEvent(1, PLAYER_2, direction);
-	}
+    log("PlayerDirectionEventHandler fired");
+    gameLogic.setDirection(player,direction);
+    
+    sendPlayerDirectionEvent(0, player, direction);
+    sendPlayerDirectionEvent(1, player, direction);
 }
 
-void playerScoreEventHandler(int clientID, int player, int index)
+
+void loopEventHandler()
+{
+    sendLoopEvent(0);
+    sendLoopEvent(1);
+}
+
+/* Broacast which player scores */
+void playerScoreEventHandler(int player)
 {
 	log("playerScoreEventHandler fired.");
-	gameState.incrementScore(player);
-	sendPlayerScoreRelayEvent(0, player, index);
-	sendPlayerScoreRelayEvent(1, player, index);
-	//server.wsSend(clientID, gameState.getPlayerID(player) + " scored and now has " + std::to_string(gameState.getPlayerScore(player)) + " point(s).");
-	//server.wsSend(clientID, gameState.getPlayerID(player) + " scored and now has " + std::to_string(gameState.getPlayerScore(player)) + " point(s).");
-	new_event(gameState.getPlayerID(player) + " scored. New score: " + std::to_string(gameState.getPlayerScore(player)));
+	
+    gameLogic.incrementScore(player);
+
+	sendPlayerScoreRelayEvent(0, player);
+	sendPlayerScoreRelayEvent(1, player);
+	
+    new_event(gameState.getPlayerID(player) + " scored. New score: " + std::to_string(gameState.getPlayerScore(player)));
 }
 
-void setRewardEventHandler(int x, int y)
+void RewardEventHandler(int x, int y, int index)
 {
-	log("setRewardEventHandler fired.");
-	sendNewRewardEvent(0, x, y);
-	sendNewRewardEvent(1, x, y);
+	log("RewardEventHandler fired.");
+	sendNewRewardEvent(0, x, y, index);
+	sendNewRewardEvent(1, x, y, index);
 }
 
 void gameStartEventHandler()
 {
+
 	log("gameStartEventHandler fired.");
-	gameState.resetScores();
 	new_event("Player scores have been set back to 0 (client started game.)");
+
 	sendGameStartedEvent(0);
 	sendGameStartedEvent(1);
+
+    // -1 indicates there is no reward to be removed.
+    RewardEventHandler(gameLogic.rewards[0].x, gameLogic.rewards[0].y, -1);
+    RewardEventHandler(gameLogic.rewards[1].x, gameLogic.rewards[1].y, -1);
+
+    gameState.resetScores();
+    gameState.setGameRunning(true);
+   
 }
 
-void gameFinishedEventHandler(int clientID) // in the future, the game logic will be handled by the server itself (prob milestone 2)
+
+void gameFinishedEventHandler() // in the future, the game logic will be handled by the server itself (prob milestone 2)
 {
 	log("gameFinishedEventHandler fired.");
-	server.wsSend(clientID, "Final Scores - (" + gameState.getPlayerID(PLAYER_1) + ": " + std::to_string(gameState.getPlayerScore(PLAYER_1)) + ", "
-		+ gameState.getPlayerID(PLAYER_2) + ": " + std::to_string(gameState.getPlayerScore(PLAYER_2)) + ").");
-	server.wsSend(clientID, "Scores have been reset back to 0.");
+    
+    sendGameFinishedEvent(0);
+    sendGameFinishedEvent(1);
+
+    gameLogic.reset();
+    gameState.setGameRunning(false);
+
 }
+
+
+
 
 /* Begin Network Handlers */
 
@@ -192,6 +238,10 @@ void closeHandler(int clientID)
 		}
 		gameState.setPlayer1Online(false);
 		gameState.resetScores();
+
+    gameLogic.reset();
+    gameState.setGameRunning(false);
+
 		log(gameState.getPlayerID(PLAYER_1) + " has disconnected (Player #1).");
 		gameState.resetID(PLAYER_1);
 	}
@@ -202,6 +252,10 @@ void closeHandler(int clientID)
 			sendPlayerDisconnectEvent(0, PLAYER_2); // Tell Client ID 0 (Player 1) that Player 2 has disconnected.
 		}
 		gameState.resetScores();
+
+    gameLogic.reset();
+    gameState.setGameRunning(false);
+
 		log(gameState.getPlayerID(PLAYER_2) + " has disconnected (Player #2)." + " Game state has been completely reset.");
 		gameState.resetID(PLAYER_2);
 	}
@@ -229,18 +283,6 @@ void messageHandler(int clientID, string message)
 	{
 		gameStartEventHandler();
 	}
-	else if (firedEvent == "playerScoreEvent") // JSON example -> {"event": "playerScoreEvent", "player": 1}
-	{
-		playerScoreEventHandler(clientID, json["player"].int_value(), json["index"].int_value());
-	}
-	else if (firedEvent == "gameFinishedEvent") // JSON example -> {"event": "gameFinishedEvent"}
-	{
-		gameFinishedEventHandler(clientID);
-	}
-	else if (firedEvent == "rewardCoordinatesEvent") // JSON example -> {"event": "gameFinishedEvent"}
-	{
-		setRewardEventHandler(json["x"].int_value(), json["y"].int_value());
-	}
 	else
 	{
 		log("Error (if any): " + err);
@@ -248,6 +290,47 @@ void messageHandler(int clientID, string message)
 	}
 }
 
+
+/* Called 100 times every 1 second */
+void periodicHandler()
+{
+    static int count = 0;
+    count++;
+
+    // Call functions once every (20/100) seconds
+    if (count==20)
+    {
+        // Only when the game is currently running.
+        if(gameState.getGameRunning())
+        {
+            if(gameLogic.determine_winner()!=-1)
+            {
+                gameFinishedEventHandler();
+            }
+            else
+            {    
+                // Locally check the rewards collision, delete corresponding reward and then update local player's score
+                // result[0] is the player who scores,  result[1] is the index of the reward for the client to remove.
+                rewardInfo ri = gameLogic.process_rewards();
+            
+                //gameLogic.print_it();
+                // If two rewards are eaten at the same time, p1 is first processed, p2 will be processed next loop
+                if(ri.player!=-1)
+                {
+                    RewardEventHandler(ri.new_reward.x, ri.new_reward.y, ri.index);
+                    playerScoreEventHandler(ri.player);
+                }
+                           
+                // Ask the clients to move and then the server to move
+                loopEventHandler();
+                gameLogic.move();
+                
+             }
+        }        
+
+        count = 0;
+    }
+}
 /* Begin Main Function */
 int main()
 {
@@ -259,8 +342,10 @@ int main()
 	server.setOpenHandler(openHandler);
 	server.setCloseHandler(closeHandler);
 	server.setMessageHandler(messageHandler);
-
+    server.setPeriodicHandler(periodicHandler);
+    
 	server.startServer(port);
-
+ 
+  
 	return 0;
 }

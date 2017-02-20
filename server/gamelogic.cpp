@@ -4,20 +4,19 @@
 */
 
 #include "gamelogic.h"
-#include<string>
+#include <string>
 
 GameLogic::GameLogic()
 {
 	///most likely place to send obstacles and rewards information upon game start
 
-
-	p1_win = false;
-	p2_win = false;
-	tie_game = false;
+    // Don't move this, it need to be placed before generate any random items
+    srand(time(NULL));
 	
-	init_snakes();
+    init_snakes();
 	init_obstacles();
 	init_rewards();
+
 }
 
 /// Create Snake/////
@@ -26,25 +25,11 @@ void GameLogic::init_snakes()
 	int snakeHead = 1;
 	for (int i = 0; i < 2; i++)
 	{
-		p1snake.push_back(dot());
-		p1snake[i].x = snakeHead;
-		p1snake[i].y = 0;
-		snakeHead--;
+		p1snake.push_back( dot( snakeHead-- , 0 ));
 
-		p2snake.push_back(dot());
-		p2snake[i].x = COLS - 2 + i;
-		p2snake[i].y = ROWS - 1;
+		p2snake.push_back( dot( COLS -2 + i , ROWS - 1));
+
 	}
-
-	p1_Hori = RIGHT;
-	p1_Vert = NONE;
-
-	p2_Hori = LEFT;
-	p2_Vert = NONE;
-
-	p1_score = 0;
-	p2_score = 0;
-
 }
 
 ///MOVE///
@@ -54,18 +39,17 @@ void GameLogic::move()
 	p1snake.pop_back();
 	p2snake.pop_back();
 
-	p1snake.insert(p1snake.begin(), dot());
-	p2snake.insert(p2snake.begin(), dot());
-
-	p1snake[0].x = p1snake[1].x + p1_Hori;
-	p1snake[0].y = p1snake[1].y + p1_Vert;
-
-	p2snake[0].x = p2snake[1].x + p2_Hori;
-	p2snake[0].y = p2snake[1].y + p2_Vert;
-
+	p1snake.insert(p1snake.begin(), dot(p1snake[0].x + p1_Hori, p1snake[0].y + p1_Vert));
+	p2snake.insert(p2snake.begin(), dot(p2snake[0].x + p2_Hori, p2snake[0].y + p2_Vert));
 }
 
-
+void GameLogic::add_tail(std::vector<dot>& snake)
+{
+    int len = snake.size();
+    int x = snake[len-1].x - snake[len-2].x + snake[len-1].x;
+    int y = snake[len-1].y - snake[len-2].y + snake[len-1].y;
+    snake.push_back(dot(x,y));
+}
 
 ////Generate Obstacles///
 void GameLogic::init_obstacles()
@@ -80,22 +64,17 @@ void GameLogic::create_obstacle(int x, int y, int size, std::string direction)
 {
 	if (direction == "Horizontal")
 	{
-		for (int end = x + size; x < end; x++)
-		{
-			obstacles.push_back(dot());
-			obstacles[end].x = x;
-			obstacles[end].y = y;
+        for (int i = 0; i < size; i++,x++)
+        {
+            obstacles.push_back(dot(x,y));
 		}
 	}
-
 	else if (direction == "Vertical")
 	{
-		for (int end = y + size; y < end; y++)
-		{
-			obstacles.push_back(dot());
-			obstacles[end].x = x;
-			obstacles[end].y = y;
-		}
+        for (int i = 0; i < size; i++,y++)
+        {
+            obstacles.push_back(dot(x,y));
+        }
 	}
 }
 
@@ -110,38 +89,44 @@ void GameLogic::init_rewards()
 	}
 }
 
-void GameLogic::randomize_reward()
+int GameLogic::random_number(int floor, int ceiling)
 {
-	std::vector<dot> random_pos;
+    return rand()%ceiling+floor;
+}
 
+dot GameLogic::randomize_reward()
+{
+    std::vector<dot> random_pos;
+    
 	do{
-		random_pos = { dot() };
-		random_pos[0].x = rand() % 29;
-		random_pos[0].y = rand() % 29;
-	} while (detect_collision(random_pos, p1snake, 0) != NOT_COLLIDE ||
-		detect_collision(random_pos, p2snake, 0) != NOT_COLLIDE ||
-		detect_collision(random_pos, obstacles, 0) != NOT_COLLIDE);
+		random_pos.push_back(dot(random_number(0,29),
+                                    random_number(0,29)));
+
+    } while (detect_collision(random_pos, p1snake, 0) != NOT_COLLIDE ||
+		    detect_collision(random_pos, p2snake, 0) != NOT_COLLIDE ||
+		    detect_collision(random_pos, obstacles, 0) != NOT_COLLIDE);
 	
 	rewards.push_back(random_pos[0]);
+    
+    return dot(random_pos[0].x, random_pos[0].y);
 }
 	
 /// CHECKING WINNER ////
 
 int GameLogic::determine_winner()
-{
-	
+{    
 	int return_val = -1;
 
-	if (detect_collision(p1snake, p1snake, 1) != NOT_COLLIDE ||
+    if (detect_collision(p1snake, p1snake, 1) != NOT_COLLIDE ||
 		detect_collision(p1snake, p2snake, 0) != NOT_COLLIDE ||
-		detect_collision(p1snake, p2snake, 0) != NOT_COLLIDE ||
+		detect_collision(p1snake, obstacles, 0) != NOT_COLLIDE ||
 		detect_out_of_bound(p1snake) != NOT_COLLIDE)
 	{
 		p2_win = true;
 		return_val = 1;
 	}
 
-	if (detect_collision(p2snake, p2snake, 1) != NOT_COLLIDE ||
+    if (detect_collision(p2snake, p2snake, 1) != NOT_COLLIDE ||
 		detect_collision(p2snake, p1snake, 0) != NOT_COLLIDE ||
 		detect_collision(p2snake, obstacles, 0) != NOT_COLLIDE ||
 		detect_out_of_bound(p2snake) != NOT_COLLIDE)
@@ -150,7 +135,7 @@ int GameLogic::determine_winner()
 		return_val = 1;
 	}
 
-	if (p1_win && p2_win)
+    if (p1_win && p2_win)
 	{
 		if (p1_score == p2_score)
 		{
@@ -167,8 +152,7 @@ int GameLogic::determine_winner()
 		}
 	}
 
-
-	return return_val;
+    return return_val;
 }
 
 ///COLLISION DETECTION/////
@@ -201,3 +185,109 @@ int GameLogic::detect_snake_collision()
 }
 
 
+std::vector<int> GameLogic::detect_rewards()
+{
+    int index = -1;
+    if ((index = detect_collision(p1snake,rewards,0)) != -1)
+    {
+        return std::vector<int>{1,index};    
+    }
+    if ((index = detect_collision(p2snake,rewards,0)) != -1)
+    {
+       
+        return std::vector<int>{2,index};
+    }
+    
+    return std::vector<int>();
+}
+
+
+void GameLogic::setDirection(int player, std::string direction)
+{
+    if (player == 1 ) {        
+        if (direction == "DOWN" ) {
+            p1_Vert = DOWN;
+            p1_Hori = NONE;
+        } else if (direction == "UP") {
+            p1_Vert = UP;
+            p1_Hori = NONE;
+        } else if (direction == "LEFT") {
+            p1_Hori = LEFT;
+            p1_Vert = NONE;
+        } else if (direction == "RIGHT" ) {
+            p1_Hori = RIGHT;
+            p1_Vert = NONE; 
+        }
+    } else {
+        if (direction == "DOWN" ) {
+            p2_Vert = DOWN;
+            p2_Hori = NONE;
+        } else if (direction == "UP") {
+            p2_Vert = UP;
+            p2_Hori = NONE;
+        } else if (direction == "LEFT" ) {
+            p2_Hori = LEFT;
+            p2_Vert = NONE;
+        } else if (direction == "RIGHT" ) {
+            p2_Hori = RIGHT;
+            p2_Vert = NONE;
+        }
+    }   
+}
+
+int GameLogic::incrementScore(int player)
+{
+    return (player==1)? ++p1_score : ++p2_score ;
+}
+
+
+// If two rewards eaten by separate snakes at the same time, only 1 is processed.
+// The 2rd one will be processed by the next call of process_rewards() function
+rewardInfo GameLogic::process_rewards()
+{
+       
+    std::vector<int> collision = detect_rewards();
+
+    if(collision.size()!=0)
+    {
+        rewards.erase(rewards.begin()+collision[1]);
+        return rewardInfo(collision[0],collision[1], randomize_reward());
+    }
+        
+    return rewardInfo(-1,-1,dot(-1,-1));
+}
+
+
+void GameLogic::reset()
+{
+    rewards.clear();
+    obstacles.clear();
+    p1snake.clear();
+    p2snake.clear();
+    
+    p1_Hori = RIGHT;
+    p1_Vert = NONE;
+    p2_Hori = LEFT;
+    p2_Vert = NONE;
+
+    p1_score = 0;
+    p2_score = 0;
+
+    p1_win = false;
+    p2_win = false;
+    tie_game = false;
+
+    init_snakes();
+    init_obstacles();
+    init_rewards();
+}
+
+std::string GameLogic::getWinner()
+{
+    if (p1_win) 
+        return "p1";
+    else if (p2_win)
+        return "p2";
+    else if (tie_game)
+        return "tie";
+}

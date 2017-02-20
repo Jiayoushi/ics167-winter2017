@@ -54,7 +54,11 @@ function connect()
 			var theJSON = JSON.parse(payload);
 			var firedEvent = theJSON.event;
 			
-			if (firedEvent == "playerDirectionEvent")
+			if (firedEvent == "loopEvent")
+			{
+				loop();
+			}
+			else if (firedEvent == "playerDirectionEvent")
 			{
 				changedPlayer = theJSON.player;
 				direction = theJSON.direction;
@@ -108,8 +112,6 @@ function connect()
 			}
 			else if(firedEvent == "playerScoreRelayEvent")
 			{
-				delete_node(rewards,Number(theJSON.index));
-				randomize_reward();
 				if(theJSON.player == PLAYER_1)
 				{
 					p1_score++;
@@ -131,6 +133,10 @@ function connect()
 			}
 			else if (firedEvent == "newRewardEvent")
 			{
+				var index = Number(theJSON.index);
+				if (index != -1)
+					delete_node(rewards,index);
+				
 				var position;
 				position = [{x: theJSON.X, y: theJSON.Y}] //x and y coordinate tuple
 				rewards.push(position[0]); //pushes to create new reward at location in reward array
@@ -138,6 +144,16 @@ function connect()
 			else if (firedEvent == "gameStartedEvent")
 			{
 				main();
+			}
+			else if (firedEvent == "gameFinishedEvent")
+			{
+				log("[Server] GameFinishedEvent");
+				
+				clearInterval(game_interval_ID);
+				win_message(theJSON.winner);
+				gameStarted = false;
+				if(playernumber==1)
+					document.getElementById('Restart').style.visibility = 'visible';
 			}
 			else if (firedEvent == "updatePlayerNumberEvent")
 			{
@@ -246,5 +262,3 @@ function sendGameFinishedEvent()
 {
 	send("{\"event\": \"gameFinishedEvent\"" + "}"); // JSON example: JSON example -> {"event": "gameFinishedEvent"}
 }
-
-
