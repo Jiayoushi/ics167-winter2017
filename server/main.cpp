@@ -33,15 +33,12 @@ void new_event(string message) // helps distinguish game state changes from log 
 }
 
 
-
 /* Begin Event Senders */
 
 void sendLoopEvent(int clientID)
 {
     server.wsSend(clientID, "{\"event\": \"loopEvent\"}");
 }
-
-
 
 
 void sendUpdatePlayerNumberEvent(int clientID, int player) // in the future, the game logic will be handled by the server itself (prob milestone 2)
@@ -64,6 +61,7 @@ void sendPlayerConnectedEvent(int clientID, int player, std::string id)
 
 void sendGameStartedEvent(int clientID)
 {
+    
 	server.wsSend(clientID, "The game has been started!");
 	server.wsSend(clientID, "{\"event\": \"gameStartedEvent\"}");
 	log("gameStartedEvent sent for client ID " + std::to_string(clientID) + ")");
@@ -74,7 +72,6 @@ void sendPlayerDirectionEvent(int clientID, int player, std::string direction)
 	server.wsSend(clientID, "{\"event\": \"playerDirectionEvent\", \"direction\":\"" + direction + "\", \"player\": " + std::to_string(player) + "}");
 	log("playerDirectionEvent sent to client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " moved " + direction + ")");
 }
-
 
 void sendNewRewardEvent(int clientID, int X, int Y, int index)
 {
@@ -95,9 +92,6 @@ void sendPlayerScoreRelayEvent(int clientID, int player)
 {
 	server.wsSend(clientID, "{\"event\": \"playerScoreRelayEvent\", \"player\": " + std::to_string(player)  + "}");
 	log("playerScoreRelayEvent sent to client ID " + std::to_string(clientID) + " (Player: " + std::to_string(player) + ").");
-
-
-
 }
 /* Begin Event Handlers */
 
@@ -128,7 +122,6 @@ void setPlayerIDEventHandler(int clientID, int size, std::string id)
 	}
 
 	log("setPlayerIDEventHandler fired.");
-
 
 
 }
@@ -197,11 +190,7 @@ void gameFinishedEventHandler() // in the future, the game logic will be handled
 
     gameLogic.reset();
     gameState.setGameRunning(false);
-
 }
-
-
-
 
 /* Begin Network Handlers */
 
@@ -238,10 +227,8 @@ void closeHandler(int clientID)
 		}
 		gameState.setPlayer1Online(false);
 		gameState.resetScores();
-
-    gameLogic.reset();
-    gameState.setGameRunning(false);
-
+        gameLogic.reset();
+        gameState.setGameRunning(false);
 		log(gameState.getPlayerID(PLAYER_1) + " has disconnected (Player #1).");
 		gameState.resetID(PLAYER_1);
 	}
@@ -252,10 +239,8 @@ void closeHandler(int clientID)
 			sendPlayerDisconnectEvent(0, PLAYER_2); // Tell Client ID 0 (Player 1) that Player 2 has disconnected.
 		}
 		gameState.resetScores();
-
-    gameLogic.reset();
-    gameState.setGameRunning(false);
-
+        gameLogic.reset();
+        gameState.setGameRunning(false);
 		log(gameState.getPlayerID(PLAYER_2) + " has disconnected (Player #2)." + " Game state has been completely reset.");
 		gameState.resetID(PLAYER_2);
 	}
@@ -346,6 +331,6 @@ int main()
     
 	server.startServer(port);
  
-  
+    std::cout<<"hello\n";      
 	return 0;
 }
