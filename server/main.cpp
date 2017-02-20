@@ -126,6 +126,7 @@ void setPlayerIDEventHandler(int clientID, int size, std::string id)
 
 }
 
+
 void setPlayerDirectionEventHandler(int clientID, int player, std::string direction)
 {
     log("PlayerDirectionEventHandler fired");
@@ -142,17 +143,17 @@ void loopEventHandler()
     sendLoopEvent(1);
 }
 
-/* Broacast which player scores */
+/* Increment and then broacast the player who scores */
 void playerScoreEventHandler(int player)
 {
 	log("playerScoreEventHandler fired.");
 	
-    gameLogic.incrementScore(player);
+    	gameLogic.incrementScore(player);
 
 	sendPlayerScoreRelayEvent(0, player);
 	sendPlayerScoreRelayEvent(1, player);
 	
-    new_event(gameState.getPlayerID(player) + " scored. New score: " + std::to_string(gameState.getPlayerScore(player)));
+   	new_event(gameState.getPlayerID(player) + " scored. New score: " + std::to_string(gameState.getPlayerScore(player)));
 }
 
 void RewardEventHandler(int x, int y, int index)
@@ -282,7 +283,8 @@ void periodicHandler()
     static int count = 0;
     count++;
 
-    // Call functions once every (20/100) seconds
+    // Call functions inside this condition once every (20/100) seconds
+    // Game loop is here.
     if (count==20)
     {      
         // Only when the game is currently running.
@@ -293,9 +295,11 @@ void periodicHandler()
                 gameFinishedEventHandler();
             }
             else
-            {    
-                // Locally check the rewards collision, delete corresponding reward and then update local player's score
-                // result[0] is the player who scores,  result[1] is the index of the reward for the client to remove.
+            {   
+		// For every loop, only one reward eaten is processed, if two snakes eat a reward at the same time,
+		// the player 2 snake will have to wait till next loop.
+                // ri is the information of the reward just eaten. ri.player: who eats the reward.
+		// ri.index: the index of the reward just eaten.  ri.new_reward: the new_reward that has been appended to rewards.
                 rewardInfo ri = gameLogic.process_rewards();
             
                 //gameLogic.print_it();
@@ -306,8 +310,10 @@ void periodicHandler()
                     playerScoreEventHandler(ri.player);
                 }
                            
-                // Ask the clients to move and then the server to move
+                // Ask the clients to move
                 loopEventHandler();
+		    
+		// Move the snake locally.
                 gameLogic.move();
                 
              }
@@ -327,7 +333,7 @@ int main()
 	server.setOpenHandler(openHandler);
 	server.setCloseHandler(closeHandler);
 	server.setMessageHandler(messageHandler);
-    server.setPeriodicHandler(periodicHandler);
+    	server.setPeriodicHandler(periodicHandler);
     
 	server.startServer(port);
  
