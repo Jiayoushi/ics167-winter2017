@@ -284,8 +284,9 @@ void periodicHandler()
 
     // Call functions once every (20/100) seconds
     if (count==20)
-    {      
-        // Only when the game is currently running.
+    {
+      log("im still looping\n");
+	// Only when the game is currently running.
         if(gameState.getGameRunning())
         {
             if(gameLogic.determine_winner()!=-1)
@@ -331,6 +332,6 @@ int main()
     
 	server.startServer(port);
  
-          
+    std::cout<<"hello\n";      
 	return 0;
 }

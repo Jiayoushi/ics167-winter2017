@@ -83,9 +83,9 @@ void GameLogic::create_obstacle(int x, int y, int size, std::string direction)
 
 void GameLogic::init_rewards()
 {
-	for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
 	{
-		randomize_reward();
+        randomize_reward();
 	}
 }
 
@@ -96,24 +96,24 @@ int GameLogic::random_number(int floor, int ceiling)
 
 dot GameLogic::randomize_reward()
 {
+    int i = 0;
     std::vector<dot> random_pos;
     
-	do{
-		if(random_pos.size()>0)
-			random_pos.pop_back();
-		random_pos.push_back(dot(random_number(0,29),
+    do{
+        if(random_pos.size()>0)
+            random_pos.pop_back();
+        random_pos.push_back(dot(random_number(0,29),
                                     random_number(0,29)));
-
+        
     } while (detect_collision(random_pos, p1snake, 0) != NOT_COLLIDE ||
-		    detect_collision(random_pos, p2snake, 0) != NOT_COLLIDE ||
-		    detect_collision(random_pos, obstacles, 0) != NOT_COLLIDE);
-	
-	rewards.push_back(random_pos[0]);
+            detect_collision(random_pos, p2snake, 0) != NOT_COLLIDE ||
+            detect_collision(random_pos, obstacles, 0) != NOT_COLLIDE);
+    
+    rewards.push_back(random_pos[0]);
     
     return dot(random_pos[0].x, random_pos[0].y);
 }
-	
-/// CHECKING WINNER ////
+
 
 int GameLogic::determine_winner()
 {    
@@ -156,8 +156,6 @@ int GameLogic::determine_winner()
 
     return return_val;
 }
-
-///COLLISION DETECTION/////
 
 int GameLogic::detect_collision(std::vector<dot> obj1, std::vector<dot> obj2, int n)
 {
@@ -267,6 +265,7 @@ void GameLogic::reset()
     p1snake.clear();
     p2snake.clear();
     
+    std::cout<<"A\n";
     p1_Hori = RIGHT;
     p1_Vert = NONE;
     p2_Hori = LEFT;
@@ -282,6 +281,7 @@ void GameLogic::reset()
     init_snakes();
     init_obstacles();
     init_rewards();
+   
 }
 
 std::string GameLogic::getWinner()
