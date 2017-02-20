@@ -99,6 +99,8 @@ dot GameLogic::randomize_reward()
     std::vector<dot> random_pos;
     
 	do{
+		if(random_pos.size()>0)
+			random_pos.pop_back();
 		random_pos.push_back(dot(random_number(0,29),
                                     random_number(0,29)));
 
