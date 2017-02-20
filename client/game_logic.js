@@ -10,7 +10,9 @@ const p2_scoretext_x = 75;
 const scoretext_y = 50;
 
 /* Settings for gameplay */
-const INIT_SNAKE_LENGTH = 2;      // Default length of snake    
+const INIT_SNAKE_LENGTH = 2;      // Default length of snake
+const INTERVAL = 200;                  // Loop every 60 milliseconds
+const INIT_REWARD_NUMBER = 2;      
 
 /* Keyboard matching */
 const LEFT = -1;           // If a snake is going left, its x variable will be add LEFT, that is -1, for each loop. 
@@ -59,6 +61,7 @@ var p2_win;
 var tie_game;
 
 var playernumber;
+
 
 function makeRandomID()
 {
@@ -159,7 +162,6 @@ function init_rewards()
 }
 
 
-
 // Create n dots start from the dot(pos_x,pos_y) at the direction either "Horizontal" or "Vertical"
 // If you pass in (5,5,5,"Vertical") it creates (5,5) all the way to (5,9) included
 // Make sure the values you pass in do not collide  with the snake's spwaning position
@@ -180,7 +182,6 @@ function create_obstacle(pos_x,pos_y,n,direction)
         }
     }
 }
-
 
 function win_message(winner)
 {
@@ -210,8 +211,6 @@ function dc_message(player)
 	}
 }
 
-}
-
 
 function loop()
 {
@@ -239,7 +238,7 @@ function main()
     init_canvas();
     init_input();
     init_objects();
-	  init_rewards();
+	init_rewards();
      
     // Set the loop function to be called every x milliseconds, x to be INTERVAL.
     //game_interval_ID = setInterval(loop,INTERVAL);
@@ -315,7 +314,7 @@ function init_snakes()
 // Clean the canvas so a new frame can be drawn.
 function clean_the_board()
 {
-  ctx.fillStyle = "white";
+    ctx.fillStyle = "white";
 	ctx.fillRect(0,0,width,height);
 	ctx.strokeStyle = "black";
 	ctx.strokeRect(0,0, width, height);
@@ -348,7 +347,6 @@ function fill(x,y, color)
 	ctx.fillStyle = color;
 	ctx.fillRect(x*cell_dim, y*cell_dim, cell_dim, cell_dim);
 }
-
 
 function delete_node(array,index)
 {

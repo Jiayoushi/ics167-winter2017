@@ -262,3 +262,5 @@ function sendGameFinishedEvent()
 {
 	send("{\"event\": \"gameFinishedEvent\"" + "}"); // JSON example: JSON example -> {"event": "gameFinishedEvent"}
 }
+
+
