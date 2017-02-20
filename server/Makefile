@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -c -std=c++11
 LDFLAGS =
-SOURCES = main.cpp websocket.cpp sha1.cpp base64.cpp json11.cpp gamestate.cpp
+SOURCES = main.cpp websocket.cpp sha1.cpp base64.cpp json11.cpp gamestate.cpp gamelogic.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 EXECUTABLE = ics167group2server
 
