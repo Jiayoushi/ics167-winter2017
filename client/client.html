@@ -17,20 +17,25 @@
 	<div id='body' align=center>
         Server IP: <input type='text' id='ip' name='ip' value="127.0.0.1">
         Server Port: <input type='text' id='port' name='port' value="1111"><br/>
-		Player 1 ID: <input type='text', id='p1id' name='p1id' value="IAmPlayer1">
-		Player 2 ID: <input type='text', id='p2id' name='p2id' value="Player2TheGod"><br/>
+		Player ID: <input type='text' id='pid' name='pid' value="">
 	</div>
 	
+	<script> makeRandomID() </script>
+	
 	<div class="wrapper">
-    		<input type="button" id="Start" value="Network Game Start" onClick="Start();" />
+    		<input type="button" id="NetworkConnect" value="Network Connect" onClick="ConnectToServer();" />
 	</div>
-	<div class="wrapper">
+    <div class="wrapper">
+    		<input type="button" id="Start" value="Start" onClick="Start();" />
+	</div>
+	<!-- <div class="wrapper">
     		<input type="button" id="OfflineStart" value="Offline Game Start" onClick="OfflineStart();" />
-	</div>
+	</div> -->
 	<div class="wrapper">
 		<input type="button" id="Restart" value="Restart" onClick="Restart();" />
 	</div>
 	
+	<script>document.getElementById('Start').style.visibility = 'hidden';</script>
 	<script>document.getElementById('Restart').style.visibility = 'hidden';</script>
 	
 	<canvas id="winCanvas" width="200" height="100"></canvas>
