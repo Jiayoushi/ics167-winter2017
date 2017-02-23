@@ -265,7 +265,6 @@ void GameLogic::reset()
     p1snake.clear();
     p2snake.clear();
     
-    std::cout<<"A\n";
     p1_Hori = RIGHT;
     p1_Vert = NONE;
     p2_Hori = LEFT;
