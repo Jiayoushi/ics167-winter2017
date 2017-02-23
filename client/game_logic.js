@@ -119,7 +119,9 @@ function init_canvas()
 function init_input()
 {
     document.addEventListener('keydown', function(e)
-    {   if(playernumber==1){
+    {   
+	if(!gameStarted) return;
+	if(playernumber==1){
         	if(e.keyCode === KEY_DOWN||e.keyCode === KEY_S && p1_Vert != UP) {
 				sendSetPlayerDirectionEvent(playernumber, "DOWN")
         	} else if(e.keyCode === KEY_UP||e.keyCode === KEY_W && p1_Vert != DOWN) {
