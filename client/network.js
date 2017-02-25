@@ -269,7 +269,7 @@ function handleLatencyEstimation(id, X, Y)
 	var B = Date.now() - initialTimestamp;
     var SampleRTT = B - latencyMessages[id];
     EstimatedRTT = Math.round(0.875*EstimatedRTT + 0.125*SampleRTT);
-    document.getElementById('RTT').value = EstimatedRTT;
+    document.getElementById('RTT').value = EstimatedRTT + " ms";
 	//log("[Debug] Latency ID: " + id + " | A: " + latencyMessages[id] + " | X: " + X + " | Y: " + Y + " | B: " + B);
 	//log("[Client] Latency Estimation (ID #" + id + "): " + EstimatedRTT + " ms.");
 	// A: Timestamp of Client when he sent the packet.
