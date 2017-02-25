@@ -119,7 +119,7 @@ function init_canvas()
 function init_input()
 {
     document.addEventListener('keydown', function(e)
-    {   
+    {  
 	if(!gameStarted) return;
 	if(playernumber==1){
         	if(e.keyCode === KEY_DOWN||e.keyCode === KEY_S && p1_Vert != UP) {
@@ -203,7 +203,7 @@ function dc_message(player)
 {
 	win_Ctx.clearRect(0, 0, width, height);
 	win_Ctx.fillStyle = 'black';
-	if(player == 1) 
+	if(player == 1)
 	{
 		win_Ctx.fillText("Player 1 Disconnected.", (width/2)-40, 25); // TODO: change to ID
 	} 

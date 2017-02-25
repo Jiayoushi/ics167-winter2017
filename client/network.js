@@ -7,6 +7,14 @@ var PLAYER_2 = 2;
 var changedPlayer; // initialize early to save computational cycles for critical gameplay
 var direction; // initialize early to save computational cycles for critical gameplay
 
+var latencyLoopInterval = 500; // in milliseconds
+var latencyMessages = []; // 2^32 possible elements
+var latencyMessageID = 0;
+var latencyLoopID = -1;
+
+var initialTimestamp;
+var EstimatedRTT=0;
+
 /* Begin TA Functions */
 function log( text ) 
 {
@@ -38,12 +46,18 @@ function connect()
 		log("[Client] Connected.");
 		sendSetPlayerIDEvent(1, document.getElementById('pid').value);
 		log("[Client] ID sent.");
+		initialTimestamp = Date.now();
+		latencyLoopID = setInterval(doLatencyEstimation, latencyLoopInterval);
+		log("[Client] Registered latency estimation loop (" + latencyLoopInterval + " ms).");
 	});
 
 	// Disconnect handler
 	Server.bind('close', function( data ) 
 	{
 		log( "[Client] Disconnected, or no server found." );
+		clearInterval(latencyLoopID);
+		latencyMessages = [];
+		latencyMessageID = 0;
 	});
 
 	// Log any messages sent from server
@@ -158,6 +172,10 @@ function connect()
 				if(playernumber==1)
 					document.getElementById('Restart').style.visibility = 'visible';
 			}
+			else if (firedEvent == "latencyEstimationEvent")
+			{
+				handleLatencyEstimation(theJSON.id, theJSON.X, theJSON.Y);
+			}
 			else if (firedEvent == "updatePlayerNumberEvent")
 			{
 				playernumber = theJSON.player;
@@ -228,7 +246,8 @@ function connect()
 		}
 		catch (err)
 		{
-			log("[Server] " + payload);
+			log("[Server] " + payload); // <- If a JSON error occurs, or no event matched, then it prints out the message. Use to your advantage!
+			//console.log(err); <- Since this is a try, catch, if you see your event being printed in raw JSON, that means there's an error. Try looking at the err.
 		}
 	});
 	
@@ -238,6 +257,27 @@ function connect()
 function send( text ) 
 {
 	Server.send( 'message', text );
+}
+
+function doLatencyEstimation()
+{
+	sendLatencyEstimationEvent(latencyMessageID++, Date.now() - initialTimestamp);
+}
+
+function handleLatencyEstimation(id, X, Y)
+{
+	var B = Date.now() - initialTimestamp;
+    var SampleRTT = B - latencyMessages[id];
+    EstimatedRTT = Math.round(0.875*EstimatedRTT + 0.125*SampleRTT);
+    document.getElementById('RTT').value = EstimatedRTT;
+	//log("[Debug] Latency ID: " + id + " | A: " + latencyMessages[id] + " | X: " + X + " | Y: " + Y + " | B: " + B);
+	//log("[Client] Latency Estimation (ID #" + id + "): " + EstimatedRTT + " ms.");
+	// A: Timestamp of Client when he sent the packet.
+	// B: Timestamp of Client when he received the reply.
+	// X: Timestamp of Server when he received the packet.
+	// Y: Timestamp of Server when he sent the reply.
+	
+	// Reason for this terminology: http://stackoverflow.com/questions/1228089/how-does-the-network-time-protocol-work
 }
 
 /* Begin Custom Functions */
@@ -264,6 +304,12 @@ function sendGameStartEvent()
 function sendGameFinishedEvent()
 {
 	send("{\"event\": \"gameFinishedEvent\"" + "}"); // JSON example: JSON example -> {"event": "gameFinishedEvent"}
+}
+
+function sendLatencyEstimationEvent(id, timestamp)
+{
+	send("{\"event\": \"latencyEstimationEvent\", \"id\": " + id + "}");
+	latencyMessages.push(timestamp);
 }
 
 
