@@ -264,7 +264,7 @@ void GameLogic::reset()
     obstacles.clear();
     p1snake.clear();
     p2snake.clear();
-    
+   
     p1_Hori = RIGHT;
     p1_Vert = NONE;
     p2_Hori = LEFT;
