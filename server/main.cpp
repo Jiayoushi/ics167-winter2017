@@ -19,7 +19,7 @@ typedef json11::Json JSON;
 
 /* Begin Variables, Structs & Classes */
 
-const int DELAY = 200;		// 300 milliseconds of delay
+const int DELAY = 200;		// Milliseconds of delay
 
 webSocket server;
 GameState gameState;
