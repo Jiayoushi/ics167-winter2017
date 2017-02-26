@@ -116,7 +116,7 @@ void sendPlayerConnectedEvent(int clientID, int player, std::string id)
 
 void sendGameStartedEvent(int clientID)
 {
-    lat.push(info(clientID, "The game has been started!"));
+    //lat.push(info(clientID, "The game has been started!"));
     lat.push(info(clientID, "{\"event\": \"gameStartedEvent\"}"));
 	//server.wsSend(clientID, "The game has been started!");
 	//server.wsSend(clientID, "{\"event\": \"gameStartedEvent\"}");
@@ -130,11 +130,11 @@ void sendPlayerDirectionEvent(int clientID, int player, std::string direction)
 	log("playerDirectionEvent sent to client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " moved " + direction + ")");
 }
 
-void sendNewRewardEvent(int clientID, int X, int Y, int index)
+void sendNewRewardEvent(int clientID, int new_x, int new_y, int del_x, int del_y)
 {
-    lat.push(info(clientID, "{\"event\": \"newRewardEvent\", \"X\": " + std::to_string(X) + ", \"Y\": " + std::to_string(Y) + ", \"index\": " + std::to_string(index) + "}"));
-	//server.wsSend(clientID, "{\"event\": \"newRewardEvent\", \"X\": " + std::to_string(X) + ", \"Y\": " + std::to_string(Y) + ", \"index\": " + std::to_string(index) + "}");
-	log("newRewardEvent sent to client ID " + std::to_string(clientID) + " (X: " + std::to_string(X) + ", Y: " + std::to_string(Y) + ", index: "+ std::to_string(index) + ").");
+    lat.push(info(clientID, "{\"event\": \"newRewardEvent\", \"new_x\": " + std::to_string(new_x) + ", \"new_y\": " + std::to_string(new_y) + ", \"del_x\": " + std::to_string(del_x) + ", \"del_y\": " + std::to_string(del_y) + "}"));
+	//server.wsSend(clientID, "{\"event\": \"newRewardEvent\", \"x\": " + std::to_string(X) + ", \"y\": " + std::to_string(Y) + ", \"index\": " + std::to_string(index) + "}");
+	log("newRewardEvent sent to client ID " + std::to_string(clientID) + " (new_x: " + std::to_string(new_x) + ", new_y: " + std::to_string(new_y) + ", del_x: " + std::to_string(del_x) + ", del_y: " + std::to_string(del_y) + ").");
 }
 
 void sendGameFinishedEvent(int clientID)
@@ -216,11 +216,11 @@ void playerScoreEventHandler(int player)
    	new_event(gameState.getPlayerID(player) + " scored. New score: " + std::to_string(gameState.getPlayerScore(player)));
 }
 
-void RewardEventHandler(int x, int y, int index)
+void RewardEventHandler(int new_x, int new_y, int del_x, int del_y)
 {
 	log("RewardEventHandler fired.");
-	sendNewRewardEvent(0, x, y, index);
-	sendNewRewardEvent(1, x, y, index);
+	sendNewRewardEvent(0, new_x, new_y, del_x, del_y);
+	sendNewRewardEvent(1, new_x, new_y, del_x, del_y);
 }
 
 void gameStartEventHandler()
@@ -233,8 +233,8 @@ void gameStartEventHandler()
 	sendGameStartedEvent(1);
 
     // -1 indicates there is no reward to be removed.
-    RewardEventHandler(gameLogic.rewards[0].x, gameLogic.rewards[0].y, -1);
-    RewardEventHandler(gameLogic.rewards[1].x, gameLogic.rewards[1].y, -1);
+    RewardEventHandler(gameLogic.rewards[0].x, gameLogic.rewards[0].y, -1,-1);
+    RewardEventHandler(gameLogic.rewards[1].x, gameLogic.rewards[1].y, -1,-1);
 
     gameState.resetScores();
     gameState.setGameRunning(true);
@@ -311,7 +311,7 @@ void closeHandler(int clientID)
 
 void messageHandler(int clientID, string message) 
 {
-	log("Message received by Client ID " + std::to_string(clientID) + ": " + message);
+	//log("Message received from Client ID " + std::to_string(clientID) + ": " + message);
 
 	std::string err; // This string is updated with an error message if the json parser fails.
 	auto json = JSON::parse(message, err);
@@ -407,7 +407,7 @@ void processLogic()
                 // If two rewards are eaten at the same time, p1 is first processed, p2 will be processed next loop
                 if(ri.player!=-1)
                 {
-                    RewardEventHandler(ri.new_reward.x, ri.new_reward.y, ri.index);
+                    RewardEventHandler(ri.new_reward.x, ri.new_reward.y, ri.del_reward.x, ri.del_reward.y);
                     playerScoreEventHandler(ri.player);
                 }
                            

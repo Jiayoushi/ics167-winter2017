@@ -184,24 +184,6 @@ int GameLogic::detect_snake_collision()
 		detect_collision(p1snake, p2snake, 0) != NOT_COLLIDE || detect_collision(p2snake, p1snake, 0) != NOT_COLLIDE) ? 1 : NOT_COLLIDE;
 }
 
-
-std::vector<int> GameLogic::detect_rewards()
-{
-    int index = -1;
-    if ((index = detect_collision(p1snake,rewards,0)) != -1)
-    {
-        return std::vector<int>{1,index};    
-    }
-    if ((index = detect_collision(p2snake,rewards,0)) != -1)
-    {
-       
-        return std::vector<int>{2,index};
-    }
-    
-    return std::vector<int>();
-}
-
-
 void GameLogic::setDirection(int player, std::string direction)
 {
     if (player == 1 ) {        
@@ -240,12 +222,44 @@ int GameLogic::incrementScore(int player)
     return (player==1)? ++p1_score : ++p2_score ;
 }
 
+/*
+std::vector<int> GameLogic::detect_rewards()
+{
+    int index = -1;
+    if ((index = detect_collision(p1snake,rewards,0)) != -1)
+    {
+        return std::vector<int>{1,index};    
+    }
+    if ((index = detect_collision(p2snake,rewards,0)) != -1)
+    {
+       
+        return std::vector<int>{2,index};
+    }
+    
+    return std::vector<int>();
+}*/
 
 // If two rewards eaten by separate snakes at the same time, only 1 is processed.
 // The 2rd one will be processed by the next call of process_rewards() function
 rewardInfo GameLogic::process_rewards()
 {
+    int index = -1;
+    if ((index = detect_collision(p1snake,rewards,0)) != -1)
+    {
+        dot del(rewards[index].x, rewards[index].y);
+        rewards.erase(rewards.begin()+index);
+        return rewardInfo(1, del, randomize_reward());
+    }
+    if ((index = detect_collision(p2snake,rewards,0)) != -1)
+    {
+        dot del(rewards[index].x, rewards[index].y);
+        rewards.erase(rewards.begin()+index);
+        return rewardInfo(2, del, randomize_reward());
+    }
+
+    return rewardInfo(-1,dot(-1,-1),dot(-1,-1));
        
+    /*
     std::vector<int> collision = detect_rewards();
 
     if(collision.size()!=0)
@@ -254,7 +268,7 @@ rewardInfo GameLogic::process_rewards()
         return rewardInfo(collision[0],collision[1], randomize_reward());
     }
         
-    return rewardInfo(-1,-1,dot(-1,-1));
+    return rewardInfo(-1,-1,dot(-1,-1));*/
 }
 
 

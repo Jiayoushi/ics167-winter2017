@@ -39,12 +39,15 @@ struct dot{
 // Information for which player eats which reward and the coordinates of the new reward
 struct rewardInfo {
     int player;  // 1 for player 1,   2 for player 2
-    int index;   // Through 0 to 1
-    
+       
+    dot del_reward;
     dot new_reward;
 
-    rewardInfo(int _player,int _index, dot _new_reward): player(_player), index(_index)
+    rewardInfo(int _player, dot _del_reward, dot _new_reward): player(_player)
     {
+        del_reward.x = _del_reward.x;
+        del_reward.y = _del_reward.y;
+
         new_reward.x = _new_reward.x;
         new_reward.y = _new_reward.y;
     }
@@ -80,7 +83,7 @@ private:
 	int detect_out_of_bound(std::vector<dot> obj);
 	int detect_collision(std::vector<dot> obj1, std::vector<dot> obj2, int n);
 	int detect_snake_collision();
-    std::vector<int> detect_rewards();   // Check if any snake eats an item and returns corresponding reward information for each snake
+    //std::vector<int> detect_rewards();   // Check if any snake eats an item and returns corresponding reward information for each snake
     
     /* helper */
 	void add_tail(std::vector<dot>& obj);
