@@ -10,28 +10,13 @@ function ConnectToServer()
 function Start() 
 {
 	sendGameStartEvent();
-	gameStarted = true;
 	document.getElementById('Start').style.visibility = 'hidden';
 	document.getElementById('Restart').style.visibility = 'hidden';
 }
-
-/*
-function OfflineStart()
-{
-	main();
-	online = false;
-	gameStarted = true;
-	document.getElementById('Start').style.visibility = 'hidden';
-	document.getElementById('OfflineStart').style.visibility = 'hidden';
-	document.getElementById('Restart').style.visibility = 'hidden';
-}
-*/
 
 function Restart()
 {
-	log("restart button pressed");
-	sendGameStartEvent();
-	gameStarted = true;
+	sendGameStartEvent();	
 	document.getElementById('Start').style.visibility = 'hidden';
 	document.getElementById('Restart').style.visibility = 'hidden';
 }

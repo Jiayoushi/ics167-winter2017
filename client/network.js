@@ -15,6 +15,8 @@ var latencyLoopID = -1;
 var initialTimestamp;
 var EstimatedRTT=0;
 
+var rwd_buffer = [];
+
 /* Begin TA Functions */
 function log( text ) 
 {
@@ -70,7 +72,7 @@ function connect()
 			
 			if (firedEvent == "loopEvent")
 			{
-				loop();
+                loop();
 			}
 			else if (firedEvent == "playerDirectionEvent")
 			{
@@ -147,6 +149,20 @@ function connect()
 			}
 			else if (firedEvent == "newRewardEvent")
 			{
+                
+                if (!gameStarted)
+                {
+                    rwd_buffer.push({x:theJSON.new_x, y:theJSON.new_y});
+                }
+                else
+                {
+                    if (theJSON.del_x != -1)
+                    {
+                        delete_reward(theJSON.del_x, theJSON.del_y); 
+                    }              
+                    rewards.push({x:theJSON.new_x, y:theJSON.new_y});
+                }
+                /*
 				var index = Number(theJSON.index);
 				if (index != -1)
 					delete_node(rewards,index);
@@ -154,9 +170,11 @@ function connect()
 				var position;
 				position = [{x: theJSON.X, y: theJSON.Y}] //x and y coordinate tuple
 				rewards.push(position[0]); //pushes to create new reward at location in reward array
-			}
+			    */
+            }
 			else if (firedEvent == "gameStartedEvent")
 			{
+                log("[Client] Game Started.");
 				gameStarted = true;
 				main();
 				if(playernumber == PLAYER_1)
@@ -169,6 +187,7 @@ function connect()
 				clearInterval(game_interval_ID);
 				win_message(theJSON.winner);
 				gameStarted = false;
+                rwd_buffer = [];
 				if(playernumber==1)
 					document.getElementById('Restart').style.visibility = 'visible';
 			}

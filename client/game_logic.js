@@ -54,7 +54,7 @@ var p1snake;
 var p2snake;
 
 var obstacles;
-var rewards;
+var rewards = [];
 
 var p1_win;			// Game winner variables
 var p2_win;
@@ -161,6 +161,11 @@ function init_obstacles()
 function init_rewards()
 {
 	rewards = [];
+
+    while (rwd_buffer.length!=0)
+    {
+        rewards.push(rwd_buffer.pop());
+    }
 }
 
 
@@ -350,7 +355,11 @@ function fill(x,y, color)
 	ctx.fillRect(x*cell_dim, y*cell_dim, cell_dim, cell_dim);
 }
 
-function delete_node(array,index)
+function delete_reward(del_x, del_y)
 {
-    array.splice(index,1);
+    for (var i = 0; i<rewards.length; i++)
+    {
+        if(rewards[i].x == del_x && rewards[i].y == del_y)
+            rewards.splice(i, 1);
+    }
 }
