@@ -89,67 +89,83 @@ bool contains(std::vector<int> clientIDs, int clientID)
 
 void sendLoopEvent(int clientID)
 {
-    lat.push(info(clientID, "{\"event\": \"loopEvent\"}"));
-    //server.wsSend(clientID, "{\"event\": \"loopEvent\"}");
+    JSON msg_obj = JSON::object{ {"event", "loopEvent"},};
+    lat.push(info(clientID, msg_obj.dump()));
 }
 
 void sendUpdatePlayerNumberEvent(int clientID, int player) // in the future, the game logic will be handled by the server itself (prob milestone 2)
 {
-    lat.push(info(clientID, "{\"event\": \"updatePlayerNumberEvent\", \"player\": " + std::to_string(player) + "}"));
-	//server.wsSend(clientID, "{\"event\": \"updatePlayerNumberEvent\", \"player\": " + std::to_string(player) + "}");
-	log("sendUpdatePlayerNumberEvent sent for client ID " + std::to_string(clientID) + " (player# = " + std::to_string(player) + ").");
+    JSON msg_obj = JSON::object{ {"event", "updatePlayerNumberEvent"},
+                                 {"player", std::to_string(player) }, };
+    lat.push(info(clientID, msg_obj.dump()));
+    
+    log("sendUpdatePlayerNumberEvent sent for client ID " + std::to_string(clientID) + " (player# = " + std::to_string(player) + ").");
 }
 
 void sendPlayerDisconnectEvent(int clientID, int player) // in the future, the game logic will be handled by the server itself (prob milestone 2)
 {
-    lat.push(info(clientID, "{\"event\": \"playerDisconnectEvent\", \"player\": " + std::to_string(player) + "}"));
-	//server.wsSend(clientID, "{\"event\": \"playerDisconnectEvent\", \"player\": " + std::to_string(player) + "}");
-	log("playerDisconnectEvent sent for client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " disconnected.)");
+    JSON msg_obj = JSON::object{ {"event", "playerDisconnectEvent"},
+                                 {"player", std::to_string(player)}, };
+    lat.push(info(clientID, msg_obj.dump()));
+    
+    log("playerDisconnectEvent sent for client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " disconnected.)");
 }
 
 void sendPlayerConnectedEvent(int clientID, int player, std::string id)
 {
-    lat.push(info(clientID, "{\"event\": \"playerConnectedEvent\", \"id\":\"" + id + "\", \"player\": " + std::to_string(player) + "}"));
-	//server.wsSend(clientID, "{\"event\": \"playerConnectedEvent\", \"id\":\"" + id + "\", \"player\": " + std::to_string(player) + "}");
-	log("playerConnectedEvent sent for client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " connected.)");
+    JSON msg_obj = JSON::object{ {"event", "playerConnectedEvent"},
+                                 {"player", std::to_string(player)},};
+    lat.push(info(clientID, msg_obj.dump()));
+            
+    log("playerConnectedEvent sent for client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " connected.)");
 }
 
 void sendGameStartedEvent(int clientID)
 {
-    //lat.push(info(clientID, "The game has been started!"));
-    lat.push(info(clientID, "{\"event\": \"gameStartedEvent\"}"));
-	//server.wsSend(clientID, "The game has been started!");
-	//server.wsSend(clientID, "{\"event\": \"gameStartedEvent\"}");
-	log("gameStartedEvent sent for client ID " + std::to_string(clientID) + ")");
+    JSON msg_obj = JSON::object{ {"event", "gameStartedEvent"} };
+    lat.push(info(clientID, msg_obj.dump()));    
+   
+    log("gameStartedEvent sent for client ID " + std::to_string(clientID) + ")");
 }
 
 void sendPlayerDirectionEvent(int clientID, int player, std::string direction)
 {
-    lat.push(info(clientID, "{\"event\": \"playerDirectionEvent\", \"direction\":\"" + direction + "\", \"player\": " + std::to_string(player) + "}"));
-	//erver.wsSend(clientID, "{\"event\": \"playerDirectionEvent\", \"direction\":\"" + direction + "\", \"player\": " + std::to_string(player) + "}");
-	log("playerDirectionEvent sent to client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " moved " + direction + ")");
+    JSON msg_obj = JSON::object{ {"event", "playerDirectionEvent"},
+                                 {"direction", direction},
+                                 {"player", std::to_string(player)},};
+    lat.push(info(clientID, msg_obj.dump()));
+    
+    //log("playerDirectionEvent sent to client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " moved " + direction + ")");
 }
 
 void sendNewRewardEvent(int clientID, int new_x, int new_y, int del_x, int del_y)
 {
-    lat.push(info(clientID, "{\"event\": \"newRewardEvent\", \"new_x\": " + std::to_string(new_x) + ", \"new_y\": " + std::to_string(new_y) + ", \"del_x\": " + std::to_string(del_x) + ", \"del_y\": " + std::to_string(del_y) + "}"));
-	//server.wsSend(clientID, "{\"event\": \"newRewardEvent\", \"x\": " + std::to_string(X) + ", \"y\": " + std::to_string(Y) + ", \"index\": " + std::to_string(index) + "}");
-	log("newRewardEvent sent to client ID " + std::to_string(clientID) + " (new_x: " + std::to_string(new_x) + ", new_y: " + std::to_string(new_y) + ", del_x: " + std::to_string(del_x) + ", del_y: " + std::to_string(del_y) + ").");
+    JSON msg_obj = JSON::object{ {"event", "newRewardEvent"},
+                                 {"new_x", std::to_string(new_x)},
+                                 {"new_y", std::to_string(new_y)},
+                                 {"del_x", std::to_string(del_x)},
+                                 {"del_y", std::to_string(del_y)},};
+    lat.push(info(clientID, msg_obj.dump()));
+
+    log("newRewardEvent sent to client ID " + std::to_string(clientID) + " (new_x: " + std::to_string(new_x) + ", new_y: " + std::to_string(new_y) + ", del_x: " + std::to_string(del_x) + ", del_y: " + std::to_string(del_y) + ").");
 }
 
 void sendGameFinishedEvent(int clientID)
 {
-    std::string winner = gameLogic.getWinner();
-    lat.push(info(clientID, "{\"event\": \"gameFinishedEvent\", \"winner\":\"" + winner + "\"}"));
-    //server.wsSend(clientID, "{\"event\": \"gameFinishedEvent\", \"winner\":\"" + winner + "\"}");   
+    JSON msg_obj = JSON::object{ {"event", "gameFinishedEvent"},
+                                 {"winner", gameLogic.getWinner()},};
+    lat.push(info(clientID, msg_obj.dump()));
+
     log("gameFinishedEvent sent to client: "+ std::to_string(clientID));
 }
 
 void sendPlayerScoreRelayEvent(int clientID, int player)
 {
-    lat.push(info(clientID,  "{\"event\": \"playerScoreRelayEvent\", \"player\": " + std::to_string(player)  + "}"));
-	//server.wsSend(clientID, "{\"event\": \"playerScoreRelayEvent\", \"player\": " + std::to_string(player)  + "}");
-	log("playerScoreRelayEvent sent to client ID " + std::to_string(clientID) + " (Player: " + std::to_string(player) + ").");
+    JSON msg_obj = JSON::object{ {"event", "playerScoreRelayEvent"},
+                                 {"player", std::to_string(player)}};
+    lat.push(info(clientID, msg_obj.dump()));
+
+    log("playerScoreRelayEvent sent to client ID " + std::to_string(clientID) + " (Player: " + std::to_string(player) + ").");
 }
 
 void sendLatencyEstimationEvent(int clientID, int latencyID, long long X, long long Y)
