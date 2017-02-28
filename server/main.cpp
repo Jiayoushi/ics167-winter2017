@@ -40,9 +40,12 @@ bool contains(std::vector<int> clientIDs, int clientID)
 
 /* Begin Event Senders */
 
-void sendLoopEvent(int clientID)
+void sendLoopEvent(int clientID, int frame)
 {
-    JSON msg_obj = JSON::object{ {"event", "loopEvent"},};
+    JSON msg_obj = JSON::object{ {"event", "loopEvent"},
+                                 {"body1", gameLogic.bodyToString(1)},
+                                 {"body2", gameLogic.bodyToString(2)},
+                                 {"frame", frame},};
     lat.push(info(clientID, msg_obj.dump()));
 }
 
@@ -81,11 +84,12 @@ void sendGameStartedEvent(int clientID)
     log("gameStartedEvent sent for client ID " + std::to_string(clientID) + ")");
 }
 
-void sendPlayerDirectionEvent(int clientID, int player, std::string direction)
+void sendPlayerDirectionEvent(int clientID, int player, std::string direction, int frame)
 {
     JSON msg_obj = JSON::object{ {"event", "playerDirectionEvent"},
                                  {"direction", direction},
-                                 {"player", std::to_string(player)},};
+                                 {"player", std::to_string(player)},
+                                 {"frame", frame},};
     lat.push(info(clientID, msg_obj.dump()));
     
     //log("playerDirectionEvent sent to client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " moved " + direction + ")");
@@ -163,14 +167,15 @@ void setPlayerDirectionEventHandler(int clientID, int player, std::string direct
     log("PlayerDirectionEventHandler fired");
     gameLogic.setDirection(player,direction);
     
-    sendPlayerDirectionEvent(0, player, direction);
-    sendPlayerDirectionEvent(1, player, direction);
+
+    sendPlayerDirectionEvent(0, player, direction, gameLogic.frame);
+    sendPlayerDirectionEvent(1, player, direction, gameLogic.frame);
 }
 
-void loopEventHandler()
+void loopEventHandler(int frame)
 {
-    sendLoopEvent(0);
-    sendLoopEvent(1);
+    sendLoopEvent(0,frame);
+    sendLoopEvent(1,frame);
 }
 
 void playerScoreEventHandler(int player)
@@ -362,7 +367,6 @@ void processLogic()
             if(gameLogic.determine_winner()!=-1)
             {
                 gameFinishedEventHandler();
-                
             }
             else
             {   
@@ -379,14 +383,16 @@ void processLogic()
                     RewardEventHandler(ri.new_reward.x, ri.new_reward.y, ri.del_reward.x, ri.del_reward.y);
                     playerScoreEventHandler(ri.player);
                 }
-                           
-                // Ask the clients to move
-                loopEventHandler();
-		    
+                                      		    
 		        // Move the snake locally.
                 gameLogic.move();
+                gameLogic.frame++;
                 
-             }
+
+                // Ask the clients to move
+                loopEventHandler(gameLogic.frame);
+                
+            }
         }        
 
         count = 0;

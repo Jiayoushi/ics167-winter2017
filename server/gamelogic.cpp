@@ -278,7 +278,9 @@ void GameLogic::reset()
     obstacles.clear();
     p1snake.clear();
     p2snake.clear();
-   
+
+    frame = 0; 
+  
     p1_Hori = RIGHT;
     p1_Vert = NONE;
     p2_Hori = LEFT;
@@ -294,7 +296,7 @@ void GameLogic::reset()
     init_snakes();
     init_obstacles();
     init_rewards();
-   
+  
 }
 
 std::string GameLogic::getWinner()
@@ -306,3 +308,28 @@ std::string GameLogic::getWinner()
     else if (tie_game)
         return "tie";
 }
+
+std::string GameLogic::bodyToString(int player)
+{
+    std::string res;
+
+    if ( player == 1)
+    {
+        for (auto i = p1snake.begin(); i!=p1snake.end(); i++)
+        {
+            res += std::to_string(i->x) + "," + std::to_string(i->y) + ";";
+        }
+    }
+    else
+    {
+        for (auto i = p2snake.begin(); i!=p2snake.end(); i++)
+        {
+            res += std::to_string(i->x) + "," + std::to_string(i->y) + ";";
+        }
+    }
+
+    return res;
+
+}
+    
+

@@ -58,7 +58,9 @@ class GameLogic{
 public:
     /* functions */
 	GameLogic();
-        
+    
+    std::string bodyToString(int player);
+    
     void setDirection(int player, std::string direction);   
     int incrementScore(int player);     // Increment and then return the current score.
     
@@ -71,6 +73,8 @@ public:
 
     /* objects */
     std::vector<dot> rewards;
+
+    int frame = 0;
 
 private: 
     /* obstacles */
