@@ -70,63 +70,19 @@ function connect()
 			var theJSON = JSON.parse(payload);
 			var firedEvent = theJSON.event;
 			
-			if (firedEvent == "loopEvent")
+			if (firedEvent == "loopEvent" && gameStarted)
 			{
-                loop();
+                if (frame < theJSON.frame)
+                {
+                    update_snake(theJSON.body1, theJSON.body2);
+                    draw();
+                }
 			}
-			else if (firedEvent == "playerDirectionEvent")
-			{
-				changedPlayer = theJSON.player;
-				direction = theJSON.direction;
-				
-				if (changedPlayer == PLAYER_1)
-				{
-					if (direction == "UP")
-					{
-						p1_Hori = NONE;
-						p1_Vert = UP;
-					}
-					else if (direction == "DOWN")
-					{
-						p1_Hori = NONE;
-						p1_Vert = DOWN;
-					}
-					else if (direction == "LEFT")
-					{
-						p1_Hori = LEFT;
-						p1_Vert = NONE;
-					}
-					else if (direction == "RIGHT")
-					{
-						p1_Hori = RIGHT;
-						p1_Vert = NONE;
-					}
-				}
-				else
-				{
-					if (direction == "UP")
-					{
-						p2_Hori = NONE;
-						p2_Vert = UP;
-					}
-					else if (direction == "DOWN")
-					{
-						p2_Hori = NONE;
-						p2_Vert = DOWN;
-					}
-					else if (direction == "LEFT")
-					{
-						p2_Hori = LEFT;
-						p2_Vert = NONE;
-					}
-					else if (direction == "RIGHT")
-					{
-						p2_Hori = RIGHT;
-						p2_Vert = NONE;
-					}
-				}
-			}
-			else if(firedEvent == "playerScoreRelayEvent")
+            else if(firedEvent == "playerDirectionEvent")
+            {
+                processDirection(theJSON.player, theJSON.direction);
+            }
+		    else if(firedEvent == "playerScoreRelayEvent" && gameStarted)
 			{
 				if(theJSON.player == PLAYER_1)
 				{
@@ -162,15 +118,6 @@ function connect()
                     }              
                     rewards.push({x:theJSON.new_x, y:theJSON.new_y});
                 }
-                /*
-				var index = Number(theJSON.index);
-				if (index != -1)
-					delete_node(rewards,index);
-				
-				var position;
-				position = [{x: theJSON.X, y: theJSON.Y}] //x and y coordinate tuple
-				rewards.push(position[0]); //pushes to create new reward at location in reward array
-			    */
             }
 			else if (firedEvent == "gameStartedEvent")
 			{
@@ -188,6 +135,7 @@ function connect()
 				win_message(theJSON.winner);
 				gameStarted = false;
                 rwd_buffer = [];
+                frame = 0;
 				if(playernumber==1)
 					document.getElementById('Restart').style.visibility = 'visible';
 			}
@@ -266,7 +214,7 @@ function connect()
 		catch (err)
 		{
 			log("[Server] " + payload); // <- If a JSON error occurs, or no event matched, then it prints out the message. Use to your advantage!
-			//console.log(err); <- Since this is a try, catch, if you see your event being printed in raw JSON, that means there's an error. Try looking at the err.
+			//console.log(err); //<- Since this is a try, catch, if you see your event being printed in raw JSON, that means there's an error. Try looking at the err.
 		}
 	});
 	
@@ -297,6 +245,57 @@ function handleLatencyEstimation(id, X, Y)
 	// Y: Timestamp of Server when he sent the reply.
 	
 	// Reason for this terminology: http://stackoverflow.com/questions/1228089/how-does-the-network-time-protocol-work
+}
+
+function processDirection(changedPlayer, direction)
+{
+    if (changedPlayer == PLAYER_1)
+    {
+        if (direction == "UP")
+        {
+            p1_Hori = NONE;
+            p1_Vert = UP;
+        }
+        else if (direction == "DOWN")
+        {
+            p1_Hori = NONE;
+            p1_Vert = DOWN;
+        }
+        else if (direction == "LEFT")
+        {
+            p1_Hori = LEFT;
+            p1_Vert = NONE;
+        }
+        else if (direction == "RIGHT")
+        {
+            p1_Hori = RIGHT;
+            p1_Vert = NONE;
+        }
+    }
+    else
+    {
+        if (direction == "UP")
+        {
+            p2_Hori = NONE;
+            p2_Vert = UP;
+        }
+        else if (direction == "DOWN")
+        {
+            p2_Hori = NONE;
+            p2_Vert = DOWN;
+        }
+        else if (direction == "LEFT")
+        {
+            p2_Hori = LEFT;
+            p2_Vert = NONE;
+        }
+        else if (direction == "RIGHT")
+        {
+            p2_Hori = RIGHT;
+            p2_Vert = NONE;
+        }
+   }
+   
 }
 
 /* Begin Custom Functions */

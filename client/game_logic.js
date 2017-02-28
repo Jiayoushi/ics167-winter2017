@@ -61,7 +61,7 @@ var p2_win;
 var tie_game;
 
 var playernumber;
-
+var frame;
 
 function makeRandomID()
 {
@@ -218,11 +218,40 @@ function dc_message(player)
 	}
 }
 
-
-function loop()
+function update_snake(body1, body2)
 {
+    var arr1 = body1.split(";");
+    var arr2 = body2.split(";");
+    p1snake = [];
+    p2snake = [];
+
+    for (var i = 0; i < arr1.length; i++)
+    {
+        var xy = arr1[i].split(",");
+        p1snake.push( {x:parseInt(xy[0]), 
+                       y:parseInt(xy[1])} );
+    }
+    
+    for (var i = 0; i < arr2.length; i++)
+    {
+        var xy = arr2[i].split(",");
+        p2snake.push( {x:parseInt(xy[0]), 
+                       y:parseInt(xy[1])} );
+    }
+
+}
+
+function loop(server_frame)
+{
+    while(frame < server_frame)
+    {
+        move();
+
+        frame++;
+        log(frame);
+    }
+
     draw();
-    move();
 }
 
 function init_objects()
@@ -247,9 +276,7 @@ function main()
     init_objects();
 	init_rewards();
      
-    // Set the loop function to be called every x milliseconds, x to be INTERVAL.
-    //game_interval_ID = setInterval(loop,INTERVAL);
-    //loop();
+    frame = 0;
 }
 
 
