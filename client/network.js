@@ -72,11 +72,12 @@ function connect()
 			
 			if (firedEvent == "loopEvent" && gameStarted)
 			{
-                if (frame < theJSON.frame)
-                {
-                    update_snake(theJSON.body1, theJSON.body2);
-                    draw();
-                }
+                		if (frame < theJSON.frame)
+				{
+                    			update_snake(theJSON.body1, theJSON.body2);
+					frame = theJSON.frame;
+                    			draw();
+                		}
 			}
             else if(firedEvent == "playerDirectionEvent")
             {
