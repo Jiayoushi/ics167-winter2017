@@ -246,14 +246,14 @@ rewardInfo GameLogic::process_rewards()
     int index = -1;
     if ((index = detect_collision(p1snake,rewards,0)) != -1)
     {
-	add_tail(p1snake);
+        add_tail(p1snake);
         dot del(rewards[index].x, rewards[index].y);
         rewards.erase(rewards.begin()+index);
         return rewardInfo(1, del, randomize_reward());
     }
     if ((index = detect_collision(p2snake,rewards,0)) != -1)
     {
-	add_tail(p2snake);
+        add_tail(p2snake);
         dot del(rewards[index].x, rewards[index].y);
         rewards.erase(rewards.begin()+index);
         return rewardInfo(2, del, randomize_reward());

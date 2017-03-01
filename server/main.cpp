@@ -354,12 +354,21 @@ void processLatencyEstimation()
 
 void processLogic()
 {
-    static int count = 0;
-    count++;
+    
+    static int update_tick = 0;
+    if (update_tick++ == 10)          // once every 10/100 seconds.
+    {
+        // Sned the clients the snake's position
+        loopEventHandler(gameLogic.frame);
+        update_tick = 0;
+    }
 
-    // Call functions inside this condition once every (20/100) seconds
+    static int logic_tick = 0;
+    
+
+    // Call functions inside this condition once every (10/100) seconds
     // Game loop is here.
-    if (count==20)
+    if (logic_tick++ == 10)
     {      
         // Only when the game is currently running.
         if(gameState.getGameRunning())
@@ -388,14 +397,12 @@ void processLogic()
                 gameLogic.move();
                 gameLogic.frame++;
                 
-
-                // Ask the clients to move
-                loopEventHandler(gameLogic.frame);
-                
+                // Send snake's body to client 
+                //loopEventHandler(gameLogic.frame);
             }
         }        
 
-        count = 0;
+        logic_tick = 0;
     }
 
 }

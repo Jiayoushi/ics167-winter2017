@@ -2,7 +2,7 @@
 #include <chrono>
 
 
-const int DELAY = 400;		// DELAY/2 milliseconds of delay
+const int DELAY = 400;		// Milliseconds of delay
 
 long long currentTime()
 {
