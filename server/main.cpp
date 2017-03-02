@@ -21,6 +21,7 @@ typedef json11::Json JSON;
 webSocket server;
 GameState gameState;
 GameLogic gameLogic;
+
 /* Begin Helpers */
 
 void log(string message)
@@ -46,14 +47,14 @@ void sendLoopEvent(int clientID, int frame)
                                  {"body1", gameLogic.bodyToString(1)},
                                  {"body2", gameLogic.bodyToString(2)},
                                  {"frame", frame},};
-    lat.push(info(clientID, msg_obj.dump()));
+    lat_msg.push(info(clientID, msg_obj.dump()));
 }
 
 void sendUpdatePlayerNumberEvent(int clientID, int player) // in the future, the game logic will be handled by the server itself (prob milestone 2)
 {
     JSON msg_obj = JSON::object{ {"event", "updatePlayerNumberEvent"},
                                  {"player", std::to_string(player) }, };
-    lat.push(info(clientID, msg_obj.dump()));
+    lat_msg.push(info(clientID, msg_obj.dump()));
     
     log("sendUpdatePlayerNumberEvent sent for client ID " + std::to_string(clientID) + " (player# = " + std::to_string(player) + ").");
 }
@@ -62,7 +63,7 @@ void sendPlayerDisconnectEvent(int clientID, int player) // in the future, the g
 {
     JSON msg_obj = JSON::object{ {"event", "playerDisconnectEvent"},
                                  {"player", std::to_string(player)}, };
-    lat.push(info(clientID, msg_obj.dump()));
+    lat_msg.push(info(clientID, msg_obj.dump()));
     
     log("playerDisconnectEvent sent for client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " disconnected.)");
 }
@@ -71,7 +72,7 @@ void sendPlayerConnectedEvent(int clientID, int player, std::string id)
 {
     JSON msg_obj = JSON::object{ {"event", "playerConnectedEvent"},
                                  {"player", std::to_string(player)},};
-    lat.push(info(clientID, msg_obj.dump()));
+    lat_msg.push(info(clientID, msg_obj.dump()));
             
     log("playerConnectedEvent sent for client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " connected.)");
 }
@@ -79,7 +80,7 @@ void sendPlayerConnectedEvent(int clientID, int player, std::string id)
 void sendGameStartedEvent(int clientID)
 {
     JSON msg_obj = JSON::object{ {"event", "gameStartedEvent"} };
-    lat.push(info(clientID, msg_obj.dump()));    
+    lat_msg.push(info(clientID, msg_obj.dump()));    
    
     log("gameStartedEvent sent for client ID " + std::to_string(clientID) + ")");
 }
@@ -90,7 +91,7 @@ void sendPlayerDirectionEvent(int clientID, int player, std::string direction, i
                                  {"direction", direction},
                                  {"player", std::to_string(player)},
                                  {"frame", frame},};
-    lat.push(info(clientID, msg_obj.dump()));
+    lat_msg.push(info(clientID, msg_obj.dump()));
     
     //log("playerDirectionEvent sent to client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " moved " + direction + ")");
 }
@@ -102,7 +103,7 @@ void sendNewRewardEvent(int clientID, int new_x, int new_y, int del_x, int del_y
                                  {"new_y", std::to_string(new_y)},
                                  {"del_x", std::to_string(del_x)},
                                  {"del_y", std::to_string(del_y)},};
-    lat.push(info(clientID, msg_obj.dump()));
+    lat_msg.push(info(clientID, msg_obj.dump()));
 
     log("newRewardEvent sent to client ID " + std::to_string(clientID) + " (new_x: " + std::to_string(new_x) + ", new_y: " + std::to_string(new_y) + ", del_x: " + std::to_string(del_x) + ", del_y: " + std::to_string(del_y) + ").");
 }
@@ -111,7 +112,7 @@ void sendGameFinishedEvent(int clientID)
 {
     JSON msg_obj = JSON::object{ {"event", "gameFinishedEvent"},
                                  {"winner", gameLogic.getWinner()},};
-    lat.push(info(clientID, msg_obj.dump()));
+    lat_msg.push(info(clientID, msg_obj.dump()));
 
     log("gameFinishedEvent sent to client: "+ std::to_string(clientID));
 }
@@ -120,15 +121,19 @@ void sendPlayerScoreRelayEvent(int clientID, int player)
 {
     JSON msg_obj = JSON::object{ {"event", "playerScoreRelayEvent"},
                                  {"player", std::to_string(player)}};
-    lat.push(info(clientID, msg_obj.dump()));
+    lat_msg.push(info(clientID, msg_obj.dump()));
 
     log("playerScoreRelayEvent sent to client ID " + std::to_string(clientID) + " (Player: " + std::to_string(player) + ").");
 }
 
 void sendLatencyEstimationEvent(int clientID, int latencyID, long long X, long long Y)
 {
-	// For this function, DO NOT lat.push or lat_est.push!! Again, DO NOT lat.push or lat_est.push!!! DO NOT!! DONT!! BAD!! DONT DO IT!!
-	server.wsSend(clientID, "{\"event\": \"latencyEstimationEvent\", \"id\": " + std::to_string(latencyID) + ", \"X\": " + std::to_string(X) + ", \"Y\": " + std::to_string(Y) + "}");
+    JSON msg_obj = JSON::object{ {"event", "latencyEstimationEvent"},
+                                 {"id", std::to_string(latencyID)},
+                                 {"X",  std::to_string(X)},
+                                 {"Y",  std::to_string(Y)},};
+    
+    lat_msg.push(info(clientID, msg_obj.dump()));
 }
 
 /* Begin Event Handlers */
@@ -179,7 +184,8 @@ void loopEventHandler(int frame)
 }
 
 void playerScoreEventHandler(int player)
-{ // Increment and then broacast the player who scores
+{ 
+    // Increment and then broacast the player who scores
 	log("playerScoreEventHandler fired.");
 	
     gameLogic.incrementScore(player);
@@ -226,6 +232,15 @@ void gameFinishedEventHandler() // in the future, the game logic will be handled
     gameState.setGameRunning(false);
 }
 
+void NTPEventHandler(int clientID, int latencyID)
+{
+    long long X = currentTime();
+
+    long long Y = currentTime();
+
+    sendLatencyEstimationEvent(clientID, latencyID, X, Y);
+}
+
 /* Begin Network Handlers */
 
 void openHandler(int clientID)
@@ -236,7 +251,7 @@ void openHandler(int clientID)
 	if (clientIDs.size() > 2)
 	{
 		log("Rejecting connection..");
-        lat.push(info(clientID, "There are already two clients connected. Rejecting your connection.."));
+        lat_msg.push(info(clientID, "There are already two clients connected. Rejecting your connection.."));
 		//server.wsSend(clientID, "There are already two clients connected. Rejecting your connection..");
 		server.wsClose(clientID);
 		log("Connection forcefully closed. (Reason: two clients already exist.) Client ID: " + std::to_string(clientID));
@@ -244,7 +259,7 @@ void openHandler(int clientID)
 	else
 	{
 		log("Connection established.");
-        lat.push(info(clientID, "Connection established."));
+        lat_msg.push(info(clientID, "Connection established."));
 		//server.wsSend(clientID, "Connection established.");
 	}
 }
@@ -253,7 +268,7 @@ void closeHandler(int clientID)
 {
 	log("Connection closed. Client ID: " + std::to_string(clientID));
 	std::vector<int> clientIDs = server.getClientIDs();
-	lat.push(info(clientID, "Connection closed."));
+	lat_msg.push(info(clientID, "Connection closed."));
     //server.wsSend(clientID, "Connection closed.");
 	if (clientID == 0) // the main client
 	{
@@ -283,14 +298,22 @@ void closeHandler(int clientID)
 	}
 }
 
-void messageHandler(int clientID, string message) 
+// When the server receives message from clients, push it to lat_event to be processed later after some delay.
+void messageHandler(int clientID, std::string message) 
 {
-	//log("Message received from Client ID " + std::to_string(clientID) + ": " + message);
+    lat_event.push(info(clientID, message));
+}
+
+void processEvent(info &i)
+{
+    //log("Message received from Client ID " + std::to_string(clientID) + ": " + message);
 
 	std::string err; // This string is updated with an error message if the json parser fails.
-	auto json = JSON::parse(message, err);
+	auto json = JSON::parse(i.msg, err);
 	std::string firedEvent = json["event"].string_value();
-	std::vector<int> clientIDs = server.getClientIDs();
+	
+    std::vector<int> clientIDs = server.getClientIDs();
+    int clientID = i.clientID;
 
 	// Begin Event Handling
 	if (firedEvent == "setPlayerIDEvent") // JSON example -> {"event": "setPlayerIDEvent", "player": 1, "id": "TTaiN"}
@@ -307,73 +330,74 @@ void messageHandler(int clientID, string message)
 	}
 	else if (firedEvent == "latencyEstimationEvent")
 	{
-		lat_est.push(NTP(clientID, json["id"].int_value(), currentTime()));
-		//log("(Latency Estimation) Client ID: " + std::to_string(clientID) + " | Latency ID: " + std::to_string(json["id"].int_value()));
-	}
+        NTPEventHandler(clientID, json["id"].int_value());
+    }
 	else
 	{
 		log("Error (if any): " + err);
-		lat.push(info(clientID, "Received unexpected message: " + message));
-        //server.wsSend(clientID, "Received unexpected message: " + message);
-	}
+		lat_msg.push(info(clientID, "Received unexpected message: " + i.msg));
+    }
+
 }
 
-void processMessage()
+// Check if any event should now be processed.
+void checkEvent()
 {
     std::vector<int> clientIDs = server.getClientIDs();
 
-    while (lat.size()!=0)
+    while (lat_event.size()!=0)
     {
-        info i = lat.top();
-	    if (i.timeToSend > currentTime())  break;
+        info i = lat_event.top();
+	    if (i.timeToProcess > currentTime())  break;
+	   
+	    if ( (i.clientID == 0 && contains(clientIDs, 0)) || (i.clientID == 1 && contains(clientIDs, 1)) )
+	    {
+	        processEvent(i);
+	    }
+	    lat_event.pop();
+    }
+}
+
+// Check if there is any message to be sent to clients.
+void checkMessage()
+{
+    std::vector<int> clientIDs = server.getClientIDs();
+
+    while (lat_msg.size()!=0)
+    {
+        info i = lat_msg.top();
+	    if (i.timeToProcess > currentTime())  break;
 	   
 	    if ( (i.clientID == 0 && contains(clientIDs, 0)) || (i.clientID == 1 && contains(clientIDs, 1)) )
 	    {
 	        server.wsSend(i.clientID, i.msg);
 	    }
-	    lat.pop();
+	    lat_msg.pop();
     }
 }
 
-void processLatencyEstimation()
+// Send the clients the snake's position once every 10/100 seconds
+void sendPosition()
 {
-	std::vector<int> clientIDs = server.getClientIDs();
-
-	while (lat_est.size()!=0)
-	{
-		NTP i = lat_est.top();
-		if (i.timeToSend > currentTime())  break;
-		
-		if ((i.clientID == 0 && contains(clientIDs, 0)) || (i.clientID == 1 && contains(clientIDs, 1)))
-		{
-			sendLatencyEstimationEvent(i.clientID, i.latencyID, i.X, currentTime());
-		}
-		lat_est.pop();
-	}
-}
-
-void processLogic()
-{
-    
     static int update_tick = 0;
-    if (update_tick++ == 10)          // once every 10/100 seconds.
-    {
-        // Sned the clients the snake's position
+
+    if (update_tick++ == 10)          
+    {       
         loopEventHandler(gameLogic.frame);
         update_tick = 0;
     }
+}
 
-    static int logic_tick = 0;
-    
-
-    // Call functions inside this condition once every (10/100) seconds
-    // Game loop is here.
+// Loop the game once every 10/100 seconds
+void gameLoop()
+{
+    static int logic_tick = 0;  
     if (logic_tick++ == 10)
     {      
         // Only when the game is currently running.
         if(gameState.getGameRunning())
         {
-            if(gameLogic.determine_winner()!=-1)
+            if(false)//gameLogic.determine_winner()!=-1)
             {
                 gameFinishedEventHandler();
             }
@@ -396,23 +420,20 @@ void processLogic()
 		        // Move the snake locally.
                 gameLogic.move();
                 gameLogic.frame++;
-                
-                // Send snake's body to client 
-                //loopEventHandler(gameLogic.frame);
+               
             }
         }        
-
         logic_tick = 0;
     }
-
 }
 
 /* Called 100 times every 1 second */
 void periodicHandler()
 {
-    processMessage();
-    processLogic();
-    processLatencyEstimation();
+    checkEvent();         // Check if any event ready to be processed, if so, process.
+    checkMessage();       // Check if any message to client is ready to be sent, if so, sent.
+    gameLoop();           // Simulates the game by one loop
+    sendPosition();         // Send the positions of two snakes to two clients   
 }
 
 /* Begin Main Function */
