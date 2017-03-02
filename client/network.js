@@ -72,8 +72,12 @@ function connect()
 			
 			if (firedEvent == "loopEvent" && gameStarted)
 			{
-				update_snake(theJSON.body1, theJSON.body2);
-			}
+                if(frame < theJSON.frame)
+                {
+			        update_snake(theJSON.body1, theJSON.body2);	
+			        frame = theJSON.frame;
+                }
+            }
             else if(firedEvent == "playerDirectionEvent")
             {
                 processDirection(theJSON.player, theJSON.direction);
@@ -227,7 +231,7 @@ function doLatencyEstimation()
 function handleLatencyEstimation(id, X, Y)
 {
 	var B = Date.now() - initialTimestamp;
-    var SampleRTT = B - latencyMessages[id];
+    var SampleRTT = B - latencyMessages[id] - (Y-X);
     EstimatedRTT = Math.round(0.875*EstimatedRTT + 0.125*SampleRTT);
     document.getElementById('RTT').value = EstimatedRTT + "ms";
 	//log("[Debug] Latency ID: " + id + " | A: " + latencyMessages[id] + " | X: " + X + " | Y: " + Y + " | B: " + B);
