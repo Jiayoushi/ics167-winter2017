@@ -70,7 +70,7 @@ function connect()
 			var theJSON = JSON.parse(payload);
 			var firedEvent = theJSON.event;
 			
-			if (firedEvent == "loopEvent" && gameStarted)
+			if (firedEvent == "loopEvent")
 			{
                 if(frame < theJSON.frame)
                 {
