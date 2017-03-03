@@ -72,7 +72,6 @@ function connect()
 			
 			if (firedEvent == "loopEvent")
 			{
-                log("Current round is "+round + " server round is " +theJSON.round);
                 if(round == theJSON.round  &&  frame < theJSON.frame)
                 {
 			        update_snake(theJSON.body1, theJSON.body2);	
