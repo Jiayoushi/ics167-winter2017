@@ -51,7 +51,7 @@ void sendLoopEvent(int clientID, int frame)
     lat_msg.push(info(clientID, msg_obj.dump()));
 
     
-    //log("IM SENDING " + std::to_string(gameLogic.round));
+    log("IM SENDING " + gameLogic.bodyToString(1));
 }
 
 void sendUpdatePlayerNumberEvent(int clientID, int player) // in the future, the game logic will be handled by the server itself (prob milestone 2)
@@ -417,7 +417,7 @@ void gameLoop()
         // Only when the game is currently running.
         if(gameState.getGameRunning())
         {
-            if(gameLogic.determine_winner()!=-1)
+            if(false)//gameLogic.determine_winner()!=-1)
             {
                 gameFinishedEventHandler();
             }
