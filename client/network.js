@@ -72,14 +72,19 @@ function connect()
 			
 			if (firedEvent == "loopEvent")
 			{
-			        update_snake(theJSON.body1, theJSON.body2);	
-		
-            		}
-            		else if(firedEvent == "playerDirectionEvent")
-            		{
-                		processDirection(theJSON.player, theJSON.direction);
-            		}
-		    	else if(firedEvent == "playerScoreRelayEvent" && gameStarted)
+                		
+                p1snake = eval(theJSON.body1);
+                p2snake = eval(theJSON.body2);
+	
+       		    draw();
+
+                    
+            }
+            else if(firedEvent == "playerDirectionEvent")
+            {
+                processDirection(theJSON.player, theJSON.direction);
+            }
+		    else if(firedEvent == "playerScoreRelayEvent" && gameStarted)
 			{
 				if(theJSON.player == PLAYER_1)
 				{
@@ -99,25 +104,20 @@ function connect()
 				}
 			}
 			else if (firedEvent == "newRewardEvent")
-			{               
-                if (!gameStarted)
-                {
-                    rwd_buffer.push({x:theJSON.new_x, y:theJSON.new_y});
-                }
-                else
-                {
+			{
                     if (theJSON.del_x != -1)
                     {
                         delete_reward(theJSON.del_x, theJSON.del_y);
-                    }              
-                    rewards.push({x:theJSON.new_x, y:theJSON.new_y});
-                }
+                    }
+             
+                    rewards.push({x:theJSON.new_x, y:theJSON.new_y});    
             }
 			else if (firedEvent == "gameStartedEvent")
 			{
                 log("[Client] Game Started.");
 				gameStarted = true;
 				main();
+                round++;
 				if(playernumber == PLAYER_1)
 					document.getElementById('Restart').style.visibility = 'hidden';
 			}
@@ -125,11 +125,13 @@ function connect()
 			{
 				log("[Server] GameFinishedEvent");
 				
-				clearInterval(game_interval_ID);
-				win_message(theJSON.winner);
+                // Reset variables
 				gameStarted = false;
                 rwd_buffer = [];
                 frame = 0;
+                
+                // Reset display
+                win_message(theJSON.winner);
 				if(playernumber==1)
 					document.getElementById('Restart').style.visibility = 'visible';
 			}

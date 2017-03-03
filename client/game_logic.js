@@ -62,6 +62,7 @@ var tie_game;
 
 var playernumber;
 var frame;
+var round = -1;
 
 var se_ID;
 
@@ -219,98 +220,6 @@ function dc_message(player)
 		win_Ctx.fillText("Player 2 Disconnected.", (width/2)-40, 25); // TODO: change to ID
 	}
 }
-
-function e()
-{   
-    p1snake.pop();
-    p2snake.pop();
-
-    p1snake.unshift( {x:2*p1snake[0].x - p1snake[1].x, 
-                      y:2*p1snake[0].y - p1snake[1].y } );
-
-    p2snake.unshift( {x:2*p2snake[0].x - p2snake[1].x,
-                      y:2*p2snake[0].y + p2snake[1].y} );       
-}
-
-function update_snake(body1, body2)
-{
-    var arr1 = body1.split(";");
-    var arr2 = body2.split(";");
-    p1snake = [];
-    p2snake = [];
-
-    for (var i = 0; i < arr1.length; i++)
-    {
-        var xy = arr1[i].split(",");
-        p1snake.push( {x:parseInt(xy[0]), 
-                       y:parseInt(xy[1])} );
-    }
-    
-    for (var i = 0; i < arr2.length; i++)
-    {
-        var xy = arr2[i].split(",");
-        p2snake.push( {x:parseInt(xy[0]), 
-                       y:parseInt(xy[1])} );
-    }
-
-    draw();
-}
-
-function smooth_extrapolate(body1, body2)
-{
-    clearInterval(se_ID);
-
-    var arr1 = body1.split(";");
-    var arr2 = body2.split(";");
-    p1snake = [];
-    p2snake = [];
-
-    for (var i = 0; i < arr1.length; i++)
-    {
-        var xy = arr1[i].split(",");
-        p1snake.push( {x:parseInt(xy[0]), 
-                       y:parseInt(xy[1])} );
-    }
-    
-    for (var i = 0; i < arr2.length; i++)
-    {
-        var xy = arr2[i].split(",");
-        p2snake.push( {x:parseInt(xy[0]), 
-                       y:parseInt(xy[1])} );
-    }
-
-    se_ID = setInterval(se_helper,10);    // If logic_tick = 10,  10/100 = 0.1s = 100ms,  this function should called every 20ms.
-                                  // Smoothly extrapolate.
-}
-
-
-function se_helper()
-{
-    var p1_len = p1snake.length;
-    var p2_len = p2snake.length;
-
-    for (var i = p1_len-1; i > 0; i--)
-    {
-        p1snake[i].x += Math.sign(p1snake[i-1].x - p1snake[i].x)*0.1;
-        p1snake[i].y += Math.sign(p1snake[i-1].y - p1snake[i].y)*0.1;
-    }
-    p1snake[0].x += Math.sign(p1snake[0].x - p1snake[1].x)*0.1;
-    p1snake[0].y += Math.sign(p1snake[0].y - p1snake[1].y)*0.1;
-    
-
-    for (var i = 0; i < p2_len-1; i++)
-    {
-        p2snake[i].x += Math.sign(p2snake[i].x - p2snake[i+1].x)*0.5;
-        p2snake[i].y += Math.sign(p2snake[i].y - p2snake[i+1].y)*0.5;
-    }
-    //p2snake[p2_len-1].x += p2snake[p2_len-2].x - p2snake[p2_len-1].x;
-    //p2snake[p2_len-1].y += p2snake[p2_len-2].y - p2snake[p2_len-1].y;
-
-
-    draw();
-}
-
-
 
 function init_objects()
 {
