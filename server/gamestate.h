@@ -45,7 +45,7 @@ class GameState
 		int player1Score = 0;
 		int player2Score = 0;
 		bool player1Online = false; //True when first client connects
-	    bool gameRunning = false;  // When true, the server will keep sending message to tell clients to update their images
+	    bool gameRunning;  // When true, the server will keep sending message to tell clients to update their images
 };
 
 #endif

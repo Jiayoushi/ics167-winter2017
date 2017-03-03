@@ -16,7 +16,8 @@ GameLogic::GameLogic()
     init_snakes();
 	init_obstacles();
 	init_rewards();
-
+    
+    round = -1;
 }
 
 /// Create Snake/////
@@ -281,7 +282,7 @@ void GameLogic::reset()
     p1snake.clear();
     p2snake.clear();
 
-    frame = 0; 
+    frame = 0;
   
     p1_Hori = RIGHT;
     p1_Vert = NONE;
@@ -313,25 +314,26 @@ std::string GameLogic::getWinner()
 
 std::string GameLogic::bodyToString(int player)
 {
-    std::string res;
+    std::string res("[");
 
-    if ( player == 1)
+    if (player == 1)
     {
         for (auto i = p1snake.begin(); i!=p1snake.end(); i++)
         {
-            res += std::to_string(i->x) + "," + std::to_string(i->y) + ";";
+            res += ("{x:" + std::to_string(i->x) + ",y:" + std::to_string(i->y) + "},");
         }
     }
     else
     {
         for (auto i = p2snake.begin(); i!=p2snake.end(); i++)
         {
-            res += std::to_string(i->x) + "," + std::to_string(i->y) + ";";
+            res += ("{x:" + std::to_string(i->x) + ",y:" + std::to_string(i->y) + "},");
         }
     }
 
-    return res;
+    res += "]";
 
+    return res;
 }
     
 

@@ -75,6 +75,8 @@ public:
     std::vector<dot> rewards;
 
     int frame = 0;
+    int round = -1;
+    int Round;
 
 private: 
     /* obstacles */
