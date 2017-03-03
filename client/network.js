@@ -72,7 +72,8 @@ function connect()
 			
 			if (firedEvent == "loopEvent")
 			{
-                if(frame < theJSON.frame)
+                log("Current round is "+round + " server round is " +theJSON.round);
+                if(round == theJSON.round  &&  frame < theJSON.frame)
                 {
 			        update_snake(theJSON.body1, theJSON.body2);	
 			        frame = theJSON.frame;
@@ -80,11 +81,12 @@ function connect()
             }
             else if(firedEvent == "playerDirectionEvent")
             {
-                processDirection(theJSON.player, theJSON.direction);
+                if(round == theJSON.round)
+                    processDirection(theJSON.player, theJSON.direction);
             }
 		    else if(firedEvent == "playerScoreRelayEvent" && gameStarted)
 			{
-				if(theJSON.player == PLAYER_1)
+				if(round == theJSON.round && theJSON.player == PLAYER_1)
 				{
 					p1_score++;
 					text_Ctx.fillStyle = 'white'; 		// White out old score text.
@@ -102,8 +104,8 @@ function connect()
 				}
 			}
 			else if (firedEvent == "newRewardEvent")
-			{               
-                if (!gameStarted)
+			{            
+                if (round == theJSON.round && !gameStarted)
                 {
                     rwd_buffer.push({x:theJSON.new_x, y:theJSON.new_y});
                 }
@@ -121,6 +123,7 @@ function connect()
                 log("[Client] Game Started.");
 				gameStarted = true;
 				main();
+                round++;
 				if(playernumber == PLAYER_1)
 					document.getElementById('Restart').style.visibility = 'hidden';
 			}
@@ -128,11 +131,13 @@ function connect()
 			{
 				log("[Server] GameFinishedEvent");
 				
-				clearInterval(game_interval_ID);
-				win_message(theJSON.winner);
+                // Reset variables
 				gameStarted = false;
                 rwd_buffer = [];
                 frame = 0;
+                
+                // Reset display
+                win_message(theJSON.winner);
 				if(playernumber==1)
 					document.getElementById('Restart').style.visibility = 'visible';
 			}

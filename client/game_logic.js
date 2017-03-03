@@ -62,6 +62,7 @@ var tie_game;
 
 var playernumber;
 var frame;
+var round = -1;
 
 var se_ID;
 
