@@ -49,9 +49,6 @@ void sendLoopEvent(int clientID, int frame)
                                  {"frame", frame},
                                  {"round", gameLogic.round},};
     lat_msg.push(info(clientID, msg_obj.dump()));
-
-    
-    log("IM SENDING " + gameLogic.bodyToString(1));
 }
 
 void sendUpdatePlayerNumberEvent(int clientID, int player) // in the future, the game logic will be handled by the server itself (prob milestone 2)
