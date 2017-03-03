@@ -72,15 +72,15 @@ function connect()
 			
 			if (firedEvent == "loopEvent")
 			{
-                //if(round == theJSON.round  &&  frame < theJSON.frame)
-                //{
-                    p1snake = eval(theJSON.body1);
-                    p2snake = eval(theJSON.body2);
+                		if(round == theJSON.round  &&  frame < theJSON.frame)
+                		{
+                    			p1snake = eval(theJSON.body1);
+                    			p2snake = eval(theJSON.body2);
 	
-    		        draw();
+       		        		    draw();
 
-                    frame = theJSON.frame;
-                //}
+                    			frame = theJSON.frame;
+                		}
             }
             else if(firedEvent == "playerDirectionEvent")
             {
