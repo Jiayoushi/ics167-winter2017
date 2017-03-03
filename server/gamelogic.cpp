@@ -223,22 +223,6 @@ int GameLogic::incrementScore(int player)
     return (player==1)? ++p1_score : ++p2_score ;
 }
 
-/*
-std::vector<int> GameLogic::detect_rewards()
-{
-    int index = -1;
-    if ((index = detect_collision(p1snake,rewards,0)) != -1)
-    {
-        return std::vector<int>{1,index};    
-    }
-    if ((index = detect_collision(p2snake,rewards,0)) != -1)
-    {
-       
-        return std::vector<int>{2,index};
-    }
-    
-    return std::vector<int>();
-}*/
 
 // If two rewards eaten by separate snakes at the same time, only 1 is processed.
 // The 2rd one will be processed by the next call of process_rewards() function
@@ -261,17 +245,6 @@ rewardInfo GameLogic::process_rewards()
     }
 
     return rewardInfo(-1,dot(-1,-1),dot(-1,-1));
-       
-    /*
-    std::vector<int> collision = detect_rewards();
-
-    if(collision.size()!=0)
-    {
-        rewards.erase(rewards.begin()+collision[1]);
-        return rewardInfo(collision[0],collision[1], randomize_reward());
-    }
-        
-    return rewardInfo(-1,-1,dot(-1,-1));*/
 }
 
 
