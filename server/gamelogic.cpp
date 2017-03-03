@@ -16,7 +16,8 @@ GameLogic::GameLogic()
     init_snakes();
 	init_obstacles();
 	init_rewards();
-
+    
+    round = -1;
 }
 
 /// Create Snake/////
@@ -281,7 +282,7 @@ void GameLogic::reset()
     p1snake.clear();
     p2snake.clear();
 
-    frame = 0; 
+    frame = 0;
   
     p1_Hori = RIGHT;
     p1_Vert = NONE;

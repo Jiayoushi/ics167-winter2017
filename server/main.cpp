@@ -46,8 +46,12 @@ void sendLoopEvent(int clientID, int frame)
     JSON msg_obj = JSON::object{ {"event", "loopEvent"},
                                  {"body1", gameLogic.bodyToString(1)},
                                  {"body2", gameLogic.bodyToString(2)},
-                                 {"frame", frame},};
+                                 {"frame", frame},
+                                 {"round", gameLogic.round},};
     lat_msg.push(info(clientID, msg_obj.dump()));
+
+    
+    //log("IM SENDING " + std::to_string(gameLogic.round));
 }
 
 void sendUpdatePlayerNumberEvent(int clientID, int player) // in the future, the game logic will be handled by the server itself (prob milestone 2)
@@ -90,7 +94,8 @@ void sendPlayerDirectionEvent(int clientID, int player, std::string direction, i
     JSON msg_obj = JSON::object{ {"event", "playerDirectionEvent"},
                                  {"direction", direction},
                                  {"player", std::to_string(player)},
-                                 {"frame", frame},};
+                                 {"frame", frame},
+                                 {"round", gameLogic.round},};
     lat_msg.push(info(clientID, msg_obj.dump()));
     
     //log("playerDirectionEvent sent to client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " moved " + direction + ")");
@@ -102,7 +107,8 @@ void sendNewRewardEvent(int clientID, int new_x, int new_y, int del_x, int del_y
                                  {"new_x", std::to_string(new_x)},
                                  {"new_y", std::to_string(new_y)},
                                  {"del_x", std::to_string(del_x)},
-                                 {"del_y", std::to_string(del_y)},};
+                                 {"del_y", std::to_string(del_y)},
+                                 {"round", gameLogic.round},};
     lat_msg.push(info(clientID, msg_obj.dump()));
 
     log("newRewardEvent sent to client ID " + std::to_string(clientID) + " (new_x: " + std::to_string(new_x) + ", new_y: " + std::to_string(new_y) + ", del_x: " + std::to_string(del_x) + ", del_y: " + std::to_string(del_y) + ").");
@@ -120,7 +126,8 @@ void sendGameFinishedEvent(int clientID)
 void sendPlayerScoreRelayEvent(int clientID, int player)
 {
     JSON msg_obj = JSON::object{ {"event", "playerScoreRelayEvent"},
-                                 {"player", std::to_string(player)}};
+                                 {"player", std::to_string(player)},
+                                 {"round", gameLogic.round},};
     lat_msg.push(info(clientID, msg_obj.dump()));
 
     log("playerScoreRelayEvent sent to client ID " + std::to_string(clientID) + " (Player: " + std::to_string(player) + ").");
@@ -205,17 +212,17 @@ void RewardEventHandler(int new_x, int new_y, int del_x, int del_y)
 
 void gameStartEventHandler()
 {
-
 	log("gameStartEventHandler fired.");
 	new_event("Player scores have been set back to 0 (client started game.)");
 
 	sendGameStartedEvent(0);
 	sendGameStartedEvent(1);
 
-    // -1 indicates there is no reward to be removed.
+    // Send the information of the randomized rewards to clients, -1 indicates there is no reward to be removed.
     RewardEventHandler(gameLogic.rewards[0].x, gameLogic.rewards[0].y, -1,-1);
     RewardEventHandler(gameLogic.rewards[1].x, gameLogic.rewards[1].y, -1,-1);
-
+    gameLogic.round++;
+    
     gameState.resetScores();
     gameState.setGameRunning(true);
    
@@ -277,9 +284,13 @@ void closeHandler(int clientID)
 			sendPlayerDisconnectEvent(1, PLAYER_1); // Tell Client ID 1 (Player 2) that Player 1 has disconnected.
 			server.wsClose(1);
 		}
+
+        gameLogic.reset();
+        gameLogic.round = -1;
+
 		gameState.setPlayer1Online(false);
 		gameState.resetScores();
-        gameLogic.reset();
+        
         gameState.setGameRunning(false);
 		log(gameState.getPlayerID(PLAYER_1) + " has disconnected (Player #1).");
 		gameState.resetID(PLAYER_1);
@@ -290,8 +301,11 @@ void closeHandler(int clientID)
 		{
 			sendPlayerDisconnectEvent(0, PLAYER_2); // Tell Client ID 0 (Player 1) that Player 2 has disconnected.
 		}
-		gameState.resetScores();
+    
         gameLogic.reset();
+        gameLogic.round = -1;
+    
+		gameState.resetScores();
         gameState.setGameRunning(false);
 		log(gameState.getPlayerID(PLAYER_2) + " has disconnected (Player #2)." + " Game state has been completely reset.");
 		gameState.resetID(PLAYER_2);
@@ -322,7 +336,8 @@ void processEvent(info &i)
 	}
 	else if (firedEvent == "setPlayerDirectionEvent")
 	{
-		setPlayerDirectionEventHandler(clientID, json["player"].int_value(), json["direction"].string_value());
+        if(gameState.getGameRunning())
+		    setPlayerDirectionEventHandler(clientID, json["player"].int_value(), json["direction"].string_value());
 	}
 	else if (firedEvent == "gameStartEvent") // JSON example -> {"event": "gameFinishedEvent"}
 	{
@@ -382,8 +397,12 @@ void sendPosition()
     static int update_tick = 0;
 
     if (update_tick++ == 10)          
-    {       
-        loopEventHandler(gameLogic.frame);
+    {
+        if (gameState.getGameRunning())
+        {
+            loopEventHandler(gameLogic.frame);     
+        }
+       
         update_tick = 0;
     }
 }
@@ -393,7 +412,8 @@ void gameLoop()
 {
     static int logic_tick = 0;  
     if (logic_tick++ == 10)
-    {      
+    {     
+        log(gameState.getGameRunning());
         // Only when the game is currently running.
         if(gameState.getGameRunning())
         {
