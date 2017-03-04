@@ -133,24 +133,24 @@ function init_input()
     {  
 	if(!gameStarted) return;
 	if(playernumber==1){
-        	if(e.keyCode === KEY_DOWN||e.keyCode === KEY_S && p1_Vert != UP) {
+        	if((e.keyCode === KEY_DOWN||e.keyCode === KEY_S) && (p1_Vert != UP && p1_Vert != DOWN)) {
 				sendSetPlayerDirectionEvent(playernumber, "DOWN")
-        	} else if(e.keyCode === KEY_UP||e.keyCode === KEY_W && p1_Vert != DOWN) {
+        	} else if((e.keyCode === KEY_UP||e.keyCode === KEY_W) && (p1_Vert != UP && p1_Vert != DOWN)) {
 				sendSetPlayerDirectionEvent(playernumber, "UP")
-        	} else if(e.keyCode === KEY_LEFT ||e.keyCode === KEY_A && p1_Hori != RIGHT){
+        	} else if((e.keyCode === KEY_LEFT ||e.keyCode === KEY_A) && (p1_Hori != RIGHT && p1_Hori != LEFT)){
 				sendSetPlayerDirectionEvent(playernumber, "LEFT")
-        	} else if(e.keyCode === KEY_RIGHT||e.keyCode === KEY_D && p1_Hori != LEFT){
+        	} else if((e.keyCode === KEY_RIGHT||e.keyCode === KEY_D) && (p1_Hori != RIGHT && p1_Hori != LEFT)){
 				sendSetPlayerDirectionEvent(playernumber, "RIGHT")
         	}
     	}
      	else{
-		if(e.keyCode === KEY_DOWN||e.keyCode === KEY_S && p2_Vert != UP) {
+		if((e.keyCode === KEY_DOWN||e.keyCode === KEY_S) && (p2_Vert != UP && p2_Vert != DOWN)) {
 				sendSetPlayerDirectionEvent(playernumber, "DOWN")
-        	} else if(e.keyCode === KEY_UP||e.keyCode === KEY_W && p2_Vert != DOWN) {
+        	} else if((e.keyCode === KEY_UP||e.keyCode === KEY_W) && (p2_Vert != UP && p2_Vert != DOWN)) {
 				sendSetPlayerDirectionEvent(playernumber, "UP")
-        	} else if(e.keyCode === KEY_LEFT ||e.keyCode === KEY_A && p2_Hori != RIGHT){
+        	} else if((e.keyCode === KEY_LEFT ||e.keyCode === KEY_A) && (p2_Hori != RIGHT && p2_Hori != LEFT)){
 				sendSetPlayerDirectionEvent(playernumber, "LEFT")
-        	} else if(e.keyCode === KEY_RIGHT||e.keyCode === KEY_D && p2_Hori != LEFT){
+        	} else if((e.keyCode === KEY_RIGHT||e.keyCode === KEY_D) && (p2_Hori != RIGHT && p2_Hori != LEFT)){
 				sendSetPlayerDirectionEvent(playernumber, "RIGHT")
         	}		
 	}
