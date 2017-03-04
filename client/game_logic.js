@@ -80,8 +80,8 @@ function makeRandomID()
 
 function teleport(body1, body2)
 {
-    p1snake = eval(body1);
-    p2snake = eval(body2);
+    p1snake = body1;
+    p2snake = body2;
 
     draw();
 }
