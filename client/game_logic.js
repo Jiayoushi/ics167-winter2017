@@ -78,6 +78,14 @@ function makeRandomID()
     document.getElementById('pid').value = text;
 }
 
+function teleport(body1, body2)
+{
+    p1snake = eval(body1);
+    p2snake = eval(body2);
+
+    draw();
+}
+
 function init_canvas() 
 {
 	// Create and initiate top text canvas element
