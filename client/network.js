@@ -74,11 +74,8 @@ function connect()
 			{
                 		if(round == theJSON.round  &&  frame < theJSON.frame)
                 		{
-                    			p1snake = eval(theJSON.body1);
-                    			p2snake = eval(theJSON.body2);
-	
-       		        		    draw();
-
+					teleport(theJSON.body1, theJSON.body2);
+					
                     			frame = theJSON.frame;
                 		}
             }
