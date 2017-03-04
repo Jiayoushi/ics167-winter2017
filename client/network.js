@@ -74,7 +74,7 @@ function connect()
 			{
                 		if(round == theJSON.round  &&  frame < theJSON.frame)
                 		{
-					teleport(theJSON.body1, theJSON.body2);
+					teleport(eval(theJSON.body1), eval(theJSON.body2));
 					
                     			frame = theJSON.frame;
                 		}
