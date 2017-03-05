@@ -185,37 +185,95 @@ int GameLogic::detect_snake_collision()
 		detect_collision(p1snake, p2snake, 0) != NOT_COLLIDE || detect_collision(p2snake, p1snake, 0) != NOT_COLLIDE) ? 1 : NOT_COLLIDE;
 }
 
-void GameLogic::setDirection(int player, std::string direction)
+bool GameLogic::setDirection(int player, std::string direction)
 {
+    bool valid = true;
     if (player == 1 ) {        
         if (direction == "DOWN" ) {
-            p1_Vert = DOWN;
-            p1_Hori = NONE;
+		if (p1_Vert == UP) 
+		{
+			valid = false;
+		}
+		else 
+		{
+			p1_Vert = DOWN;
+			p1_Hori = NONE;
+		}      
         } else if (direction == "UP") {
-            p1_Vert = UP;
-            p1_Hori = NONE;
+		if (p1_Vert == DOWN)
+		{
+			valid = false;
+		}
+		else
+		{
+			p1_Vert = UP;
+			p1_Hori = NONE;
+		}
         } else if (direction == "LEFT") {
-            p1_Hori = LEFT;
-            p1_Vert = NONE;
+		if (p1_Hori == RIGHT)
+		{
+			valid = false;
+		}
+		else
+		{
+			p1_Hori = LEFT;
+			p1_Vert = NONE;
+		}         
         } else if (direction == "RIGHT" ) {
-            p1_Hori = RIGHT;
-            p1_Vert = NONE; 
+		if (p1_Hori == LEFT)
+		{
+			valid = false;
+		}
+		else
+		{
+			p1_Hori = RIGHT;
+			p1_Vert = NONE;
+		}      
         }
     } else {
         if (direction == "DOWN" ) {
-            p2_Vert = DOWN;
-            p2_Hori = NONE;
+		if (p2_Vert == UP)
+		{
+			valid = false;
+		}
+		else
+		{
+			p2_Vert = DOWN;
+			p2_Hori = NONE;
+		}         
         } else if (direction == "UP") {
-            p2_Vert = UP;
-            p2_Hori = NONE;
+		if (p2_Vert == DOWN)
+		{
+			valid = false;
+		}
+		else
+		{
+			p2_Vert = UP;
+			p2_Hori = NONE;
+		}         
         } else if (direction == "LEFT" ) {
-            p2_Hori = LEFT;
-            p2_Vert = NONE;
+		if (p2_Hori == RIGHT)
+		{
+			valid = false;
+		}
+		else
+		{
+			p2_Hori = LEFT;
+			p2_Vert = NONE;
+		}           
         } else if (direction == "RIGHT" ) {
-            p2_Hori = RIGHT;
-            p2_Vert = NONE;
+		if (p2_Hori == LEFT)
+		{
+			valid = false;
+		}
+		else
+		{
+			p2_Hori = RIGHT;
+			p2_Vert = NONE;
+		}          
         }
-    }   
+    }
+    return valid;
 }
 
 int GameLogic::incrementScore(int player)
