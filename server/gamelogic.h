@@ -61,7 +61,7 @@ public:
     
     std::string bodyToString(int player);
     
-    void setDirection(int player, std::string direction);   
+    bool setDirection(int player, std::string direction);  
     int incrementScore(int player);     // Increment and then return the current score.
     
     int determine_winner();             // Check all the collision and set according winner if there is any
