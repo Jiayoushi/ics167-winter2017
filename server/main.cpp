@@ -173,12 +173,16 @@ void setPlayerIDEventHandler(int clientID, int size, std::string id)
 
 void setPlayerDirectionEventHandler(int clientID, int player, std::string direction)
 {
-    log("PlayerDirectionEventHandler fired");
-    gameLogic.setDirection(player,direction);
-    
-
-    sendPlayerDirectionEvent(0, player, direction, gameLogic.frame);
-    sendPlayerDirectionEvent(1, player, direction, gameLogic.frame);
+   	log("PlayerDirectionEventHandler fired: "+std::to_string(player)+"-"+direction);
+	if (gameLogic.setDirection(player, direction)) //If direction change is valid
+	{
+		sendPlayerDirectionEvent(0, player, direction, gameLogic.frame);
+		sendPlayerDirectionEvent(1, player, direction, gameLogic.frame);
+	}
+	else 
+	{
+		log("Invalid Move");
+	}
 }
 
 void loopEventHandler(int frame)
