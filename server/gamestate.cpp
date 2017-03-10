@@ -106,3 +106,16 @@ void GameState::reset()
     this->resetGameRunning();
 }
 
+std::string GameState::convertWinner(std::string gameLogicWinner)
+{
+	if (gameLogicWinner == "p1")
+	{
+		return this->getPlayerID(PLAYER_1) + " (Player 1)";
+	}
+	else if (gameLogicWinner == "p2")
+	{
+		return this->getPlayerID(PLAYER_2) + " (Player 2)";
+	}
+	else return "Tie game!";
+}
+

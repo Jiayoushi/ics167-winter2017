@@ -38,6 +38,7 @@ class GameState
 		void resetID(int player); // resets ID for only a single player
         void resetGameRunning();
         
+		std::string convertWinner(std::string gameLogicWinner);
 
 	private:
 		std::string player1ID = "Player 1";

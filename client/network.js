@@ -121,7 +121,7 @@ function connect()
             }
 			else if (firedEvent == "gameStartedEvent")
 			{
-                //log("[Client] Game Started.");
+                log("[Server] Game started!");
 				gameStarted = true;
 				main();
                 round++;
@@ -154,10 +154,6 @@ function connect()
 				if (playernumber == PLAYER_1)
 				{
 					log("[Client] Waiting for Player #2 to join...");
-				}
-				else if (playernumber == PLAYER_2)
-				{
-					log("[Client] Retrieving Player #1's information...");
 				}
 			}
 			else if (firedEvent == "playerConnectedEvent")
