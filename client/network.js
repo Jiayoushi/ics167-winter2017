@@ -72,17 +72,18 @@ function connect()
 			
 			if (firedEvent == "loopEvent")
 			{
-                		if(round == theJSON.round  &&  frame < theJSON.frame)
-                		{
+				if(round == theJSON.round  &&  frame < theJSON.frame)
+				{
 					teleport(eval(theJSON.body1), eval(theJSON.body2));
-					
-                    			frame = theJSON.frame;
-                		}
+					frame = theJSON.frame;
+				}
             }
             else if(firedEvent == "playerDirectionEvent")
             {
                 if(round == theJSON.round)
+				{
                     processDirection(theJSON.player, theJSON.direction);
+				}
             }
 		    else if(firedEvent == "playerScoreRelayEvent" && gameStarted)
 			{
@@ -120,7 +121,7 @@ function connect()
             }
 			else if (firedEvent == "gameStartedEvent")
 			{
-                log("[Client] Game Started.");
+                //log("[Client] Game Started.");
 				gameStarted = true;
 				main();
                 round++;
@@ -129,7 +130,7 @@ function connect()
 			}
 			else if (firedEvent == "gameFinishedEvent")
 			{
-				log("[Server] GameFinishedEvent");
+				log("[Server] Game ended. Winner: " + theJSON.winner);
 				
                 // Reset variables
 				gameStarted = false;
@@ -223,9 +224,9 @@ function connect()
 	Server.connect();
 }
 
-function send( text ) 
+function send(text)
 {
-	Server.send( 'message', text );
+	Server.send('message', text);
 }
 
 function doLatencyEstimation()
@@ -297,7 +298,6 @@ function processDirection(changedPlayer, direction)
             p2_Vert = NONE;
         }
    }
-   
 }
 
 /* Begin Custom Functions */

@@ -71,8 +71,9 @@ void sendPlayerDisconnectEvent(int clientID, int player) // in the future, the g
 
 void sendPlayerConnectedEvent(int clientID, int player, std::string id)
 {
-    JSON msg_obj = JSON::object{ {"event", "playerConnectedEvent"},
-                                 {"player", std::to_string(player)},};
+	JSON msg_obj = JSON::object{ {"event", "playerConnectedEvent"},
+								 {"player", std::to_string(player)},
+								 {"id", id}, };
     lat_msg.push(info(clientID, msg_obj.dump()));
             
     log("playerConnectedEvent sent for client ID " + std::to_string(clientID) + " (player #" + std::to_string(player) + " connected.)");
