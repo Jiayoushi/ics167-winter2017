@@ -16,6 +16,13 @@ var initialTimestamp;
 var EstimatedRTT=0;
 
 var rwd_buffer = [];
+var body1 = p1snake;
+var body2 = p2snake;
+
+var lastTime = 0;
+var rec = [0,0,0];
+var count = 0;
+var reck = 0;
 
 /* Begin TA Functions */
 function log( text ) 
@@ -71,19 +78,28 @@ function connect()
 			var firedEvent = theJSON.event;
 			
 			if (firedEvent == "loopEvent")
-			{
-				if(round == theJSON.round  &&  frame < theJSON.frame)
-				{
-					teleport(eval(theJSON.body1), eval(theJSON.body2));
-					frame = theJSON.frame;
-				}
+			{    
+                if(round == theJSON.round  &&  frame < theJSON.frame)
+                {
+                    p1snake = body1;
+                    p2snake = body2;
+
+                    body1 = eval(theJSON.body1);
+                    body2 = eval(theJSON.body2);
+                    clearInterval(interpolate_ID);
+                    
+                    
+                    if(theJSON.frame - frame == 2)
+                        move();
+					setInterpolate(body1,body2);
+                    
+                    frame = theJSON.frame;
+                }
             }
             else if(firedEvent == "playerDirectionEvent")
             {
                 if(round == theJSON.round)
-				{
                     processDirection(theJSON.player, theJSON.direction);
-				}
             }
 		    else if(firedEvent == "playerScoreRelayEvent" && gameStarted)
 			{
@@ -121,7 +137,7 @@ function connect()
             }
 			else if (firedEvent == "gameStartedEvent")
 			{
-                log("[Server] Game started!");
+                log("[Client] Game Started.");
 				gameStarted = true;
 				main();
                 round++;
@@ -130,7 +146,7 @@ function connect()
 			}
 			else if (firedEvent == "gameFinishedEvent")
 			{
-				log("[Server] Game ended. Winner: " + theJSON.winner);
+				log("[Server] GameFinishedEvent");
 				
                 // Reset variables
 				gameStarted = false;
@@ -154,6 +170,10 @@ function connect()
 				if (playernumber == PLAYER_1)
 				{
 					log("[Client] Waiting for Player #2 to join...");
+				}
+				else if (playernumber == PLAYER_2)
+				{
+					log("[Client] Retrieving Player #1's information...");
 				}
 			}
 			else if (firedEvent == "playerConnectedEvent")
@@ -220,9 +240,9 @@ function connect()
 	Server.connect();
 }
 
-function send(text)
+function send( text ) 
 {
-	Server.send('message', text);
+	Server.send( 'message', text );
 }
 
 function doLatencyEstimation()
@@ -294,6 +314,7 @@ function processDirection(changedPlayer, direction)
             p2_Vert = NONE;
         }
    }
+   
 }
 
 /* Begin Custom Functions */

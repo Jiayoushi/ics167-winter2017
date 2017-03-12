@@ -9,10 +9,13 @@ const p1_scoretext_x = 325; 	//Coordinates for int score text
 const p2_scoretext_x = 75;
 const scoretext_y = 50;
 
+const degree = 60;
+
 /* Settings for gameplay */
 const INIT_SNAKE_LENGTH = 2;      // Default length of snake
 const INTERVAL = 200;                  // Loop every 60 milliseconds
-const INIT_REWARD_NUMBER = 2;      
+const INIT_REWARD_NUMBER = 2;
+      
 
 /* Keyboard matching */
 const LEFT = -1;           // If a snake is going left, its x variable will be add LEFT, that is -1, for each loop. 
@@ -52,6 +55,10 @@ var p2_Vert;
   
 var p1snake;
 var p2snake;
+var p1snake_copy;
+var p2snake_copy;
+var make_up = [];
+var make_up_2 = [];
 
 var obstacles;
 var rewards = [];
@@ -66,8 +73,6 @@ var round = -1;
 
 var se_ID;
 
-var dir_request; //last sent direction message, ensures that multiple messages of the same direction isn't sent
-
 function makeRandomID()
 {
 	// Credit/Source: http://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
@@ -79,6 +84,109 @@ function makeRandomID()
 
     document.getElementById('pid').value = text;
 }
+
+var interpolate_ID = 0;
+
+function add_tail()
+{
+    var b1 = body1.length;
+    var b2 = body2.length;
+    var p1 = p1snake.length;
+    var p2 = p2snake.length;
+
+    if (p1 < b1)
+        p1snake.push( {x:2*p1snake[p1-1].x - p1snake[p1-2].x,
+                       y:2*p1snake[p1-1].y - p1snake[p1-2].y});
+    if (p2 < b2)
+        p2snake.push( {x:2*p2snake[p2-1].x - p2snake[p2-2].x,
+                       y:2*p2snake[p2-1].y - p2snake[p2-2].y});
+}
+
+function move()
+{
+    p1snake.unshift({x:2*p1snake[0].x - p1snake[1].x,y:2*p1snake[0].y - p1snake[1].y});
+    p1snake.pop();
+
+    p2snake.unshift({x:2*p2snake[0].x - p2snake[1].x,y:2*p2snake[0].y - p2snake[1].y});
+    p2snake.pop();
+}
+
+function make_copy()
+{
+    p1snake_copy = [];
+    p2snake_copy = [];
+
+    for (var i = 0; i < p1snake.length; i++)
+        p1snake_copy.push({x:p1snake[i].x, y:p1snake[i].y});
+    for (var i = 0; i < p2snake.length; i++)
+        p2snake_copy.push({x:p2snake[i].x, y:p2snake[i].y});
+}
+
+function setInterpolate(body1, body2)
+{
+    make_up = [];
+    make_up_2 = [];    
+
+    add_tail();
+
+    make_copy();
+
+    var b1 = body1.length;
+    var b2 = body2.length;
+    var p1 = p1snake.length;
+    var p2 = p2snake.length;
+ 
+    interpolate_ID = setInterval(interpolate,
+                                 (EstimatedRTT/2)/degree, 
+                                 degree,b1,b2,p1,p2,body1,body2);
+}
+
+/* 1111 */
+
+function interpolate(degree, b1, b2, p1, p2, body1, body2)
+{
+    for (var i = 0; i < p1; i++)
+    {
+        var delta_x = Math.sign(body1[i].x - p1snake[i].x);
+        var delta_y = Math.sign(body1[i].y - p1snake[i].y);
+
+        var delta_x_s = (i != p1-1)? Math.sign(p1snake[i].x - p1snake[i+1].x) : delta_x;
+
+        p1snake[i].x +=  delta_x / degree;
+        p1snake[i].y +=  delta_y / degree;
+ 
+        if (delta_x != delta_x_s)
+        {
+            //make_up.push({x:p1snake_copy[i-1].x, y:p1snake_copy[i-1].y});
+            make_up.push({x:p1snake_copy[i].x, y:p1snake_copy[i].y});
+            
+            fill(p1snake_copy[i].x, p1snake_copy[i].y, "red");
+        }
+    }
+
+    for (var i = 0; i < p2; i++)
+    {
+        var delta_x = Math.sign(body2[i].x - p2snake[i].x);
+        var delta_y = Math.sign(body2[i].y - p2snake[i].y);
+
+        var delta_x_s = (i != p2-1)? Math.sign(p2snake[i].x - p2snake[i+1].x) : delta_x;
+
+        p2snake[i].x +=  delta_x / degree;
+        p2snake[i].y +=  delta_y / degree;
+ 
+        if (delta_x != delta_x_s)
+        {
+            //make_up.push({x:p1snake_copy[i-1].x, y:p1snake_copy[i-1].y});
+            make_up_2.push({x:p2snake_copy[i].x, y:p2snake_copy[i].y});
+            
+            fill(p2snake_copy[i].x, p2snake_copy[i].y, "red");
+        }
+    }
+    
+
+    draw();
+}
+
 
 function teleport(body1, body2)
 {
@@ -135,33 +243,25 @@ function init_input()
     {  
 	if(!gameStarted) return;
 	if(playernumber==1){
-        	if((e.keyCode === KEY_DOWN||e.keyCode === KEY_S) && dir_request != "DOWN") {
-				dir_request = "DOWN";
-				sendSetPlayerDirectionEvent(playernumber, "DOWN");
-        	} else if((e.keyCode === KEY_UP||e.keyCode === KEY_W) && dir_request != "UP") {
-				dir_request = "UP";
-				sendSetPlayerDirectionEvent(playernumber, "UP");
-        	} else if((e.keyCode === KEY_LEFT ||e.keyCode === KEY_A) && dir_request != "LEFT"){
-				dir_request = "LEFT";
-				sendSetPlayerDirectionEvent(playernumber, "LEFT");
-        	} else if((e.keyCode === KEY_RIGHT||e.keyCode === KEY_D) && dir_request != "RIGHT"){
-				dir_request = "RIGHT";
-				sendSetPlayerDirectionEvent(playernumber, "RIGHT");
+        	if((e.keyCode === KEY_DOWN||e.keyCode === KEY_S) && (p1_Vert != UP && p1_Vert != DOWN)) {
+				sendSetPlayerDirectionEvent(playernumber, "DOWN")
+        	} else if((e.keyCode === KEY_UP||e.keyCode === KEY_W) && (p1_Vert != UP && p1_Vert != DOWN)) {
+				sendSetPlayerDirectionEvent(playernumber, "UP")
+        	} else if((e.keyCode === KEY_LEFT ||e.keyCode === KEY_A) && (p1_Hori != RIGHT && p1_Hori != LEFT)){
+				sendSetPlayerDirectionEvent(playernumber, "LEFT")
+        	} else if((e.keyCode === KEY_RIGHT||e.keyCode === KEY_D) && (p1_Hori != RIGHT && p1_Hori != LEFT)){
+				sendSetPlayerDirectionEvent(playernumber, "RIGHT")
         	}
     	}
      	else{
-		if((e.keyCode === KEY_DOWN||e.keyCode === KEY_S) && dir_request != "DOWN") {
-				dir_request = "DOWN";
-				sendSetPlayerDirectionEvent(playernumber, "DOWN");
-        	} else if((e.keyCode === KEY_UP||e.keyCode === KEY_W) && dir_request != "UP") {
-				dir_request = "UP";
-				sendSetPlayerDirectionEvent(playernumber, "UP");
-        	} else if((e.keyCode === KEY_LEFT ||e.keyCode === KEY_A)  && dir_request != "LEFT"){
-				dir_request = "LEFT";
-				sendSetPlayerDirectionEvent(playernumber, "LEFT");
-        	} else if((e.keyCode === KEY_RIGHT||e.keyCode === KEY_D) && dir_request != "RIGHT"){
-				dir_request = "RIGHT";
-				sendSetPlayerDirectionEvent(playernumber, "RIGHT");
+		if((e.keyCode === KEY_DOWN||e.keyCode === KEY_S) && (p2_Vert != UP && p2_Vert != DOWN)) {
+				sendSetPlayerDirectionEvent(playernumber, "DOWN")
+        	} else if((e.keyCode === KEY_UP||e.keyCode === KEY_W) && (p2_Vert != UP && p2_Vert != DOWN)) {
+				sendSetPlayerDirectionEvent(playernumber, "UP")
+        	} else if((e.keyCode === KEY_LEFT ||e.keyCode === KEY_A) && (p2_Hori != RIGHT && p2_Hori != LEFT)){
+				sendSetPlayerDirectionEvent(playernumber, "LEFT")
+        	} else if((e.keyCode === KEY_RIGHT||e.keyCode === KEY_D) && (p2_Hori != RIGHT && p2_Hori != LEFT)){
+				sendSetPlayerDirectionEvent(playernumber, "RIGHT")
         	}		
 	}
     },false);
@@ -248,7 +348,6 @@ function init_objects()
 function init_win_variables()
 {
 	// These are reset in when main is called in the case of a game restart.
-	dir_request = "NONE";
 	p1_win = false;
 	p2_win = false;
 	tie_game = false;
@@ -325,6 +424,8 @@ function draw()
     draw_objects(p2snake,"blue");
     draw_objects(obstacles,"black");
     draw_objects(rewards,"yellow");
+    draw_objects(make_up, "red");
+    draw_objects(make_up_2, "blue");
 }
 
 function draw_objects(objects,color)
@@ -338,7 +439,7 @@ function draw_objects(objects,color)
 
 // Filling a dot that can be the snake body or the food
 function fill(x,y, color) 
-{
+{   
 	ctx.fillStyle = color;
 	ctx.fillRect(x*cell_dim, y*cell_dim, cell_dim, cell_dim);
 }
@@ -351,8 +452,4 @@ function delete_reward(del_x, del_y)
             rewards.splice(i, 1);
     }
 }
-
-
-
-
 
