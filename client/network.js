@@ -16,7 +16,6 @@ var initialTimestamp;
 var EstimatedRTT=0;
 
 var rwd_buffer = [];
-
 var body1 = p1snake;
 var body2 = p2snake;
 
@@ -78,18 +77,21 @@ function connect()
 			{
                 if(round == theJSON.round  &&  frame < theJSON.frame)
                 {
+                    // 1
+                    //teleport(eval(theJSON.body1), eval(theJSON.body2));
+                
+                    // 2
                     p1snake = body1;
                     p2snake = body2;
 
-                    body1 = extrapolate(eval(theJSON.body1));
-                    body2 = extrapolate(eval(theJSON.body2));
+                    body1 = /*extrapolate(*/eval(theJSON.body1);
+                    body2 = /*extrapolate(*/eval(theJSON.body2);
                     clearInterval(interpolate_ID);
                     
-					          setInterpolate(body1,body2);
+					setInterpolate(body1,body2);
                     
                     frame = theJSON.frame;
                 }
-
             }
             else if(firedEvent == "playerDirectionEvent")
             {
@@ -132,7 +134,7 @@ function connect()
             }
 			else if (firedEvent == "gameStartedEvent")
 			{
-        log("[Server] Game started!");
+                log("[Client] Game Started.");
 				gameStarted = true;
 				main();
                 round++;
@@ -141,7 +143,7 @@ function connect()
 			}
 			else if (firedEvent == "gameFinishedEvent")
 			{
-				log("[Server] Game ended. Winner: " + theJSON.winner);
+				log("[Server] GameFinishedEvent");
 				
                 // Reset variables
 				gameStarted = false;
@@ -165,6 +167,10 @@ function connect()
 				if (playernumber == PLAYER_1)
 				{
 					log("[Client] Waiting for Player #2 to join...");
+				}
+				else if (playernumber == PLAYER_2)
+				{
+					log("[Client] Retrieving Player #1's information...");
 				}
 			}
 			else if (firedEvent == "playerConnectedEvent")
@@ -231,80 +237,9 @@ function connect()
 	Server.connect();
 }
 
-function send(text)
+function send( text ) 
 {
-	Server.send('message', text);
-}
-
-function doLatencyEstimation()
-{
-	sendLatencyEstimationEvent(latencyMessageID++, Date.now() - initialTimestamp);
-}
-
-function handleLatencyEstimation(id, X, Y)
-{
-	var B = Date.now() - initialTimestamp;
-    var SampleRTT = B - latencyMessages[id] - (Y-X);
-    EstimatedRTT = Math.round(0.875*EstimatedRTT + 0.125*SampleRTT);
-    document.getElementById('RTT').value = EstimatedRTT + "ms";
-	//log("[Debug] Latency ID: " + id + " | A: " + latencyMessages[id] + " | X: " + X + " | Y: " + Y + " | B: " + B);
-	//log("[Client] Latency Estimation (ID #" + id + "): " + EstimatedRTT + " ms.");
-	// A: Timestamp of Client when he sent the packet.
-	// B: Timestamp of Client when he received the reply.
-	// X: Timestamp of Server when he received the packet.
-	// Y: Timestamp of Server when he sent the reply.
-	
-	// Reason for this terminology: http://stackoverflow.com/questions/1228089/how-does-the-network-time-protocol-work
-}
-
-function processDirection(changedPlayer, direction)
-{
-    if (changedPlayer == PLAYER_1)
-    {
-        if (direction == "UP")
-        {
-            p1_Hori = NONE;
-            p1_Vert = UP;
-        }
-        else if (direction == "DOWN")
-        {
-            p1_Hori = NONE;
-            p1_Vert = DOWN;
-        }
-        else if (direction == "LEFT")
-        {
-            p1_Hori = LEFT;
-            p1_Vert = NONE;
-        }
-        else if (direction == "RIGHT")
-        {
-            p1_Hori = RIGHT;
-            p1_Vert = NONE;
-        }
-    }
-    else
-    {
-        if (direction == "UP")
-        {
-            p2_Hori = NONE;
-            p2_Vert = UP;
-        }
-        else if (direction == "DOWN")
-        {
-            p2_Hori = NONE;
-            p2_Vert = DOWN;
-        }
-        else if (direction == "LEFT")
-        {
-            p2_Hori = LEFT;
-            p2_Vert = NONE;
-        }
-        else if (direction == "RIGHT")
-        {
-            p2_Hori = RIGHT;
-            p2_Vert = NONE;
-        }
-   }
+	Server.send( 'message', text );
 }
 
 function doLatencyEstimation()

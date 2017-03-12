@@ -15,7 +15,7 @@ const degree = 60;
 const INIT_SNAKE_LENGTH = 2;      // Default length of snake
 const INTERVAL = 200;                  // Loop every 60 milliseconds
 const INIT_REWARD_NUMBER = 2;
-
+      
 
 /* Keyboard matching */
 const LEFT = -1;           // If a snake is going left, its x variable will be add LEFT, that is -1, for each loop. 
@@ -72,10 +72,6 @@ var round = -1;
 
 var se_ID;
 
-
-var dir_request; //last sent direction message, ensures that multiple messages of the same direction isn't sent
-
-
 function makeRandomID()
 {
 	// Credit/Source: http://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
@@ -88,18 +84,7 @@ function makeRandomID()
     document.getElementById('pid').value = text;
 }
 
-
 var interpolate_ID = 0;
-
-function extrapolate(body)
-{
-    body.unshift( {x:2*body[0].x - body[1].x,
-                   y:2*body[0].y - body[1].y} );
-
-    body.pop();
-
-    return body;
-}
 
 function add_tail()
 {
@@ -114,6 +99,16 @@ function add_tail()
     if (p2 < b2)
         p2snake.push( {x:2*p2snake[p2-1].x - p2snake[p2-2].x,
                        y:2*p2snake[p2-1].y - p2snake[p2-2].y});
+}
+
+function extrapolate(body)
+{
+    body.unshift( {x:2*body[0].x - body[1].x,
+                   y:2*body[0].y - body[1].y} );
+
+    body.pop();
+    
+    return body;
 }
 
 function make_copy()
@@ -145,6 +140,7 @@ function setInterpolate(body1, body2)
                                  degree,b1,b2,p1,p2,body1,body2);
 }
 
+/* 1111 */
 
 function interpolate(degree, b1, b2, p1, p2, body1, body2)
 {
@@ -232,33 +228,25 @@ function init_input()
     {  
 	if(!gameStarted) return;
 	if(playernumber==1){
-        	if((e.keyCode === KEY_DOWN||e.keyCode === KEY_S) && dir_request != "DOWN") {
-				dir_request = "DOWN";
-				sendSetPlayerDirectionEvent(playernumber, "DOWN");
-        	} else if((e.keyCode === KEY_UP||e.keyCode === KEY_W) && dir_request != "UP") {
-				dir_request = "UP";
-				sendSetPlayerDirectionEvent(playernumber, "UP");
-        	} else if((e.keyCode === KEY_LEFT ||e.keyCode === KEY_A) && dir_request != "LEFT"){
-				dir_request = "LEFT";
-				sendSetPlayerDirectionEvent(playernumber, "LEFT");
-        	} else if((e.keyCode === KEY_RIGHT||e.keyCode === KEY_D) && dir_request != "RIGHT"){
-				dir_request = "RIGHT";
-				sendSetPlayerDirectionEvent(playernumber, "RIGHT");
+        	if((e.keyCode === KEY_DOWN||e.keyCode === KEY_S) && (p1_Vert != UP && p1_Vert != DOWN)) {
+				sendSetPlayerDirectionEvent(playernumber, "DOWN")
+        	} else if((e.keyCode === KEY_UP||e.keyCode === KEY_W) && (p1_Vert != UP && p1_Vert != DOWN)) {
+				sendSetPlayerDirectionEvent(playernumber, "UP")
+        	} else if((e.keyCode === KEY_LEFT ||e.keyCode === KEY_A) && (p1_Hori != RIGHT && p1_Hori != LEFT)){
+				sendSetPlayerDirectionEvent(playernumber, "LEFT")
+        	} else if((e.keyCode === KEY_RIGHT||e.keyCode === KEY_D) && (p1_Hori != RIGHT && p1_Hori != LEFT)){
+				sendSetPlayerDirectionEvent(playernumber, "RIGHT")
         	}
     	}
      	else{
-		if((e.keyCode === KEY_DOWN||e.keyCode === KEY_S) && dir_request != "DOWN") {
-				dir_request = "DOWN";
-				sendSetPlayerDirectionEvent(playernumber, "DOWN");
-        	} else if((e.keyCode === KEY_UP||e.keyCode === KEY_W) && dir_request != "UP") {
-				dir_request = "UP";
-				sendSetPlayerDirectionEvent(playernumber, "UP");
-        	} else if((e.keyCode === KEY_LEFT ||e.keyCode === KEY_A)  && dir_request != "LEFT"){
-				dir_request = "LEFT";
-				sendSetPlayerDirectionEvent(playernumber, "LEFT");
-        	} else if((e.keyCode === KEY_RIGHT||e.keyCode === KEY_D) && dir_request != "RIGHT"){
-				dir_request = "RIGHT";
-				sendSetPlayerDirectionEvent(playernumber, "RIGHT");
+		if((e.keyCode === KEY_DOWN||e.keyCode === KEY_S) && (p2_Vert != UP && p2_Vert != DOWN)) {
+				sendSetPlayerDirectionEvent(playernumber, "DOWN")
+        	} else if((e.keyCode === KEY_UP||e.keyCode === KEY_W) && (p2_Vert != UP && p2_Vert != DOWN)) {
+				sendSetPlayerDirectionEvent(playernumber, "UP")
+        	} else if((e.keyCode === KEY_LEFT ||e.keyCode === KEY_A) && (p2_Hori != RIGHT && p2_Hori != LEFT)){
+				sendSetPlayerDirectionEvent(playernumber, "LEFT")
+        	} else if((e.keyCode === KEY_RIGHT||e.keyCode === KEY_D) && (p2_Hori != RIGHT && p2_Hori != LEFT)){
+				sendSetPlayerDirectionEvent(playernumber, "RIGHT")
         	}		
 	}
     },false);
@@ -345,7 +333,6 @@ function init_objects()
 function init_win_variables()
 {
 	// These are reset in when main is called in the case of a game restart.
-	dir_request = "NONE";
 	p1_win = false;
 	p2_win = false;
 	tie_game = false;
@@ -361,6 +348,7 @@ function main()
      
     frame = 0;
 }
+
 
 
 
@@ -449,3 +437,4 @@ function delete_reward(del_x, del_y)
             rewards.splice(i, 1);
     }
 }
+
