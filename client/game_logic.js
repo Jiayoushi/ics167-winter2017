@@ -58,6 +58,7 @@ var p2snake;
 var p1snake_copy;
 var p2snake_copy;
 var make_up = [];
+var make_up_2 = [];
 
 var obstacles;
 var rewards = [];
@@ -105,16 +106,9 @@ function move()
 {
     p1snake.unshift({x:2*p1snake[0].x - p1snake[1].x,y:2*p1snake[0].y - p1snake[1].y});
     p1snake.pop();
-}
 
-function extrapolate(body)
-{
-    body.unshift( {x:2*body[0].x - body[1].x,
-                   y:2*body[0].y - body[1].y} );
-
-    body.pop();
-    
-    return body;
+    p2snake.unshift({x:2*p2snake[0].x - p2snake[1].x,y:2*p2snake[0].y - p2snake[1].y});
+    p2snake.pop();
 }
 
 function make_copy()
@@ -131,7 +125,8 @@ function make_copy()
 function setInterpolate(body1, body2)
 {
     make_up = [];
-    
+    make_up_2 = [];    
+
     add_tail();
 
     make_copy();
@@ -142,7 +137,7 @@ function setInterpolate(body1, body2)
     var p2 = p2snake.length;
  
     interpolate_ID = setInterval(interpolate,
-                                 (170/2)/degree,//(EstimatedRTT/2)/degree, 
+                                 (EstimatedRTT/2)/degree, 
                                  degree,b1,b2,p1,p2,body1,body2);
 }
 
@@ -171,9 +166,23 @@ function interpolate(degree, b1, b2, p1, p2, body1, body2)
 
     for (var i = 0; i < p2; i++)
     {
-        p2snake[i].x += Math.sign(body2[i].x - p2snake[i].x) / degree;
-        p2snake[i].y += Math.sign(body2[i].y - p2snake[i].y) / degree;
+        var delta_x = Math.sign(body2[i].x - p2snake[i].x);
+        var delta_y = Math.sign(body2[i].y - p2snake[i].y);
+
+        var delta_x_s = (i != p2-1)? Math.sign(p2snake[i].x - p2snake[i+1].x) : delta_x;
+
+        p2snake[i].x +=  delta_x / degree;
+        p2snake[i].y +=  delta_y / degree;
+ 
+        if (delta_x != delta_x_s)
+        {
+            //make_up.push({x:p1snake_copy[i-1].x, y:p1snake_copy[i-1].y});
+            make_up_2.push({x:p2snake_copy[i].x, y:p2snake_copy[i].y});
+            
+            fill(p2snake_copy[i].x, p2snake_copy[i].y, "red");
+        }
     }
+    
 
     draw();
 }
@@ -416,7 +425,7 @@ function draw()
     draw_objects(obstacles,"black");
     draw_objects(rewards,"yellow");
     draw_objects(make_up, "red");
-    
+    draw_objects(make_up_2, "blue");
 }
 
 function draw_objects(objects,color)
