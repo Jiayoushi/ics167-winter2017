@@ -19,6 +19,10 @@ var rwd_buffer = [];
 var body1 = p1snake;
 var body2 = p2snake;
 
+var lastTime = 0;
+var rec = [0,0,0];
+var count = 0;
+var reck = 0;
 
 /* Begin TA Functions */
 function log( text ) 
@@ -74,20 +78,19 @@ function connect()
 			var firedEvent = theJSON.event;
 			
 			if (firedEvent == "loopEvent")
-			{
+			{    
                 if(round == theJSON.round  &&  frame < theJSON.frame)
                 {
-                    // 1
-                    //teleport(eval(theJSON.body1), eval(theJSON.body2));
-                
-                    // 2
                     p1snake = body1;
                     p2snake = body2;
 
-                    body1 = /*extrapolate(*/eval(theJSON.body1);
-                    body2 = /*extrapolate(*/eval(theJSON.body2);
+                    body1 = eval(theJSON.body1);
+                    body2 = eval(theJSON.body2);
                     clearInterval(interpolate_ID);
                     
+                    
+                    if(theJSON.frame - frame == 2)
+                        move();
 					setInterpolate(body1,body2);
                     
                     frame = theJSON.frame;

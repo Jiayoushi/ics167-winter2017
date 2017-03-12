@@ -101,6 +101,12 @@ function add_tail()
                        y:2*p2snake[p2-1].y - p2snake[p2-2].y});
 }
 
+function move()
+{
+    p1snake.unshift({x:2*p1snake[0].x - p1snake[1].x,y:2*p1snake[0].y - p1snake[1].y});
+    p1snake.pop();
+}
+
 function extrapolate(body)
 {
     body.unshift( {x:2*body[0].x - body[1].x,
@@ -136,7 +142,7 @@ function setInterpolate(body1, body2)
     var p2 = p2snake.length;
  
     interpolate_ID = setInterval(interpolate,
-                                 (EstimatedRTT/2)/degree, 
+                                 (170/2)/degree,//(EstimatedRTT/2)/degree, 
                                  degree,b1,b2,p1,p2,body1,body2);
 }
 
