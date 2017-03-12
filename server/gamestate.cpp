@@ -28,12 +28,10 @@ int GameState::getPlayerScore(int player)
 	return (player == PLAYER_1 ? this->player1Score : this->player2Score);
 }
 
-
 bool GameState::getGameRunning()
 {
     return gameRunning;
 }
-
 
 bool GameState::getPlayer1Online()
 {
@@ -74,6 +72,7 @@ void GameState::setPlayerScore(int player, int score)
 	else this->player2Score = score;
 }
 
+
 void GameState::resetScores()
 {
 	this->player1Score = 0;
@@ -95,7 +94,6 @@ void GameState::resetID(int player)
 	else this->player2ID = "Player 2";
 }
 
-
 void GameState::resetGameRunning()
 {
     gameRunning = false;
@@ -105,6 +103,19 @@ void GameState::reset()
 {
 	this->resetIDs();
 	this->resetScores();
-  this->resetGameRunning();
+    this->resetGameRunning();
+}
+
+std::string GameState::convertWinner(std::string gameLogicWinner)
+{
+	if (gameLogicWinner == "p1")
+	{
+		return this->getPlayerID(PLAYER_1) + " (Player 1)";
+	}
+	else if (gameLogicWinner == "p2")
+	{
+		return this->getPlayerID(PLAYER_2) + " (Player 2)";
+	}
+	else return "Tie game!";
 }
 

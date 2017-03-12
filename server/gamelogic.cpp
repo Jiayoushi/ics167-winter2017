@@ -16,7 +16,8 @@ GameLogic::GameLogic()
     init_snakes();
 	init_obstacles();
 	init_rewards();
-
+    
+    round = -1;
 }
 
 /// Create Snake/////
@@ -83,9 +84,9 @@ void GameLogic::create_obstacle(int x, int y, int size, std::string direction)
 
 void GameLogic::init_rewards()
 {
-	for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
 	{
-		randomize_reward();
+        randomize_reward();
 	}
 }
 
@@ -96,22 +97,24 @@ int GameLogic::random_number(int floor, int ceiling)
 
 dot GameLogic::randomize_reward()
 {
+    int i = 0;
     std::vector<dot> random_pos;
     
-	do{
-		random_pos.push_back(dot(random_number(0,29),
+    do{
+        if(random_pos.size()>0)
+            random_pos.pop_back();
+        random_pos.push_back(dot(random_number(0,29),
                                     random_number(0,29)));
-
+        
     } while (detect_collision(random_pos, p1snake, 0) != NOT_COLLIDE ||
-		    detect_collision(random_pos, p2snake, 0) != NOT_COLLIDE ||
-		    detect_collision(random_pos, obstacles, 0) != NOT_COLLIDE);
-	
-	rewards.push_back(random_pos[0]);
+            detect_collision(random_pos, p2snake, 0) != NOT_COLLIDE ||
+            detect_collision(random_pos, obstacles, 0) != NOT_COLLIDE);
+    
+    rewards.push_back(random_pos[0]);
     
     return dot(random_pos[0].x, random_pos[0].y);
 }
-	
-/// CHECKING WINNER ////
+
 
 int GameLogic::determine_winner()
 {    
@@ -155,8 +158,6 @@ int GameLogic::determine_winner()
     return return_val;
 }
 
-///COLLISION DETECTION/////
-
 int GameLogic::detect_collision(std::vector<dot> obj1, std::vector<dot> obj2, int n)
 {
 	int x1 = obj1[0].x;
@@ -184,55 +185,95 @@ int GameLogic::detect_snake_collision()
 		detect_collision(p1snake, p2snake, 0) != NOT_COLLIDE || detect_collision(p2snake, p1snake, 0) != NOT_COLLIDE) ? 1 : NOT_COLLIDE;
 }
 
-
-std::vector<int> GameLogic::detect_rewards()
+bool GameLogic::setDirection(int player, std::string direction)
 {
-    int index = -1;
-    if ((index = detect_collision(p1snake,rewards,0)) != -1)
-    {
-        return std::vector<int>{1,index};    
-    }
-    if ((index = detect_collision(p2snake,rewards,0)) != -1)
-    {
-       
-        return std::vector<int>{2,index};
-    }
-    
-    return std::vector<int>();
-}
-
-
-void GameLogic::setDirection(int player, std::string direction)
-{
+    bool valid = true;
     if (player == 1 ) {        
         if (direction == "DOWN" ) {
-            p1_Vert = DOWN;
-            p1_Hori = NONE;
+		if (p1_Vert == UP) 
+		{
+			valid = false;
+		}
+		else 
+		{
+			p1_Vert = DOWN;
+			p1_Hori = NONE;
+		}      
         } else if (direction == "UP") {
-            p1_Vert = UP;
-            p1_Hori = NONE;
+		if (p1_Vert == DOWN)
+		{
+			valid = false;
+		}
+		else
+		{
+			p1_Vert = UP;
+			p1_Hori = NONE;
+		}
         } else if (direction == "LEFT") {
-            p1_Hori = LEFT;
-            p1_Vert = NONE;
+		if (p1_Hori == RIGHT)
+		{
+			valid = false;
+		}
+		else
+		{
+			p1_Hori = LEFT;
+			p1_Vert = NONE;
+		}         
         } else if (direction == "RIGHT" ) {
-            p1_Hori = RIGHT;
-            p1_Vert = NONE; 
+		if (p1_Hori == LEFT)
+		{
+			valid = false;
+		}
+		else
+		{
+			p1_Hori = RIGHT;
+			p1_Vert = NONE;
+		}      
         }
     } else {
         if (direction == "DOWN" ) {
-            p2_Vert = DOWN;
-            p2_Hori = NONE;
+		if (p2_Vert == UP)
+		{
+			valid = false;
+		}
+		else
+		{
+			p2_Vert = DOWN;
+			p2_Hori = NONE;
+		}         
         } else if (direction == "UP") {
-            p2_Vert = UP;
-            p2_Hori = NONE;
+		if (p2_Vert == DOWN)
+		{
+			valid = false;
+		}
+		else
+		{
+			p2_Vert = UP;
+			p2_Hori = NONE;
+		}         
         } else if (direction == "LEFT" ) {
-            p2_Hori = LEFT;
-            p2_Vert = NONE;
+		if (p2_Hori == RIGHT)
+		{
+			valid = false;
+		}
+		else
+		{
+			p2_Hori = LEFT;
+			p2_Vert = NONE;
+		}           
         } else if (direction == "RIGHT" ) {
-            p2_Hori = RIGHT;
-            p2_Vert = NONE;
+		if (p2_Hori == LEFT)
+		{
+			valid = false;
+		}
+		else
+		{
+			p2_Hori = RIGHT;
+			p2_Vert = NONE;
+		}          
         }
-    }   
+    }
+    return valid;
 }
 
 int GameLogic::incrementScore(int player)
@@ -245,16 +286,23 @@ int GameLogic::incrementScore(int player)
 // The 2rd one will be processed by the next call of process_rewards() function
 rewardInfo GameLogic::process_rewards()
 {
-       
-    std::vector<int> collision = detect_rewards();
-
-    if(collision.size()!=0)
+    int index = -1;
+    if ((index = detect_collision(p1snake,rewards,0)) != -1)
     {
-        rewards.erase(rewards.begin()+collision[1]);
-        return rewardInfo(collision[0],collision[1], randomize_reward());
+        add_tail(p1snake);
+        dot del(rewards[index].x, rewards[index].y);
+        rewards.erase(rewards.begin()+index);
+        return rewardInfo(1, del, randomize_reward());
     }
-        
-    return rewardInfo(-1,-1,dot(-1,-1));
+    if ((index = detect_collision(p2snake,rewards,0)) != -1)
+    {
+        add_tail(p2snake);
+        dot del(rewards[index].x, rewards[index].y);
+        rewards.erase(rewards.begin()+index);
+        return rewardInfo(2, del, randomize_reward());
+    }
+
+    return rewardInfo(-1,dot(-1,-1),dot(-1,-1));
 }
 
 
@@ -264,7 +312,9 @@ void GameLogic::reset()
     obstacles.clear();
     p1snake.clear();
     p2snake.clear();
-    
+
+    frame = 0;
+  
     p1_Hori = RIGHT;
     p1_Vert = NONE;
     p2_Hori = LEFT;
@@ -280,6 +330,7 @@ void GameLogic::reset()
     init_snakes();
     init_obstacles();
     init_rewards();
+  
 }
 
 std::string GameLogic::getWinner()
@@ -291,3 +342,29 @@ std::string GameLogic::getWinner()
     else if (tie_game)
         return "tie";
 }
+
+std::string GameLogic::bodyToString(int player)
+{
+    std::string res("[");
+
+    if (player == 1)
+    {
+        for (auto i = p1snake.begin(); i!=p1snake.end(); i++)
+        {
+            res += ("{x:" + std::to_string(i->x) + ",y:" + std::to_string(i->y) + "},");
+        }
+    }
+    else
+    {
+        for (auto i = p2snake.begin(); i!=p2snake.end(); i++)
+        {
+            res += ("{x:" + std::to_string(i->x) + ",y:" + std::to_string(i->y) + "},");
+        }
+    }
+
+    res += "]";
+
+    return res;
+}
+    
+
