@@ -9,8 +9,13 @@ const p1_scoretext_x = 325; 	//Coordinates for int score text
 const p2_scoretext_x = 75;
 const scoretext_y = 50;
 
+const degree = 60;
+
 /* Settings for gameplay */
-const INIT_SNAKE_LENGTH = 2;      // Default length of snake    
+const INIT_SNAKE_LENGTH = 2;      // Default length of snake
+const INTERVAL = 200;                  // Loop every 60 milliseconds
+const INIT_REWARD_NUMBER = 2;
+      
 
 /* Keyboard matching */
 const LEFT = -1;           // If a snake is going left, its x variable will be add LEFT, that is -1, for each loop. 
@@ -50,15 +55,22 @@ var p2_Vert;
   
 var p1snake;
 var p2snake;
+var p1snake_copy;
+var p2snake_copy;
+var make_up = [];
 
 var obstacles;
-var rewards;
+var rewards = [];
 
 var p1_win;			// Game winner variables
 var p2_win;
 var tie_game;
 
 var playernumber;
+var frame;
+var round = -1;
+
+var se_ID;
 
 function makeRandomID()
 {
@@ -70,6 +82,103 @@ function makeRandomID()
         text += possible.charAt(Math.floor(Math.random() * possible.length));
 
     document.getElementById('pid').value = text;
+}
+
+var interpolate_ID = 0;
+
+function extrapolate(body)
+{
+    body.unshift( {x:2*body[0].x - body[1].x,
+                   y:2*body[0].y - body[1].y} );
+
+    body.pop();
+
+    return body;
+}
+
+function add_tail()
+{
+    var b1 = body1.length;
+    var b2 = body2.length;
+    var p1 = p1snake.length;
+    var p2 = p2snake.length;
+
+    if (p1 < b1)
+        p1snake.push( {x:2*p1snake[p1-1].x - p1snake[p1-2].x,
+                       y:2*p1snake[p1-1].y - p1snake[p1-2].y});
+    if (p2 < b2)
+        p2snake.push( {x:2*p2snake[p2-1].x - p2snake[p2-2].x,
+                       y:2*p2snake[p2-1].y - p2snake[p2-2].y});
+}
+
+function make_copy()
+{
+    p1snake_copy = [];
+    p2snake_copy = [];
+
+    for (var i = 0; i < p1snake.length; i++)
+        p1snake_copy.push({x:p1snake[i].x, y:p1snake[i].y});
+    for (var i = 0; i < p2snake.length; i++)
+        p2snake_copy.push({x:p2snake[i].x, y:p2snake[i].y});
+}
+
+function setInterpolate(body1, body2)
+{
+    make_up = [];
+    
+    add_tail();
+
+    make_copy();
+
+    var b1 = body1.length;
+    var b2 = body2.length;
+    var p1 = p1snake.length;
+    var p2 = p2snake.length;
+ 
+    interpolate_ID = setInterval(interpolate,
+                                 (EstimatedRTT/2)/degree, 
+                                 degree,b1,b2,p1,p2,body1,body2);
+}
+
+/* 1111 */
+
+function interpolate(degree, b1, b2, p1, p2, body1, body2)
+{
+    for (var i = 0; i < p1; i++)
+    {
+        var delta_x = Math.sign(body1[i].x - p1snake[i].x);
+        var delta_y = Math.sign(body1[i].y - p1snake[i].y);
+
+        var delta_x_s = (i != p1-1)? Math.sign(p1snake[i].x - p1snake[i+1].x) : delta_x;
+
+        p1snake[i].x +=  delta_x / degree;
+        p1snake[i].y +=  delta_y / degree;
+ 
+        if (delta_x != delta_x_s)
+        {
+            //make_up.push({x:p1snake_copy[i-1].x, y:p1snake_copy[i-1].y});
+            make_up.push({x:p1snake_copy[i].x, y:p1snake_copy[i].y});
+            
+            fill(p1snake_copy[i].x, p1snake_copy[i].y, "red");
+        }
+    }
+
+    for (var i = 0; i < p2; i++)
+    {
+        p2snake[i].x += Math.sign(body2[i].x - p2snake[i].x) / degree;
+        p2snake[i].y += Math.sign(body2[i].y - p2snake[i].y) / degree;
+    }
+
+    draw();
+}
+
+
+function teleport(body1, body2)
+{
+    p1snake = body1;
+    p2snake = body2;
+
+    draw();
 }
 
 function init_canvas() 
@@ -116,25 +225,27 @@ function init_canvas()
 function init_input()
 {
     document.addEventListener('keydown', function(e)
-    {   if(playernumber==1){
-        	if(e.keyCode === KEY_DOWN||e.keyCode === KEY_S && p1_Vert != UP) {
+    {  
+	if(!gameStarted) return;
+	if(playernumber==1){
+        	if((e.keyCode === KEY_DOWN||e.keyCode === KEY_S) && (p1_Vert != UP && p1_Vert != DOWN)) {
 				sendSetPlayerDirectionEvent(playernumber, "DOWN")
-        	} else if(e.keyCode === KEY_UP||e.keyCode === KEY_W && p1_Vert != DOWN) {
+        	} else if((e.keyCode === KEY_UP||e.keyCode === KEY_W) && (p1_Vert != UP && p1_Vert != DOWN)) {
 				sendSetPlayerDirectionEvent(playernumber, "UP")
-        	} else if(e.keyCode === KEY_LEFT ||e.keyCode === KEY_A && p1_Hori != RIGHT){
+        	} else if((e.keyCode === KEY_LEFT ||e.keyCode === KEY_A) && (p1_Hori != RIGHT && p1_Hori != LEFT)){
 				sendSetPlayerDirectionEvent(playernumber, "LEFT")
-        	} else if(e.keyCode === KEY_RIGHT||e.keyCode === KEY_D && p1_Hori != LEFT){
+        	} else if((e.keyCode === KEY_RIGHT||e.keyCode === KEY_D) && (p1_Hori != RIGHT && p1_Hori != LEFT)){
 				sendSetPlayerDirectionEvent(playernumber, "RIGHT")
         	}
     	}
      	else{
-		if(e.keyCode === KEY_DOWN||e.keyCode === KEY_S && p2_Vert != UP) {
+		if((e.keyCode === KEY_DOWN||e.keyCode === KEY_S) && (p2_Vert != UP && p2_Vert != DOWN)) {
 				sendSetPlayerDirectionEvent(playernumber, "DOWN")
-        	} else if(e.keyCode === KEY_UP||e.keyCode === KEY_W && p2_Vert != DOWN) {
+        	} else if((e.keyCode === KEY_UP||e.keyCode === KEY_W) && (p2_Vert != UP && p2_Vert != DOWN)) {
 				sendSetPlayerDirectionEvent(playernumber, "UP")
-        	} else if(e.keyCode === KEY_LEFT ||e.keyCode === KEY_A && p2_Hori != RIGHT){
+        	} else if((e.keyCode === KEY_LEFT ||e.keyCode === KEY_A) && (p2_Hori != RIGHT && p2_Hori != LEFT)){
 				sendSetPlayerDirectionEvent(playernumber, "LEFT")
-        	} else if(e.keyCode === KEY_RIGHT||e.keyCode === KEY_D && p2_Hori != LEFT){
+        	} else if((e.keyCode === KEY_RIGHT||e.keyCode === KEY_D) && (p2_Hori != RIGHT && p2_Hori != LEFT)){
 				sendSetPlayerDirectionEvent(playernumber, "RIGHT")
         	}		
 	}
@@ -156,8 +267,12 @@ function init_obstacles()
 function init_rewards()
 {
 	rewards = [];
-}
 
+    while (rwd_buffer.length!=0)
+    {
+        rewards.push(rwd_buffer.pop());
+    }
+}
 
 
 // Create n dots start from the dot(pos_x,pos_y) at the direction either "Horizontal" or "Vertical"
@@ -181,7 +296,6 @@ function create_obstacle(pos_x,pos_y,n,direction)
     }
 }
 
-
 function win_message(winner)
 {
 	// Displays Win Message based on which win value is true.
@@ -200,7 +314,7 @@ function dc_message(player)
 {
 	win_Ctx.clearRect(0, 0, width, height);
 	win_Ctx.fillStyle = 'black';
-	if(player == 1) 
+	if(player == 1)
 	{
 		win_Ctx.fillText("Player 1 Disconnected.", (width/2)-40, 25); // TODO: change to ID
 	} 
@@ -208,15 +322,6 @@ function dc_message(player)
 	{
 		win_Ctx.fillText("Player 2 Disconnected.", (width/2)-40, 25); // TODO: change to ID
 	}
-}
-
-}
-
-
-function loop()
-{
-    draw();
-    move();
 }
 
 function init_objects()
@@ -239,39 +344,15 @@ function main()
     init_canvas();
     init_input();
     init_objects();
-	  init_rewards();
+	init_rewards();
      
-    // Set the loop function to be called every x milliseconds, x to be INTERVAL.
-    //game_interval_ID = setInterval(loop,INTERVAL);
-    //loop();
+    frame = 0;
 }
 
 
-function move()
-{
-    // Delete the end for each snake.
-    p1snake.pop();
-    p2snake.pop();
-    
-    // Add new head for each snake. The new head should be one unit forward towards the direction
-    // The direction is either -1,0,1, updated automatically when receiving input. The input listener is set up
-    // in the function init_input().
-    p1snake.unshift( {x:p1snake[0].x + p1_Hori,
-                      y:p1snake[0].y + p1_Vert} );
-    p2snake.unshift( {x:p2snake[0].x + p2_Hori,
-                      y:p2snake[0].y + p2_Vert} );       
-}
 
 
-// This requires the snake's initial length to be at least 2.
-function add_tail(sak)
-{
-    var len = sak.length;
-    var x_value = (sak[len-1].x - sak[len-2].x) + sak[len-1].x;
-    var y_value = (sak[len-1].y - sak[len-2].y) + sak[len-1].y;
 
-    sak.push({x:x_value, y:y_value});
-}
 
 
 // Creating snakes array and posistions
@@ -315,7 +396,7 @@ function init_snakes()
 // Clean the canvas so a new frame can be drawn.
 function clean_the_board()
 {
-  ctx.fillStyle = "white";
+    ctx.fillStyle = "white";
 	ctx.fillRect(0,0,width,height);
 	ctx.strokeStyle = "black";
 	ctx.strokeRect(0,0, width, height);
@@ -331,6 +412,8 @@ function draw()
     draw_objects(p2snake,"blue");
     draw_objects(obstacles,"black");
     draw_objects(rewards,"yellow");
+    draw_objects(make_up, "red");
+    
 }
 
 function draw_objects(objects,color)
@@ -344,13 +427,17 @@ function draw_objects(objects,color)
 
 // Filling a dot that can be the snake body or the food
 function fill(x,y, color) 
-{
+{   
 	ctx.fillStyle = color;
 	ctx.fillRect(x*cell_dim, y*cell_dim, cell_dim, cell_dim);
 }
 
-
-function delete_node(array,index)
+function delete_reward(del_x, del_y)
 {
-    array.splice(index,1);
+    for (var i = 0; i<rewards.length; i++)
+    {
+        if(rewards[i].x == del_x && rewards[i].y == del_y)
+            rewards.splice(i, 1);
+    }
 }
+

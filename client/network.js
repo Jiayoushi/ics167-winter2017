@@ -7,6 +7,19 @@ var PLAYER_2 = 2;
 var changedPlayer; // initialize early to save computational cycles for critical gameplay
 var direction; // initialize early to save computational cycles for critical gameplay
 
+var latencyLoopInterval = 500; // in milliseconds
+var latencyMessages = []; // 2^32 possible elements
+var latencyMessageID = 0;
+var latencyLoopID = -1;
+
+var initialTimestamp;
+var EstimatedRTT=0;
+
+var rwd_buffer = [];
+var body1 = p1snake;
+var body2 = p2snake;
+
+
 /* Begin TA Functions */
 function log( text ) 
 {
@@ -38,12 +51,18 @@ function connect()
 		log("[Client] Connected.");
 		sendSetPlayerIDEvent(1, document.getElementById('pid').value);
 		log("[Client] ID sent.");
+		initialTimestamp = Date.now();
+		latencyLoopID = setInterval(doLatencyEstimation, latencyLoopInterval);
+		log("[Client] Registered latency estimation loop (" + latencyLoopInterval + " ms).");
 	});
 
 	// Disconnect handler
 	Server.bind('close', function( data ) 
 	{
 		log( "[Client] Disconnected, or no server found." );
+		clearInterval(latencyLoopID);
+		latencyMessages = [];
+		latencyMessageID = 0;
 	});
 
 	// Log any messages sent from server
@@ -56,66 +75,34 @@ function connect()
 			
 			if (firedEvent == "loopEvent")
 			{
-				loop();
-			}
-			else if (firedEvent == "playerDirectionEvent")
+                if(round == theJSON.round  &&  frame < theJSON.frame)
+                {
+                    // 1
+                    //teleport(eval(theJSON.body1), eval(theJSON.body2));
+                
+                    // 2
+                    p1snake = body1;
+                    p2snake = body2;
+
+                    body1 = extrapolate(eval(theJSON.body1));
+                    body2 = extrapolate(eval(theJSON.body2));
+                    clearInterval(interpolate_ID);
+                    
+					setInterpolate(body1,body2);
+                    
+                    frame = theJSON.frame;
+                }
+            }
+            else if(firedEvent == "playerDirectionEvent")
+            {
+                if(round == theJSON.round)
+                    processDirection(theJSON.player, theJSON.direction);
+            }
+		    else if(firedEvent == "playerScoreRelayEvent" && gameStarted)
 			{
-				changedPlayer = theJSON.player;
-				direction = theJSON.direction;
-				
-				if (changedPlayer == PLAYER_1)
-				{
-					if (direction == "UP")
-					{
-						p1_Hori = NONE;
-						p1_Vert = UP;
-					}
-					else if (direction == "DOWN")
-					{
-						p1_Hori = NONE;
-						p1_Vert = DOWN;
-					}
-					else if (direction == "LEFT")
-					{
-						p1_Hori = LEFT;
-						p1_Vert = NONE;
-					}
-					else if (direction == "RIGHT")
-					{
-						p1_Hori = RIGHT;
-						p1_Vert = NONE;
-					}
-				}
-				else
-				{
-					if (direction == "UP")
-					{
-						p2_Hori = NONE;
-						p2_Vert = UP;
-					}
-					else if (direction == "DOWN")
-					{
-						p2_Hori = NONE;
-						p2_Vert = DOWN;
-					}
-					else if (direction == "LEFT")
-					{
-						p2_Hori = LEFT;
-						p2_Vert = NONE;
-					}
-					else if (direction == "RIGHT")
-					{
-						p2_Hori = RIGHT;
-						p2_Vert = NONE;
-					}
-				}
-			}
-			else if(firedEvent == "playerScoreRelayEvent")
-			{
-				if(theJSON.player == PLAYER_1)
+				if(round == theJSON.round && theJSON.player == PLAYER_1)
 				{
 					p1_score++;
-        			add_tail(p1snake);
 					text_Ctx.fillStyle = 'white'; 		// White out old score text.
 	   				text_Ctx.fillRect(p1_scoretext_x, scoretext_y-10,30,10);
 	    			text_Ctx.fillStyle = 'black'; 		// Write in new score.
@@ -124,7 +111,6 @@ function connect()
 				else
 				{
 					p2_score++;
-					add_tail(p2snake)
 					text_Ctx.fillStyle = 'white'; 		// White out old score text.
     				text_Ctx.fillRect(p2_scoretext_x, scoretext_y-10,30,10);
 	    			text_Ctx.fillStyle = 'black'; 		// Write in new score.
@@ -132,28 +118,46 @@ function connect()
 				}
 			}
 			else if (firedEvent == "newRewardEvent")
-			{
-				var index = Number(theJSON.index);
-				if (index != -1)
-					delete_node(rewards,index);
-				
-				var position;
-				position = [{x: theJSON.X, y: theJSON.Y}] //x and y coordinate tuple
-				rewards.push(position[0]); //pushes to create new reward at location in reward array
-			}
+			{            
+                if (round == theJSON.round && !gameStarted)
+                {
+                    rwd_buffer.push({x:theJSON.new_x, y:theJSON.new_y});
+                }
+                else
+                {
+                    if (theJSON.del_x != -1)
+                    {
+                        delete_reward(theJSON.del_x, theJSON.del_y);
+                    }              
+                    rewards.push({x:theJSON.new_x, y:theJSON.new_y});
+                }
+            }
 			else if (firedEvent == "gameStartedEvent")
 			{
+                log("[Client] Game Started.");
+				gameStarted = true;
 				main();
+                round++;
+				if(playernumber == PLAYER_1)
+					document.getElementById('Restart').style.visibility = 'hidden';
 			}
 			else if (firedEvent == "gameFinishedEvent")
 			{
 				log("[Server] GameFinishedEvent");
 				
-				clearInterval(game_interval_ID);
-				win_message(theJSON.winner);
+                // Reset variables
 				gameStarted = false;
+                rwd_buffer = [];
+                frame = 0;
+                
+                // Reset display
+                win_message(theJSON.winner);
 				if(playernumber==1)
 					document.getElementById('Restart').style.visibility = 'visible';
+			}
+			else if (firedEvent == "latencyEstimationEvent")
+			{
+				handleLatencyEstimation(theJSON.id, theJSON.X, theJSON.Y);
 			}
 			else if (firedEvent == "updatePlayerNumberEvent")
 			{
@@ -225,7 +229,8 @@ function connect()
 		}
 		catch (err)
 		{
-			log("[Server] " + payload);
+			log("[Server] " + payload); // <- If a JSON error occurs, or no event matched, then it prints out the message. Use to your advantage!
+			//console.log(err); //<- Since this is a try, catch, if you see your event being printed in raw JSON, that means there's an error. Try looking at the err.
 		}
 	});
 	
@@ -235,6 +240,78 @@ function connect()
 function send( text ) 
 {
 	Server.send( 'message', text );
+}
+
+function doLatencyEstimation()
+{
+	sendLatencyEstimationEvent(latencyMessageID++, Date.now() - initialTimestamp);
+}
+
+function handleLatencyEstimation(id, X, Y)
+{
+	var B = Date.now() - initialTimestamp;
+    var SampleRTT = B - latencyMessages[id] - (Y-X);
+    EstimatedRTT = Math.round(0.875*EstimatedRTT + 0.125*SampleRTT);
+    document.getElementById('RTT').value = EstimatedRTT + "ms";
+	//log("[Debug] Latency ID: " + id + " | A: " + latencyMessages[id] + " | X: " + X + " | Y: " + Y + " | B: " + B);
+	//log("[Client] Latency Estimation (ID #" + id + "): " + EstimatedRTT + " ms.");
+	// A: Timestamp of Client when he sent the packet.
+	// B: Timestamp of Client when he received the reply.
+	// X: Timestamp of Server when he received the packet.
+	// Y: Timestamp of Server when he sent the reply.
+	
+	// Reason for this terminology: http://stackoverflow.com/questions/1228089/how-does-the-network-time-protocol-work
+}
+
+function processDirection(changedPlayer, direction)
+{
+    if (changedPlayer == PLAYER_1)
+    {
+        if (direction == "UP")
+        {
+            p1_Hori = NONE;
+            p1_Vert = UP;
+        }
+        else if (direction == "DOWN")
+        {
+            p1_Hori = NONE;
+            p1_Vert = DOWN;
+        }
+        else if (direction == "LEFT")
+        {
+            p1_Hori = LEFT;
+            p1_Vert = NONE;
+        }
+        else if (direction == "RIGHT")
+        {
+            p1_Hori = RIGHT;
+            p1_Vert = NONE;
+        }
+    }
+    else
+    {
+        if (direction == "UP")
+        {
+            p2_Hori = NONE;
+            p2_Vert = UP;
+        }
+        else if (direction == "DOWN")
+        {
+            p2_Hori = NONE;
+            p2_Vert = DOWN;
+        }
+        else if (direction == "LEFT")
+        {
+            p2_Hori = LEFT;
+            p2_Vert = NONE;
+        }
+        else if (direction == "RIGHT")
+        {
+            p2_Hori = RIGHT;
+            p2_Vert = NONE;
+        }
+   }
+   
 }
 
 /* Begin Custom Functions */
@@ -262,3 +339,11 @@ function sendGameFinishedEvent()
 {
 	send("{\"event\": \"gameFinishedEvent\"" + "}"); // JSON example: JSON example -> {"event": "gameFinishedEvent"}
 }
+
+function sendLatencyEstimationEvent(id, timestamp)
+{
+	send("{\"event\": \"latencyEstimationEvent\", \"id\": " + id + "}");
+	latencyMessages.push(timestamp);
+}
+
+
