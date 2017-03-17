@@ -141,8 +141,6 @@ function setInterpolate(body1, body2)
                                  degree,b1,b2,p1,p2,body1,body2);
 }
 
-/* 1111 */
-
 function interpolate(degree, b1, b2, p1, p2, body1, body2)
 {
     for (var i = 0; i < p1; i++)
@@ -157,7 +155,6 @@ function interpolate(degree, b1, b2, p1, p2, body1, body2)
  
         if (delta_x != delta_x_s)
         {
-            //make_up.push({x:p1snake_copy[i-1].x, y:p1snake_copy[i-1].y});
             make_up.push({x:p1snake_copy[i].x, y:p1snake_copy[i].y});
             
             fill(p1snake_copy[i].x, p1snake_copy[i].y, "red");
@@ -176,7 +173,6 @@ function interpolate(degree, b1, b2, p1, p2, body1, body2)
  
         if (delta_x != delta_x_s)
         {
-            //make_up.push({x:p1snake_copy[i-1].x, y:p1snake_copy[i-1].y});
             make_up_2.push({x:p2snake_copy[i].x, y:p2snake_copy[i].y});
             
             fill(p2snake_copy[i].x, p2snake_copy[i].y, "red");
