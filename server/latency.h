@@ -1,7 +1,7 @@
 #include <queue>
 #include <chrono>
 
-const int DELAY = 300;		// Milliseconds of delay
+const int DELAY = 200;		// Milliseconds of delay
 
 long long currentTime()
 {

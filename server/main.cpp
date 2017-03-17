@@ -418,7 +418,6 @@ void gameLoop()
     static int logic_tick = 0;  
     if (logic_tick++ == 10)
     {     
-        
         // Only when the game is currently running.
         if(gameState.getGameRunning())
         {
