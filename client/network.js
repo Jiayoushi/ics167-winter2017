@@ -152,6 +152,11 @@ function connect()
 				gameStarted = false;
                 rwd_buffer = [];
                 frame = 0;
+		
+		clearInterval(interpolate_ID);
+		p1snake = body1;
+		p2snake = body2;
+		
                 
                 // Reset display
                 win_message(theJSON.winner);
