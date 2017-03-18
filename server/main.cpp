@@ -421,7 +421,7 @@ void gameLoop()
         // Only when the game is currently running.
         if(gameState.getGameRunning())
         {
-            if(false)//gameLogic.determine_winner()!=-1)
+            if(gameLogic.determine_winner()!=-1)
             {
                 gameFinishedEventHandler();
             }
