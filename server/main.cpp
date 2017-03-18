@@ -412,11 +412,11 @@ void sendPosition()
     }
 }
 
-// Loop the game once every 10/100 seconds
+// Loop the game once every 15/100 seconds
 void gameLoop()
 {
     static int logic_tick = 0;  
-    if (logic_tick++ == 10)
+    if (logic_tick++ == 15)
     {     
         // Only when the game is currently running.
         if(gameState.getGameRunning())
