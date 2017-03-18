@@ -325,8 +325,10 @@ function win_message(winner)
 	if(winner=="tie") {
 		win_Ctx.fillText("Tie Game!", (width/2)-23, 25);
 	} else if (winner=="p1") {
+		win_Ctx.fillStyle = 'red';
 		win_Ctx.fillText("Red Snake Wins!", (width/2)-40, 25);
 	} else if (winner=="p2") {
+		win_Ctx.fillStyle = 'blue';
 		win_Ctx.fillText("Blue Snake Wins!", (width/2)-40, 25);
 	}
 }
