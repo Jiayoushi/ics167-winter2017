@@ -7,7 +7,7 @@ const height = ROWS * cell_dim;
 
 const p1_scoretext_x = 325; 	//Coordinates for int score text
 const p2_scoretext_x = 75;
-const scoretext_y = 50;
+const scoretext_y = 50;		
 
 const degree = 60;
 
@@ -195,6 +195,7 @@ function interpolate(degree, b1, b2, p1, p2, body1, body2)
 
 function teleport(body1, body2)
 {
+	//Manually changes snake body 1 and 2 location to new snake bodies.
     p1snake = body1;
     p2snake = body2;
 
@@ -233,6 +234,7 @@ function init_canvas()
 		text_Ctx.fillStyle = 'blue';
 		text_Ctx.fillText("You are the Blue Snake - Arrow Keys", 130, scoretext_y-30);
 	}
+	// Draw initial red and blue score
 	text_Ctx.fillStyle = 'red';
 	text_Ctx.fillText("Red Score:", 260, scoretext_y);
 	text_Ctx.fillStyle = 'blue';
@@ -246,9 +248,10 @@ function init_input()
 {
     document.addEventListener('keydown', function(e)
     {  
-	if(!gameStarted) return;
-	if(playernumber==1){
-        	if((e.keyCode === KEY_DOWN||e.keyCode === KEY_S) && dir_request != "DOWN") {
+	if(!gameStarted) return;	// Disables Player Control when game not in progress
+	// dir_request ensures only 1 message is sent to server of same direction.
+	// Ex: When held down/read multiple times on in loop
+	if((e.keyCode === KEY_DOWN||e.keyCode === KEY_S) && dir_request != "DOWN") { 
 				dir_request = "DOWN";
 				sendSetPlayerDirectionEvent(playernumber, "DOWN");
         	} else if((e.keyCode === KEY_UP||e.keyCode === KEY_W) && dir_request != "UP") {
@@ -261,22 +264,6 @@ function init_input()
 				dir_request = "RIGHT";
 				sendSetPlayerDirectionEvent(playernumber, "RIGHT");
         	}
-    	}
-     	else{
-		if((e.keyCode === KEY_DOWN||e.keyCode === KEY_S) && dir_request != "DOWN") {
-				dir_request = "DOWN";
-				sendSetPlayerDirectionEvent(playernumber, "DOWN");
-        	} else if((e.keyCode === KEY_UP||e.keyCode === KEY_W) && dir_request != "UP") {
-				dir_request = "UP";
-				sendSetPlayerDirectionEvent(playernumber, "UP");
-        	} else if((e.keyCode === KEY_LEFT ||e.keyCode === KEY_A)  && dir_request != "LEFT"){
-				dir_request = "LEFT";
-				sendSetPlayerDirectionEvent(playernumber, "LEFT");
-        	} else if((e.keyCode === KEY_RIGHT||e.keyCode === KEY_D) && dir_request != "RIGHT"){
-				dir_request = "RIGHT";
-				sendSetPlayerDirectionEvent(playernumber, "RIGHT");
-        	}		
-	}
     },false);
 }
 
