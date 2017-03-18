@@ -126,21 +126,28 @@ function make_copy()
 
 function setInterpolate(body1, body2)
 {
-    make_up = [];
-    make_up_2 = [];    
+	try
+	{
+		make_up = [];
+		make_up_2 = [];    
 
-    add_tail();
+		add_tail();
 
-    make_copy();
+		make_copy();
 
-    var b1 = body1.length;
-    var b2 = body2.length;
-    var p1 = p1snake.length;
-    var p2 = p2snake.length;
- 
-    interpolate_ID = setInterval(interpolate,
-                                 (EstimatedRTT/2)/degree, 
-                                 degree,b1,b2,p1,p2,body1,body2);
+		var b1 = body1.length;
+		var b2 = body2.length;
+		var p1 = p1snake.length;
+		var p2 = p2snake.length;
+	 
+		interpolate_ID = setInterval(interpolate,
+									 (EstimatedRTT/2)/degree, 
+									 degree,b1,b2,p1,p2,body1,body2);
+	}
+	catch (err)
+	{
+		//console.log(err);
+	}
 }
 
 function interpolate(degree, b1, b2, p1, p2, body1, body2)
