@@ -382,6 +382,8 @@ function init_win_variables()
 	// These are reset in when main is called in the case of a game restart.
 	dir_request = "NONE";
 	
+	body1 = {};
+	body2 = {};
 	p1_win = false;
 	p2_win = false;
 	tie_game = false;
