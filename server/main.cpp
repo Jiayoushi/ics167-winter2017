@@ -114,7 +114,7 @@ void sendNewRewardEvent(int clientID, int new_x, int new_y, int del_x, int del_y
 
 void sendGameFinishedEvent(int clientID)
 {
-	std::string winner = gameState.convertWinner(gameLogic.getWinner());
+	std::string winner = gameLogic.getWinner();
 
     JSON msg_obj = JSON::object{ {"event", "gameFinishedEvent"},
                                  {"winner",winner},};

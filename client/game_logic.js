@@ -322,8 +322,6 @@ function win_message(winner)
 	// Displays Win Message based on which win value is true.
 	win_Ctx.clearRect(0, 0, width, height);
 	win_Ctx.fillStyle = 'black';
-	win_Ctx.fillText("The winner is " + winner, (width/2)-80, 25);
-	/*
 	if(winner=="tie") {
 		win_Ctx.fillText("Tie Game!", (width/2)-23, 25);
 	} else if (winner=="p1") {
@@ -331,7 +329,23 @@ function win_message(winner)
 	} else if (winner=="p2") {
 		win_Ctx.fillText("Blue Snake Wins!", (width/2)-40, 25);
 	}
-	*/
+}
+
+function get_win_message(winner)
+{
+	if (winner == "p1")
+	{
+		return "The winner is Player 1!";
+	}
+	else if (winner == "p2")
+	{
+		return "The winner is Player 2!";
+	}
+	else
+	{
+		return "No winner; tie game!";
+	}
+	
 }
 
 function dc_message(player)

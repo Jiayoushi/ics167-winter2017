@@ -146,7 +146,7 @@ function connect()
 			}
 			else if (firedEvent == "gameFinishedEvent")
 			{
-				log("[Server] The winner is " + theJSON.winner + "!");
+				log("[Server] " + get_win_message(theJSON.winner));
 				
                 // Reset variables
 				gameStarted = false;
