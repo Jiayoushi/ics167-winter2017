@@ -141,7 +141,7 @@ function setInterpolate(body1, body2)
 		var p2 = p2snake.length;
 	 
 		interpolate_ID = setInterval(interpolate,
-									 (EstimatedRTT/2)/degree, 
+									 (EstimatedRTT/2+150)/degree, 
 									 degree,b1,b2,p1,p2,body1,body2);
 	}
 	catch (err)
