@@ -1,5 +1,5 @@
 # ICS167 (Multiplayer Game Systems)
-[Winter 2017 | Group 42](http://www.ics.uci.edu/~rkwang/Winter_2017_ICS167/ics167coursepage.html)
+[Winter 2017 | Group 2](http://www.ics.uci.edu/~rkwang/Winter_2017_ICS167/ics167coursepage.html)
 
 # Team Members
 
